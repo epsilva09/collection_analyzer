@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Armory Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     <%= stylesheet_link_tag 'application', media: 'all' %>
+    <%= stylesheet_link_tag 'armory', media: 'all' %>
   </head>
   <body>
     <main>
@@ -17,10 +19,6 @@
 
       <% if @error.present? %>
         <p class="error"><strong>Error:</strong> <%= @error %></p>
-      <% end %>
-
-      <% if @character_idx.present? %>
-        <p><strong>characterIdx:</strong> <%= @character_idx %></p>
       <% end %>
 
       <section>

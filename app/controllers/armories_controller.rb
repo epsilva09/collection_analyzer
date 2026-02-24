@@ -1,6 +1,6 @@
 class ArmoriesController < ApplicationController
   def index
-    @name = params[:name].presence || 'Cadamantis'
+    @name = params[:name].presence || 'Popov'
     client = ArmoryClient.new
     @error = nil
     @character_idx = nil
