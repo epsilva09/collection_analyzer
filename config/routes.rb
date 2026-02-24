@@ -14,4 +14,5 @@ Rails.application.routes.draw do
 
   # Armory lookup
   get 'armory', to: 'armories#index'
+  get 'armory/compare', to: 'armories#compare', as: :compare_armory
 end

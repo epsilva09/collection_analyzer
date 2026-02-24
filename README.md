@@ -35,3 +35,8 @@ Files of interest
 - `app/services/armory_client.rb` — encapsulates external API requests.
 - `app/controllers/armories_controller.rb` — controller that serves the UI and JSON.
 - `app/views/armories/index.html.erb` — HTML view showing the `values`.
+
+Compare feature
+
+- Visit `/armory/compare?name_a=Cadamantis&name_b=OtherName` or open the Compare page from `/armory/compare`.
+- The page shows common collection values and those unique to each character.

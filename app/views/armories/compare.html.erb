@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Armory Compare</title>
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+  </head>
+  <body>
+    <main>
+      <h1>Compare Collections</h1>
+      <%= form_with url: compare_armory_path, method: :get, local: true do |f| %>
+        <div>
+          <%= f.label :name_a, 'Character A' %>
+          <%= f.text_field :name_a, value: params[:name_a] %>
+        </div>
+        <div>
+          <%= f.label :name_b, 'Character B' %>
+          <%= f.text_field :name_b, value: params[:name_b] %>
+        </div>
+        <%= f.submit 'Compare' %>
+      <% end %>
+
+      <% if @error.present? %>
+        <p class="error"><strong>Error:</strong> <%= @error %></p>
+      <% end %>
+
+      <% if @result %>
+        <h2>Summary</h2>
+        <p><strong><%= @result[:name_a] %></strong> (ID: <%= @result[:character_idx_a] || 'N/A' %>)</p>
+        <p><strong><%= @result[:name_b] %></strong> (ID: <%= @result[:character_idx_b] || 'N/A' %>)</p>
+
+        <div class="grid">
+          <section>
+            <h3>Common (<%= @result[:common].size %>)</h3>
+            <ul>
+              <% @result[:common].each do |v| %>
+                <li><%= v %></li>
+              <% end %>
+            </ul>
+          </section>
+
+          <section>
+            <h3>Only <%= @result[:name_a] %> (<%= @result[:only_a].size %>)</h3>
+            <ul>
+              <% @result[:only_a].each do |v| %>
+                <li><%= v %></li>
+              <% end %>
+            </ul>
+          </section>
+
+          <section>
+            <h3>Only <%= @result[:name_b] %> (<%= @result[:only_b].size %>)</h3>
+            <ul>
+              <% @result[:only_b].each do |v| %>
+                <li><%= v %></li>
+              <% end %>
+            </ul>
+          </section>
+        </div>
+      <% end %>
+    </main>
+  </body>
+  <style>
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    section { background: #fff; padding: 12px; border-radius: 6px; }
+  </style>
+</html>
