@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Armory Compare</title>
-    <%= stylesheet_link_tag 'application', media: 'all' %>
-  </head>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>Armory Compare</title>
+      <%= stylesheet_link_tag 'application', media: 'all' %>
+      <%= stylesheet_link_tag 'armory', media: 'all' %>
+    </head>
   <body>
     <main>
       <h1>Compare Collections</h1>
@@ -21,6 +22,11 @@
         <%= f.submit 'Compare' %>
       <% end %>
 
+      <div class="controls">
+        <button id="expand-all" class="toggle-btn" type="button">Expand all</button>
+        <button id="collapse-all" class="toggle-btn" type="button">Collapse all</button>
+      </div>
+
       <% if @error.present? %>
         <p class="error"><strong>Error:</strong> <%= @error %></p>
       <% end %>
@@ -31,31 +37,46 @@
         <p><strong><%= @result[:name_b] %></strong> (ID: <%= @result[:character_idx_b] || 'N/A' %>)</p>
 
         <div class="grid">
-          <section>
-            <h3>Common (<%= @result[:common].size %>)</h3>
-            <ul>
-              <% @result[:common].each do |v| %>
-                <li><%= v %></li>
-              <% end %>
-            </ul>
+          <section class="card" data-card="common">
+            <h3>
+              <span>Common (<%= @result[:common].size %>)</span>
+              <button class="toggle-btn js-toggle" data-target="common" type="button">Collapse</button>
+            </h3>
+            <div class="card-body">
+              <ul>
+                <% @result[:common].each do |v| %>
+                  <li><%= v %></li>
+                <% end %>
+              </ul>
+            </div>
           </section>
 
-          <section>
-            <h3>Only <%= @result[:name_a] %> (<%= @result[:only_a].size %>)</h3>
-            <ul>
-              <% @result[:only_a].each do |v| %>
-                <li><%= v %></li>
-              <% end %>
-            </ul>
+          <section class="card" data-card="only_a">
+            <h3>
+              <span>Only <%= @result[:name_a] %> (<%= @result[:only_a].size %>)</span>
+              <button class="toggle-btn js-toggle" data-target="only_a" type="button">Collapse</button>
+            </h3>
+            <div class="card-body">
+              <ul>
+                <% @result[:only_a].each do |v| %>
+                  <li><%= v %></li>
+                <% end %>
+              </ul>
+            </div>
           </section>
 
-          <section>
-            <h3>Only <%= @result[:name_b] %> (<%= @result[:only_b].size %>)</h3>
-            <ul>
-              <% @result[:only_b].each do |v| %>
-                <li><%= v %></li>
-              <% end %>
-            </ul>
+          <section class="card" data-card="only_b">
+            <h3>
+              <span>Only <%= @result[:name_b] %> (<%= @result[:only_b].size %>)</span>
+              <button class="toggle-btn js-toggle" data-target="only_b" type="button">Collapse</button>
+            </h3>
+            <div class="card-body">
+              <ul>
+                <% @result[:only_b].each do |v| %>
+                  <li><%= v %></li>
+                <% end %>
+              </ul>
+            </div>
           </section>
         </div>
 
@@ -71,15 +92,50 @@
           </thead>
           <tbody>
             <% @result[:detailed].each do |row| %>
+              <% diff_val = row[:diff].to_f %>
+              <% diff_class = diff_val > 0 ? 'diff-positive' : (diff_val < 0 ? 'diff-negative' : 'diff-zero') %>
               <tr>
                 <td><%= row[:attribute] %></td>
                 <td><%= row[:value_a].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
                 <td><%= row[:value_b].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
-                <td><%= (row[:diff] >= 0 ? '+' : '') + row[:diff].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
+                <td class="<%= diff_class %>"><%= (diff_val >= 0 ? '+' : '') + diff_val.to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
               </tr>
             <% end %>
           </tbody>
         </table>
+        <script>
+          (function(){
+            function setCollapsed(cardEl, collapsed) {
+              if (collapsed) {
+                cardEl.classList.add('collapsed')
+                var btn = cardEl.querySelector('.js-toggle')
+                if (btn) btn.textContent = 'Expand'
+              } else {
+                cardEl.classList.remove('collapsed')
+                var btn = cardEl.querySelector('.js-toggle')
+                if (btn) btn.textContent = 'Collapse'
+              }
+            }
+
+            document.querySelectorAll('.js-toggle').forEach(function(btn){
+              btn.addEventListener('click', function(){
+                var target = btn.getAttribute('data-target')
+                var card = document.querySelector('[data-card="'+target+'"]')
+                if (!card) return
+                var collapsed = card.classList.contains('collapsed')
+                setCollapsed(card, !collapsed)
+              })
+            })
+
+            document.getElementById('expand-all').addEventListener('click', function(){
+              document.querySelectorAll('section.card').forEach(function(c){ setCollapsed(c, false) })
+            })
+
+            document.getElementById('collapse-all').addEventListener('click', function(){
+              document.querySelectorAll('section.card').forEach(function(c){ setCollapsed(c, true) })
+            })
+          })()
+        </script>
       <% end %>
     </main>
   </body>
