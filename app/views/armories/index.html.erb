@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Armory Collection</title>
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+  </head>
+  <body>
+    <main>
+      <h1>Armory Collection</h1>
+      <%= form_with url: armory_path, method: :get, local: true do |f| %>
+        <%= f.label :name, 'Character name:' %>
+        <%= f.text_field :name, value: @name %>
+        <%= f.submit 'Search' %>
+      <% end %>
+
+      <% if @error.present? %>
+        <p class="error"><strong>Error:</strong> <%= @error %></p>
+      <% end %>
+
+      <% if @character_idx.present? %>
+        <p><strong>characterIdx:</strong> <%= @character_idx %></p>
+      <% end %>
+
+      <section>
+        <h2>Values</h2>
+        <% if @values.present? %>
+          <ul>
+            <% @values.each do |v| %>
+              <li><%= v %></li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p>No values found.</p>
+        <% end %>
+      </section>
+    </main>
+  </body>
+</html>
