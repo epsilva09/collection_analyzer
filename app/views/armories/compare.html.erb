@@ -58,6 +58,28 @@
             </ul>
           </section>
         </div>
+
+        <h2>Detailed numeric comparison</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Attribute</th>
+              <th><%= @result[:name_a] %></th>
+              <th><%= @result[:name_b] %></th>
+              <th>Diff (A - B)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @result[:detailed].each do |row| %>
+              <tr>
+                <td><%= row[:attribute] %></td>
+                <td><%= row[:value_a].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
+                <td><%= row[:value_b].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
+                <td><%= (row[:diff] >= 0 ? '+' : '') + row[:diff].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       <% end %>
     </main>
   </body>

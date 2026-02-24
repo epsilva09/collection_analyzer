@@ -55,12 +55,26 @@ class ArmoriesController < ApplicationController
         @result[:values_b] = client.fetch_collection(@result[:character_idx_b]).map(&:to_s).map(&:strip)
       end
 
-      set_a = @result[:values_a].to_set
-      set_b = @result[:values_b].to_set
+      # Parse attributes into structured numeric values
+      parsed_a = AttributeParser.parse(@result[:values_a])
+      parsed_b = AttributeParser.parse(@result[:values_b])
 
-      @result[:common] = (set_a & set_b).to_a.sort
-      @result[:only_a] = (set_a - set_b).to_a.sort
-      @result[:only_b] = (set_b - set_a).to_a.sort
+      keys = (parsed_a.keys | parsed_b.keys).to_a.sort
+
+      detailed = keys.map do |k|
+        a = parsed_a[k] || { value: 0.0, unit: nil, raw: nil }
+        b = parsed_b[k] || { value: 0.0, unit: nil, raw: nil }
+        unit = (a[:unit] == b[:unit]) ? a[:unit] || b[:unit] : :mixed
+        val_a = a[:value] || 0.0
+        val_b = b[:value] || 0.0
+        diff = (val_a - val_b)
+        { attribute: k, value_a: val_a, value_b: val_b, unit: unit, diff: diff, raw_a: a[:raw], raw_b: b[:raw] }
+      end
+
+      @result[:detailed] = detailed
+      @result[:common] = (parsed_a.keys & parsed_b.keys).to_a.sort
+      @result[:only_a] = (parsed_a.keys - parsed_b.keys).to_a.sort
+      @result[:only_b] = (parsed_b.keys - parsed_a.keys).to_a.sort
     rescue StandardError => e
       @error = e.message
     end
