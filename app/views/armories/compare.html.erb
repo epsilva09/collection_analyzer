@@ -4,142 +4,340 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       <title>Armory Compare</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
       <%= stylesheet_link_tag 'application', media: 'all' %>
       <%= stylesheet_link_tag 'armory', media: 'all' %>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </head>
   <body>
-    <main>
-      <h1>Compare Collections</h1>
-      <%= form_with url: compare_armory_path, method: :get, local: true do |f| %>
-        <div>
-          <%= f.label :name_a, 'Character A' %>
-          <%= f.text_field :name_a, value: params[:name_a] %>
-        </div>
-        <div>
-          <%= f.label :name_b, 'Character B' %>
-          <%= f.text_field :name_b, value: params[:name_b] %>
-        </div>
-        <%= f.submit 'Compare' %>
-      <% end %>
-
-      <div class="controls">
-        <button id="expand-all" class="toggle-btn" type="button">Expand all</button>
-        <button id="collapse-all" class="toggle-btn" type="button">Collapse all</button>
-      </div>
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+          <main class="text-center">
+            <h1 class="my-4">Compare Collections</h1>
+            <div class="row justify-content-center mb-4">
+              <div class="col-12 col-md-6">
+                <%= form_with url: compare_armory_path, method: :get, local: true do |f| %>
+                  <div class="row">
+                    <div class="col-6 mb-3">
+                      <%= f.label :name_a, 'Character A', class: 'form-label' %>
+                      <%= f.text_field :name_a, value: params[:name_a], class: 'form-control' %>
+                    </div>
+                    <div class="col-6 mb-3">
+                      <%= f.label :name_b, 'Character B', class: 'form-label' %>
+                      <%= f.text_field :name_b, value: params[:name_b], class: 'form-control' %>
+                    </div>
+                  </div>
+                  <%= f.submit 'Compare', class: 'btn btn-primary' %>
+                <% end %>
+              </div>
+            </div>
 
       <% if @error.present? %>
         <p class="error"><strong>Error:</strong> <%= @error %></p>
       <% end %>
 
       <% if @result %>
-        <h2>Summary</h2>
-
-        <div class="grid">
-          <section class="card" data-card="common">
-            <h3>
-              <span>Common (<%= @result[:common].size %>)</span>
-              <button class="toggle-btn js-toggle" data-target="common" type="button">Collapse</button>
-            </h3>
-            <div class="card-body">
-              <ul>
-                <% @result[:common].each do |v| %>
-                  <li><%= v %></li>
-                <% end %>
-              </ul>
-            </div>
-          </section>
-
-          <section class="card" data-card="only_a">
-            <h3>
-              <span>Only <%= @result[:name_a] %> (<%= @result[:only_a].size %>)</span>
-              <button class="toggle-btn js-toggle" data-target="only_a" type="button">Collapse</button>
-            </h3>
-            <div class="card-body">
-              <ul>
-                <% @result[:only_a].each do |v| %>
-                  <li><%= v %></li>
-                <% end %>
-              </ul>
-            </div>
-          </section>
-
-          <section class="card" data-card="only_b">
-            <h3>
-              <span>Only <%= @result[:name_b] %> (<%= @result[:only_b].size %>)</span>
-              <button class="toggle-btn js-toggle" data-target="only_b" type="button">Collapse</button>
-            </h3>
-            <div class="card-body">
-              <ul>
-                <% @result[:only_b].each do |v| %>
-                  <li><%= v %></li>
-                <% end %>
-              </ul>
-            </div>
-          </section>
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h2 class="mb-3">
+              <i class="fas fa-chart-pie me-2"></i>Collection Summary
+            </h2>
+          </div>
         </div>
 
-        <h2>Detailed numeric comparison</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Attribute</th>
-              <th style="background-color: #10b981;"><%= @result[:name_a] %></th>
-              <th style="background-color: #ef4444;"><%= @result[:name_b] %></th>
-              <th>Diff (A - B)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% @result[:detailed].each do |row| %>
-              <% diff_val = row[:diff].to_f %>
-              <% diff_class = diff_val > 0 ? 'diff-positive' : (diff_val < 0 ? 'diff-negative' : 'diff-zero') %>
-              <tr>
-                <td><%= row[:attribute] %></td>
-                <td><%= row[:value_a].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
-                <td><%= row[:value_b].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
-                <td class="<%= diff_class %>"><%= (diff_val >= 0 ? '+' : '') + diff_val.to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+        <div class="row mb-4">
+          <div class="col-md-4 mb-3">
+            <div class="card border-success h-100 summary-card shadow">
+              <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="fas fa-check-circle me-2"></i>Common Items
+                </h5>
+                <span class="badge bg-light text-success fs-6"><%= @result[:common].size %></span>
+              </div>
+              <div class="card-body">
+                <% if @result[:common].any? %>
+                  <%
+                    special_items = [
+                      "Perfuração", "PVE Perfuração",
+                      "Danos Críticos", "PVE Dano Crítico",
+                      "Aumentou todas as técnicas Amp", "PVE Todas as Técnicas Amp",
+                      "Aumentou todos os ataques", "PVE Todos os Ataques"
+                    ]
+                    special_common = @result[:common].select { |item| special_items.any? { |special| item.include?(special) } }
+                    regular_common = @result[:common].reject { |item| special_items.any? { |special| item.include?(special) } }
+                  %>
+
+                  <!-- Special Common Items -->
+                  <% if special_common.any? %>
+                    <div class="mb-3">
+                      <h6 class="text-warning fw-bold mb-2">
+                        <i class="fas fa-star me-1"></i>Special Items
+                      </h6>
+                      <% special_common.first(3).each do |item| %>
+                        <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
+                          <span class="text-truncate fw-bold text-warning" style="font-size: 0.9em;"><%= item %></span>
+                          <i class="fas fa-crown text-warning"></i>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
+                  <!-- Regular Common Items -->
+                  <% if regular_common.any? %>
+                    <div class="list-group list-group-flush">
+                      <% regular_common.first(5).each do |item| %>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                          <span class="text-truncate"><%= item %></span>
+                          <i class="fas fa-equals text-success"></i>
+                        </div>
+                      <% end %>
+                      <% if regular_common.size > 5 %>
+                        <div class="list-group-item text-center text-muted">
+                          <em>... and <%= regular_common.size - 5 %> more</em>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <p class="text-muted mb-0">No common items</p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <div class="card border-primary h-100 summary-card shadow">
+              <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="fas fa-user me-2"></i>Only <%= @result[:name_a] %>
+                </h5>
+                <span class="badge bg-light text-primary fs-6"><%= @result[:only_a].size %></span>
+              </div>
+              <div class="card-body">
+                <% if @result[:only_a].any? %>
+                  <%
+                    special_items = [
+                      "Perfuração", "PVE Perfuração",
+                      "Danos Críticos", "PVE Dano Crítico",
+                      "Aumentou todas as técnicas Amp", "PVE Todas as Técnicas Amp",
+                      "Aumentou todos os ataques", "PVE Todos os Ataques"
+                    ]
+                    special_only_a = @result[:only_a].select { |item| special_items.any? { |special| item.include?(special) } }
+                    regular_only_a = @result[:only_a].reject { |item| special_items.any? { |special| item.include?(special) } }
+                  %>
+
+                  <!-- Special Only A Items -->
+                  <% if special_only_a.any? %>
+                    <div class="mb-3">
+                      <h6 class="text-warning fw-bold mb-2">
+                        <i class="fas fa-star me-1"></i>Special Items
+                      </h6>
+                      <% special_only_a.first(3).each do |item| %>
+                        <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
+                          <span class="text-truncate fw-bold text-warning" style="font-size: 0.9em;"><%= item %></span>
+                          <i class="fas fa-crown text-warning"></i>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
+                  <!-- Regular Only A Items -->
+                  <% if regular_only_a.any? %>
+                    <div class="list-group list-group-flush">
+                      <% regular_only_a.first(5).each do |item| %>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                          <span class="text-truncate"><%= item %></span>
+                          <i class="fas fa-arrow-right text-primary"></i>
+                        </div>
+                      <% end %>
+                      <% if regular_only_a.size > 5 %>
+                        <div class="list-group-item text-center text-muted">
+                          <em>... and <%= regular_only_a.size - 5 %> more</em>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <p class="text-muted mb-0">No unique items</p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <div class="card border-info h-100 summary-card shadow">
+              <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="fas fa-user me-2"></i>Only <%= @result[:name_b] %>
+                </h5>
+                <span class="badge bg-light text-info fs-6"><%= @result[:only_b].size %></span>
+              </div>
+              <div class="card-body">
+                <% if @result[:only_b].any? %>
+                  <%
+                    special_items = [
+                      "Perfuração", "PVE Perfuração",
+                      "Danos Críticos", "PVE Dano Crítico",
+                      "Aumentou todas as técnicas Amp", "PVE Todas as Técnicas Amp",
+                      "Aumentou todos os ataques", "PVE Todos os Ataques"
+                    ]
+                    special_only_b = @result[:only_b].select { |item| special_items.any? { |special| item.include?(special) } }
+                    regular_only_b = @result[:only_b].reject { |item| special_items.any? { |special| item.include?(special) } }
+                  %>
+
+                  <!-- Special Only B Items -->
+                  <% if special_only_b.any? %>
+                    <div class="mb-3">
+                      <h6 class="text-warning fw-bold mb-2">
+                        <i class="fas fa-star me-1"></i>Special Items
+                      </h6>
+                      <% special_only_b.first(3).each do |item| %>
+                        <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
+                          <span class="text-truncate fw-bold text-warning" style="font-size: 0.9em;"><%= item %></span>
+                          <i class="fas fa-crown text-warning"></i>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
+                  <!-- Regular Only B Items -->
+                  <% if regular_only_b.any? %>
+                    <div class="list-group list-group-flush">
+                      <% regular_only_b.first(5).each do |item| %>
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                          <span class="text-truncate"><%= item %></span>
+                          <i class="fas fa-arrow-left text-info"></i>
+                        </div>
+                      <% end %>
+                      <% if regular_only_b.size > 5 %>
+                        <div class="list-group-item text-center text-muted">
+                          <em>... and <%= regular_only_b.size - 5 %> more</em>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                <% else %>
+                  <p class="text-muted mb-0">No unique items</p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Comparison Table -->
+        <div class="row">
+          <div class="col-12">
+            <h2 class="mb-3">
+              <i class="fas fa-balance-scale me-2"></i>Detailed Attribute Comparison
+            </h2>
+            <div class="card shadow">
+              <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="fas fa-chart-bar me-2"></i>
+                  Numeric Attributes
+                </h5>
+                <span class="badge bg-light text-dark fs-6">
+                  <i class="fas fa-hashtag me-1"></i><%= @result[:detailed].size %>
+                </span>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive sticky-table-container">
+                  <table class="table table-dark table-hover mb-0">
+                    <thead class="table-dark sticky-header">
+                      <tr>
+                        <th class="border-0 fw-bold text-light">Attribute</th>
+                        <th class="border-0 fw-bold text-primary"><%= @result[:name_a] %></th>
+                        <th class="border-0 fw-bold text-info"><%= @result[:name_b] %></th>
+                        <th class="border-0 fw-bold text-light text-center">Difference (A - B)</th>
+                        <th class="border-0 fw-bold text-light text-center">Winner</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% @result[:detailed].each do |row| %>
+                        <% diff_val = row[:diff].to_f %>
+                        <% winner = diff_val > 0 ? @result[:name_a] : (diff_val < 0 ? @result[:name_b] : 'Tie') %>
+                        <% winner_class = diff_val > 0 ? 'text-primary' : (diff_val < 0 ? 'text-info' : 'text-light') %>
+                        <% winner_icon = diff_val > 0 ? 'fas fa-trophy text-warning' : (diff_val < 0 ? 'fas fa-trophy text-warning' : 'fas fa-equals text-light') %>
+                        <%
+                          special_items = [
+                            "Perfuração", "PVE Perfuração",
+                            "Danos Críticos", "PVE Dano Crítico",
+                            "Aumentou todas as técnicas Amp", "PVE Todas as Técnicas Amp",
+                            "Aumentou todos os ataques", "PVE Todos os Ataques"
+                          ]
+                          is_special = special_items.any? { |special| row[:attribute].include?(special) }
+                          row_class = is_special ? 'special-attribute-row' : ''
+                        %>
+                        <tr class="<%= row_class %>">
+                          <td class="fw-semibold <%= is_special ? 'text-warning' : '' %>">
+                            <%= is_special ? '<i class="fas fa-star me-1"></i>' : '' %><%= row[:attribute] %>
+                          </td>
+                          <td class="text-primary fw-bold"><%= row[:value_a].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
+                          <td class="text-info fw-bold"><%= row[:value_b].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
+                          <td class="text-center">
+                            <span class="<%= diff_val >= 0 ? 'text-success' : 'text-danger' %> fw-bold">
+                              <%= (diff_val >= 0 ? '+' : '') + diff_val.to_s %><%= row[:unit] == :percent ? '%' : '' %>
+                            </span>
+                          </td>
+                          <td class="text-center">
+                            <span class="<%= winner_class %> fw-bold">
+                              <i class="<%= winner_icon %> me-1"></i><%= winner %>
+                            </span>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <script>
-          (function(){
-            function setCollapsed(cardEl, collapsed) {
-              if (collapsed) {
-                cardEl.classList.add('collapsed')
-                var btn = cardEl.querySelector('.js-toggle')
-                if (btn) btn.textContent = 'Expand'
-              } else {
-                cardEl.classList.remove('collapsed')
-                var btn = cardEl.querySelector('.js-toggle')
-                if (btn) btn.textContent = 'Collapse'
+          // Sticky header management
+          document.addEventListener('DOMContentLoaded', function() {
+            const tableContainer = document.querySelector('.sticky-table-container');
+            const stickyHeader = document.querySelector('.sticky-header');
+
+            if (tableContainer && stickyHeader) {
+              const containerRect = tableContainer.getBoundingClientRect();
+              const headerHeight = stickyHeader.offsetHeight;
+
+              function updateStickyHeader() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const containerTop = containerRect.top + scrollTop;
+                const containerBottom = containerTop + tableContainer.offsetHeight - headerHeight;
+
+                if (scrollTop > containerTop && scrollTop < containerBottom) {
+                  stickyHeader.style.position = 'fixed';
+                  stickyHeader.style.top = '0';
+                  stickyHeader.style.left = containerRect.left + 'px';
+                  stickyHeader.style.width = containerRect.width + 'px';
+                  stickyHeader.style.zIndex = '1050';
+                  stickyHeader.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+                } else {
+                  stickyHeader.style.position = 'static';
+                  stickyHeader.style.boxShadow = 'none';
+                }
               }
+
+              window.addEventListener('scroll', updateStickyHeader);
+              window.addEventListener('resize', function() {
+                const newRect = tableContainer.getBoundingClientRect();
+                Object.assign(containerRect, newRect);
+                updateStickyHeader();
+              });
             }
-
-            document.querySelectorAll('.js-toggle').forEach(function(btn){
-              btn.addEventListener('click', function(){
-                var target = btn.getAttribute('data-target')
-                var card = document.querySelector('[data-card="'+target+'"]')
-                if (!card) return
-                var collapsed = card.classList.contains('collapsed')
-                setCollapsed(card, !collapsed)
-              })
-            })
-
-            document.getElementById('expand-all').addEventListener('click', function(){
-              document.querySelectorAll('section.card').forEach(function(c){ setCollapsed(c, false) })
-            })
-
-            document.getElementById('collapse-all').addEventListener('click', function(){
-              document.querySelectorAll('section.card').forEach(function(c){ setCollapsed(c, true) })
-            })
-          })()
+          });
         </script>
-      <% end %>
-    </main>
+        <% end %>
+          </main>
+        </div>
+      </div>
+    </div>
   </body>
-  <style>
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    section { background: #fff; padding: 12px; border-radius: 6px; }
-  </style>
 </html>
