@@ -54,7 +54,7 @@
             <div class="card border-success h-100 summary-card shadow">
               <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
-                  <i class="fas fa-check-circle me-2"></i>Common Items
+                  <i class="fas fa-check-circle me-2"></i>Common Attributes
                 </h5>
                 <span class="badge bg-light text-success fs-6"><%= @result[:common].size %></span>
               </div>
@@ -71,27 +71,31 @@
                     regular_common = @result[:common].reject { |item| special_items.any? { |special| item.include?(special) } }
                   %>
 
-                  <!-- Special Common Items -->
+                  <% common_annot = @result[:common_annotated] || [] %>
+                  <% special_common = common_annot.select { |a| a[:is_special] } %>
+                  <% regular_common = common_annot.reject { |a| a[:is_special] } %>
+
+                  <!-- Special Common Attributes -->
                   <% if special_common.any? %>
                     <div class="mb-3">
                       <h6 class="text-warning fw-bold mb-2">
-                        <i class="fas fa-star me-1"></i>Special Items
+                        <i class="fas fa-star me-1"></i>Special Attributes
                       </h6>
                       <% special_common.first(3).each do |item| %>
                         <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
-                          <span class="text-truncate fw-bold text-warning" style="font-size: 0.9em;"><%= item %></span>
+                          <span class="text-truncate fw-bold text-warning" style="font-size: 0.9em;"><%= item[:parsed_key] %></span>
                           <i class="fas fa-crown text-warning"></i>
                         </div>
                       <% end %>
                     </div>
                   <% end %>
 
-                  <!-- Regular Common Items -->
+                  <!-- Regular Common Attributes -->
                   <% if regular_common.any? %>
                     <div class="list-group list-group-flush">
                       <% regular_common.first(5).each do |item| %>
                         <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                          <span class="text-truncate"><%= item %></span>
+                          <span class="text-truncate"><%= item[:parsed_key] %></span>
                           <i class="fas fa-equals text-success"></i>
                         </div>
                       <% end %>
@@ -103,7 +107,7 @@
                     </div>
                   <% end %>
                 <% else %>
-                  <p class="text-muted mb-0">No common items</p>
+                  <p class="text-muted mb-0">No common attributes</p>
                 <% end %>
               </div>
             </div>
@@ -130,6 +134,10 @@
                     regular_only_a = @result[:only_a].reject { |item| special_items.any? { |special| item.include?(special) } }
                   %>
 
+                  <% only_a_annot = @result[:only_a_annotated] || [] %>
+                  <% special_only_a = only_a_annot.select { |a| a[:is_special] } %>
+                  <% regular_only_a = only_a_annot.reject { |a| a[:is_special] } %>
+
                   <!-- Special Only A Items -->
                   <% if special_only_a.any? %>
                     <div class="mb-3">
@@ -138,7 +146,7 @@
                       </h6>
                       <% special_only_a.first(3).each do |item| %>
                         <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
-                          <span class="text-truncate fw-bold text-warning" style="font-size: 0.9em;"><%= item %></span>
+                          <span class="text-truncate fw-bold text-warning" style="font-size: 0.9em;"><%= item[:parsed_key] %></span>
                           <i class="fas fa-crown text-warning"></i>
                         </div>
                       <% end %>
@@ -150,7 +158,7 @@
                     <div class="list-group list-group-flush">
                       <% regular_only_a.first(5).each do |item| %>
                         <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                          <span class="text-truncate"><%= item %></span>
+                          <span class="text-truncate"><%= item[:parsed_key] %></span>
                           <i class="fas fa-arrow-right text-primary"></i>
                         </div>
                       <% end %>
@@ -250,31 +258,37 @@
                     <thead class="table-dark sticky-header">
                       <tr>
                         <th class="border-0 fw-bold text-light">Attribute</th>
-                        <th class="border-0 fw-bold text-primary"><%= @result[:name_a] %></th>
-                        <th class="border-0 fw-bold text-info"><%= @result[:name_b] %></th>
+                        <th class="border-0 fw-bold header-a text-white text-center"><%= @result[:name_a] %></th>
+                        <th class="border-0 fw-bold header-b text-white text-center"><%= @result[:name_b] %></th>
                         <th class="border-0 fw-bold text-light text-center">Difference (A - B)</th>
                         <th class="border-0 fw-bold text-light text-center">Winner</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <% @result[:detailed].each do |row| %>
+                      <% @result[:detailed_ordered].each do |row| %>
                         <% diff_val = row[:diff].to_f %>
                         <% winner = diff_val > 0 ? @result[:name_a] : (diff_val < 0 ? @result[:name_b] : 'Tie') %>
-                        <% winner_class = diff_val > 0 ? 'text-primary' : (diff_val < 0 ? 'text-info' : 'text-light') %>
-                        <% winner_icon = diff_val > 0 ? 'fas fa-trophy text-warning' : (diff_val < 0 ? 'fas fa-trophy text-warning' : 'fas fa-equals text-light') %>
-                        <%
-                          special_items = [
-                            "Perfuração", "PVE Perfuração",
-                            "Danos Críticos", "PVE Dano Crítico",
-                            "Aumentou todas as técnicas Amp", "PVE Todas as Técnicas Amp",
-                            "Aumentou todos os ataques", "PVE Todos os Ataques"
-                          ]
-                          is_special = special_items.any? { |special| row[:attribute].include?(special) }
-                          row_class = is_special ? 'special-attribute-row' : ''
-                        %>
+                        <% if diff_val > 0 %>
+                          <% winner_bg = 'winner-a' %>
+                          <% winner_text = 'text-white' %>
+                          <% winner_icon = 'fas fa-trophy text-warning' %>
+                        <% elsif diff_val < 0 %>
+                          <% winner_bg = 'winner-b' %>
+                          <% winner_text = 'text-white' %>
+                          <% winner_icon = 'fas fa-trophy text-warning' %>
+                        <% else %>
+                          <% winner_bg = 'winner-tie' %>
+                          <% winner_text = 'text-light' %>
+                          <% winner_icon = 'fas fa-equals text-light' %>
+                        <% end %>
+                        <% is_special = row[:is_special] %>
+                        <% row_class = is_special ? 'special-attribute-row' : '' %>
                         <tr class="<%= row_class %>">
                           <td class="fw-semibold <%= is_special ? 'text-warning' : '' %>">
-                            <%= is_special ? '<i class="fas fa-star me-1"></i>' : '' %><%= row[:attribute] %>
+                            <% if is_special %>
+                              <i class="fas fa-star me-1"></i>
+                            <% end %>
+                            <%= row[:attribute] %>
                           </td>
                           <td class="text-primary fw-bold"><%= row[:value_a].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
                           <td class="text-info fw-bold"><%= row[:value_b].to_s %><%= row[:unit] == :percent ? '%' : '' %></td>
@@ -284,7 +298,7 @@
                             </span>
                           </td>
                           <td class="text-center">
-                            <span class="<%= winner_class %> fw-bold">
+                            <span class="<%= winner_bg %> <%= winner_text %> fw-bold d-inline-block px-2 py-1 rounded">
                               <i class="<%= winner_icon %> me-1"></i><%= winner %>
                             </span>
                           </td>
