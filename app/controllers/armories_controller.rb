@@ -2,7 +2,7 @@ class ArmoriesController < ApplicationController
   # percent at which an in-progress collection is considered "near completion".
   NEAR_COMPLETION_THRESHOLD = 80
   def index
-    @name = params[:name].presence || 'Cadamantis'
+    @name = params[:name].presence || "Cadamantis"
     client = ArmoryClient.new
     @error = nil
     @character_idx = nil
@@ -16,7 +16,7 @@ class ArmoriesController < ApplicationController
         @collection_data = details[:data] || []
         @values = (details[:values] || []).map(&:to_s).map(&:strip)
       else
-        @error = t('armories.errors.character_idx_not_found', name: @name)
+        @error = t("armories.errors.character_idx_not_found", name: @name)
       end
     rescue StandardError => e
       @error = localized_error_message(e)
@@ -60,7 +60,7 @@ class ArmoriesController < ApplicationController
   # Compare collections of two characters by name.
   # Expects params[:name_a] and params[:name_b]
   def progress
-    @name = params[:name].presence || 'Cadamantis'
+    @name = params[:name].presence || "Cadamantis"
     client = ArmoryClient.new
     @error = nil
     @character_idx = nil
@@ -74,66 +74,66 @@ class ArmoriesController < ApplicationController
 
         # categorize by progress
         @collection_data.each do |tier|
-          next unless tier.is_a?(Hash) && tier['collections'].is_a?(Array)
-          tier['collections'].each do |col|
-            prog = col['progress'].to_i
+          next unless tier.is_a?(Hash) && tier["collections"].is_a?(Array)
+          tier["collections"].each do |col|
+            prog = col["progress"].to_i
             next unless prog >= 0 && prog < 100
             missing = 100 - prog
-            rewards = (col['rewards'] || []).map.with_index do |reward, index|
+            rewards = (col["rewards"] || []).map.with_index do |reward, index|
               # Prefer API truth when available; fallback to progress thresholds.
-              unlocked = if reward.key?('applied')
-                           !!reward['applied']
-                         else
-                           total_rewards = (col['rewards'] || []).size
+              unlocked = if reward.key?("applied")
+                           !!reward["applied"]
+              else
+                           total_rewards = (col["rewards"] || []).size
                            threshold = if total_rewards == 3
-                                         [30, 60, 100][index] || 100
-                                       elsif total_rewards.positive?
+                                         [ 30, 60, 100 ][index] || 100
+                           elsif total_rewards.positive?
                                          (((index + 1) * 100.0) / total_rewards).round
-                                       else
+                           else
                                          100
-                                       end
+                           end
                            prog >= threshold
-                         end
+              end
 
               {
-                description: reward['description'].to_s,
+                description: reward["description"].to_s,
                 unlocked: unlocked
               }
             end
-            status = rewards.map { |r| r[:description] }.join(', ')
+            status = rewards.map { |r| r[:description] }.join(", ")
             # determine any required materials still outstanding
             materials = []
 
             # Some API shapes put required items directly under 'data' on the collection
-            if col['data'].is_a?(Array)
-              col['data'].each do |m|
-                m_progress = m['progress'].to_i
-                m_max = m['max'].to_i
+            if col["data"].is_a?(Array)
+              col["data"].each do |m|
+                m_progress = m["progress"].to_i
+                m_max = m["max"].to_i
                 needed = m_max - m_progress
                 if needed > 0
-                  materials << { name: m['name'], needed: needed, image: m['imageUrl'], mission: nil, current: m_progress, max: m_max }
+                  materials << { name: m["name"], needed: needed, image: m["imageUrl"], mission: nil, current: m_progress, max: m_max }
                 end
               end
             end
 
             # Other shapes embed required items under missions -> data
-            if col['missions'].is_a?(Array)
-              col['missions'].each do |mission|
-                mission_name = mission['name'] || mission['title']
-                (mission['data'] || []).each do |m|
-                  m_progress = m['progress'].to_i
-                  m_max = m['max'].to_i
+            if col["missions"].is_a?(Array)
+              col["missions"].each do |mission|
+                mission_name = mission["name"] || mission["title"]
+                (mission["data"] || []).each do |m|
+                  m_progress = m["progress"].to_i
+                  m_max = m["max"].to_i
                   needed = m_max - m_progress
                   if needed > 0
-                    materials << { name: m['name'], needed: needed, image: m['imageUrl'], mission: mission_name, current: m_progress, max: m_max }
+                    materials << { name: m["name"], needed: needed, image: m["imageUrl"], mission: mission_name, current: m_progress, max: m_max }
                   end
                 end
               end
             end
 
             entry = {
-              tier: tier['name'],
-              name: col['name'],
+              tier: tier["name"],
+              name: col["name"],
               progress: prog,
               missing: missing,
               status: status,
@@ -153,7 +153,7 @@ class ArmoriesController < ApplicationController
           end
         end
       else
-        @error = t('armories.errors.character_idx_not_found', name: @name)
+        @error = t("armories.errors.character_idx_not_found", name: @name)
       end
     rescue StandardError => e
       @error = localized_error_message(e)
@@ -279,9 +279,9 @@ class ArmoriesController < ApplicationController
   def annotate_value(raw)
     original = raw.to_s.strip
     had_ignore = !!(original =~ prefix_regex)
-    cleaned = had_ignore ? original.sub(prefix_regex, '').strip : original
+    cleaned = had_ignore ? original.sub(prefix_regex, "").strip : original
 
-    parsed = AttributeParser.parse([cleaned]) rescue {}
+    parsed = AttributeParser.parse([ cleaned ]) rescue {}
     parsed_key = parsed.keys.first.to_s rescue cleaned
 
     is_special = false
@@ -293,13 +293,13 @@ class ArmoriesController < ApplicationController
   def localized_error_message(error)
     message = error.to_s
 
-    if message.start_with?('Invalid JSON response:')
-      detail = message.split(':', 2).last.to_s.strip
-      t('armories.errors.invalid_json_response', detail: detail)
+    if message.start_with?("Invalid JSON response:")
+      detail = message.split(":", 2).last.to_s.strip
+      t("armories.errors.invalid_json_response", detail: detail)
     elsif message.present?
       message
     else
-      t('armories.errors.unexpected')
+      t("armories.errors.unexpected")
     end
   end
 end
