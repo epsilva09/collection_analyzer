@@ -18,28 +18,32 @@
           <main class="text-center">
             <h1 class="my-4">Compare Collections</h1>
             <div class="row justify-content-center mb-4">
-              <div class="col-12 col-md-6">
-                <%= form_with url: compare_armory_path, method: :get, local: true do |f| %>
-                  <div class="row">
-                    <div class="col-6 mb-3">
-                      <%= f.label :name_a, 'Character A', class: 'form-label' %>
-                      <%= f.text_field :name_a, value: params[:name_a], class: 'form-control' %>
-                    </div>
-                    <div class="col-6 mb-3">
-                      <%= f.label :name_b, 'Character B', class: 'form-label' %>
-                      <%= f.text_field :name_b, value: params[:name_b], class: 'form-control' %>
-                    </div>
+              <div class="col-12">
+                <%= form_with url: compare_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center' do |f| %>
+                  <div class="col-12 col-md-5">
+                    <%= f.label :name_a, 'Character A', class: 'form-label' %>
+                    <%= f.text_field :name_a, value: params[:name_a], class: 'form-control' %>
                   </div>
-                  <%= f.submit 'Compare', class: 'btn btn-primary' %>
+                  <div class="col-12 col-md-5">
+                    <%= f.label :name_b, 'Character B', class: 'form-label' %>
+                    <%= f.text_field :name_b, value: params[:name_b], class: 'form-control' %>
+                  </div>
+                  <div class="col-12 text-center">
+                    <%= f.submit 'Compare', class: 'btn btn-primary w-50' %>
+                  </div>
                 <% end %>
-              </div>
-            </div>
 
       <% if @error.present? %>
-        <p class="error"><strong>Error:</strong> <%= @error %></p>
+        <div class="alert alert-danger" role="alert">
+          <strong>Error:</strong> <%= @error %>
+        </div>
       <% end %>
 
       <% if @result %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
         <!-- Summary Cards -->
         <div class="row mb-4">
           <div class="col-12">
@@ -83,7 +87,7 @@
                       </h6>
                       <% special_common.first(3).each do |item| %>
                         <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
-                          <span class="text-truncate fw-bold text-warning" style="font-size: 0.9em;"><%= item[:parsed_key] %></span>
+                          <span class="text-truncate fw-bold text-warning fs-6"><%= item[:parsed_key] %></span>
                           <i class="fas fa-crown text-warning"></i>
                         </div>
                       <% end %>
@@ -100,8 +104,18 @@
                         </div>
                       <% end %>
                       <% if regular_common.size > 5 %>
-                        <div class="list-group-item text-center text-muted">
-                          <em>... and <%= regular_common.size - 5 %> more</em>
+                        <div class="list-group-item text-center">
+                          <a class="text-decoration-none" data-bs-toggle="collapse" href="#more-common" role="button" aria-expanded="false" aria-controls="more-common">
+                            … and <%= regular_common.size - 5 %> more
+                          </a>
+                        </div>
+                        <div class="collapse" id="more-common">
+                          <% regular_common.drop(5).each do |item| %>
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                              <span class="text-truncate"><%= item[:parsed_key] %></span>
+                              <i class="fas fa-equals text-success"></i>
+                            </div>
+                          <% end %>
                         </div>
                       <% end %>
                     </div>
@@ -146,7 +160,7 @@
                       </h6>
                       <% special_only_a.first(3).each do |item| %>
                         <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
-                          <span class="text-truncate fw-bold text-warning" style="font-size: 0.9em;"><%= item[:parsed_key] %></span>
+                          <span class="text-truncate fw-bold text-warning fs-6"><%= item[:parsed_key] %></span>
                           <i class="fas fa-crown text-warning"></i>
                         </div>
                       <% end %>
@@ -163,8 +177,18 @@
                         </div>
                       <% end %>
                       <% if regular_only_a.size > 5 %>
-                        <div class="list-group-item text-center text-muted">
-                          <em>... and <%= regular_only_a.size - 5 %> more</em>
+                        <div class="list-group-item text-center">
+                          <a class="text-decoration-none" data-bs-toggle="collapse" href="#more-only-a" role="button" aria-expanded="false" aria-controls="more-only-a">
+                            … and <%= regular_only_a.size - 5 %> more
+                          </a>
+                        </div>
+                        <div class="collapse" id="more-only-a">
+                          <% regular_only_a.drop(5).each do |item| %>
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                              <span class="text-truncate"><%= item[:parsed_key] %></span>
+                              <i class="fas fa-arrow-right text-primary"></i>
+                            </div>
+                          <% end %>
                         </div>
                       <% end %>
                     </div>
@@ -205,7 +229,7 @@
                       </h6>
                       <% special_only_b.first(3).each do |item| %>
                         <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
-                          <span class="text-truncate fw-bold text-warning" style="font-size: 0.9em;"><%= item %></span>
+                          <span class="text-truncate fw-bold text-warning fs-6"><%= item %></span>
                           <i class="fas fa-crown text-warning"></i>
                         </div>
                       <% end %>
@@ -222,8 +246,18 @@
                         </div>
                       <% end %>
                       <% if regular_only_b.size > 5 %>
-                        <div class="list-group-item text-center text-muted">
-                          <em>... and <%= regular_only_b.size - 5 %> more</em>
+                        <div class="list-group-item text-center">
+                          <a class="text-decoration-none" data-bs-toggle="collapse" href="#more-only-b" role="button" aria-expanded="false" aria-controls="more-only-b">
+                            … and <%= regular_only_b.size - 5 %> more
+                          </a>
+                        </div>
+                        <div class="collapse" id="more-only-b">
+                          <% regular_only_b.drop(5).each do |item| %>
+                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                              <span class="text-truncate"><%= item[:parsed_key] %></span>
+                              <i class="fas fa-arrow-left text-info"></i>
+                            </div>
+                          <% end %>
                         </div>
                       <% end %>
                     </div>
@@ -253,9 +287,9 @@
                 </span>
               </div>
               <div class="card-body p-0">
-                <div class="table-responsive sticky-table-container">
+                <div class="table-responsive">
                   <table class="table table-dark table-hover mb-0">
-                    <thead class="table-dark sticky-header">
+                    <thead class="table-dark sticky-top">
                       <tr>
                         <th class="border-0 fw-bold text-light">Attribute</th>
                         <th class="border-0 fw-bold header-a text-white text-center"><%= @result[:name_a] %></th>
@@ -311,43 +345,6 @@
             </div>
           </div>
         </div>
-        <script>
-          // Sticky header management
-          document.addEventListener('DOMContentLoaded', function() {
-            const tableContainer = document.querySelector('.sticky-table-container');
-            const stickyHeader = document.querySelector('.sticky-header');
-
-            if (tableContainer && stickyHeader) {
-              const containerRect = tableContainer.getBoundingClientRect();
-              const headerHeight = stickyHeader.offsetHeight;
-
-              function updateStickyHeader() {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                const containerTop = containerRect.top + scrollTop;
-                const containerBottom = containerTop + tableContainer.offsetHeight - headerHeight;
-
-                if (scrollTop > containerTop && scrollTop < containerBottom) {
-                  stickyHeader.style.position = 'fixed';
-                  stickyHeader.style.top = '0';
-                  stickyHeader.style.left = containerRect.left + 'px';
-                  stickyHeader.style.width = containerRect.width + 'px';
-                  stickyHeader.style.zIndex = '1050';
-                  stickyHeader.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
-                } else {
-                  stickyHeader.style.position = 'static';
-                  stickyHeader.style.boxShadow = 'none';
-                }
-              }
-
-              window.addEventListener('scroll', updateStickyHeader);
-              window.addEventListener('resize', function() {
-                const newRect = tableContainer.getBoundingClientRect();
-                Object.assign(containerRect, newRect);
-                updateStickyHeader();
-              });
-            }
-          });
-        </script>
         <% end %>
           </main>
         </div>

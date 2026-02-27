@@ -15,10 +15,25 @@ class ArmoryClient
   end
 
   # Returns array of values or empty array
+  # Basic collection endpoint. Returns just the array of string values.
   def fetch_collection(character_idx)
     resp = @http.get("#{BASE_URL}/api/website/armory/collection/#{character_idx}", headers: { 'Accept' => 'application/json' })
     parsed = parse_response(resp)
     parsed['values'] || []
+  end
+
+  # When the API returns extra metadata (progress, missions, etc.) we need
+  # to preserve it so views can surface "near completion" collections.  This
+  # method returns a hash containing the raw values plus the optional data
+  # structure.  It intentionally does not mutate the return value of
+  # fetch_collection so existing callers remain untouched.
+  def fetch_collection_details(character_idx)
+    resp = @http.get("#{BASE_URL}/api/website/armory/collection/#{character_idx}", headers: { 'Accept' => 'application/json' })
+    parsed = parse_response(resp)
+    {
+      values: parsed['values'] || [],
+      data: parsed['data'] || []
+    }
   end
 
   private

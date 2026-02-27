@@ -79,7 +79,14 @@
                   </div>
                 </div>
               </div>
+
+              <div class="row mb-4">
+                <div class="col-12 text-center">
+                  <%= link_to 'View progress details', progress_armory_path(name: @name), class: 'btn btn-outline-secondary' %>
+                </div>
+              </div>
             <% end %>
+
 
             <!-- Collection Values -->
             <% if @values.present? %>
