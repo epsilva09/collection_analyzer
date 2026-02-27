@@ -10,6 +10,14 @@
     <%= stylesheet_link_tag 'application', media: 'all' %>
     <%= stylesheet_link_tag 'armory', media: 'all' %>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+      .progress-title-btn,
+      .progress-title-btn:not(.collapsed) {
+        background: #ffffff !important;
+        color: #212529 !important;
+        box-shadow: none !important;
+      }
+    </style>
   </head>
   <body>
     <div class="container-fluid">
@@ -19,7 +27,7 @@
             <h1 class="my-4">Collection Progress</h1>
             <div class="row justify-content-center mb-4">
               <div class="col-12">
-                <%= form_with url: progress_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center' do |f| %>
+                <%= form_with url: progress_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center', data: { turbo: false } do |f| %>
                   <div class="col-12 col-md-5">
                     <%= f.label :name, 'Character', class: 'form-label' %>
                     <%= f.text_field :name, value: params[:name], class: 'form-control' %>
@@ -38,75 +46,98 @@
             <% end %>
 
             <% if @progress_data.present? %>
-              <% labels = { low: '1–29% progress', mid: '30–59% progress', near: '≥ 80% progress' } %>
-              <% @progress_data.each do |bucket, items| %>
-                <% next if items.blank? %>
-                <div class="row mb-4">
-                  <div class="col-12">
-                    <div class="card shadow">
-                      <div class="card-header <%= bucket == :near ? 'bg-warning text-dark' : 'bg-dark text-white' %>">
-                        <h2 class="h5 mb-0"><%= labels[bucket] %> (<%= items.size %>)</h2>
-                      </div>
-                      <ul class="list-group list-group-flush">
-                        <% items.each_with_index do |col, idx| %>
-                          <% mat_id = "materials-#{bucket}-#{idx}" %>
-                          <li class="list-group-item">
-                            <div class="d-flex w-100 justify-content-between align-items-start">
-                              <div class="text-start me-3 flex-grow-1">
-                                <div class="d-flex align-items-baseline justify-content-between">
-                                  <strong class="me-2"><%= col[:tier] %> – <%= col[:name] %></strong>
-                                  <div class="text-end ms-2">
-                                    <span class="badge bg-secondary me-1">Progress: <%= col[:progress] %>%</span>
-                                    <span class="badge bg-info">Missing: <%= col[:missing] %>%</span>
+              <% labels = { near: '≥ 80% progress', mid: '30–59% progress', low: '1–29% progress', below_one: '< 1% progress' } %>
+              <% ordered_buckets = [:near, :mid, :low, :below_one] %>
+
+              <div class="accordion" id="progress-groups">
+                <% ordered_buckets.each_with_index do |bucket, group_index| %>
+                  <% items = @progress_data[bucket] || [] %>
+                  <% next if items.blank? %>
+                  <% collapse_id = "progress-#{bucket}" %>
+                  <% heading_id = "heading-#{bucket}" %>
+
+                  <div class="accordion-item mb-3 border-0 bg-transparent">
+                    <h2 class="accordion-header" id="<%= heading_id %>">
+                      <button
+                        class="accordion-button progress-title-btn <%= group_index.zero? ? '' : 'collapsed' %>"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#<%= collapse_id %>"
+                        aria-expanded="<%= group_index.zero? ? 'true' : 'false' %>"
+                        aria-controls="<%= collapse_id %>">
+                        <span class="me-2"><%= labels[bucket] %></span>
+                        <span class="badge <%= bucket == :near ? 'bg-warning text-dark' : 'bg-secondary' %>"><%= items.size %></span>
+                      </button>
+                    </h2>
+
+                    <div
+                      id="<%= collapse_id %>"
+                      class="accordion-collapse collapse <%= group_index.zero? ? 'show' : '' %>"
+                      aria-labelledby="<%= heading_id %>"
+                      data-bs-parent="#progress-groups">
+                      <div class="accordion-body p-0">
+                        <ul class="list-group list-group-flush">
+                          <% items.each_with_index do |col, idx| %>
+                            <% mat_id = "materials-#{bucket}-#{idx}" %>
+                            <li class="list-group-item">
+                              <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="text-start me-3 flex-grow-1">
+                                  <div class="d-flex align-items-baseline justify-content-between">
+                                    <strong class="me-2"><%= col[:tier] %> – <%= col[:name] %></strong>
+                                    <div class="text-end ms-2">
+                                      <span class="badge bg-secondary me-1">Progress: <%= col[:progress] %>%</span>
+                                      <span class="badge bg-info">Missing: <%= col[:missing] %>%</span>
+                                    </div>
                                   </div>
-                                </div>
 
-                                <%# Rewards: show up to 3 inline badges, rest collapsed into a small text %>
-                                <% if col[:status].present? %>
-                                  <div class="mt-1">
-                                    <% rewards = col[:status].split(',').map(&:strip) rescue [col[:status]] %>
-                                    <% rewards.first(3).each do |r| %>
-                                      <span class="badge bg-dark text-white me-1 small"><%= r %></span>
-                                    <% end %>
-                                    <% if rewards.size > 3 %>
-                                      <span class="small text-muted">+<%= rewards.size - 3 %> more</span>
-                                    <% end %>
-                                  </div>
-                                <% end %>
+                                  <% if col[:rewards].present? %>
+                                    <div class="mt-1">
+                                      <% col[:rewards].each do |reward| %>
+                                        <span class="badge <%= reward[:unlocked] ? 'bg-success' : 'bg-dark text-white' %> me-1 small"><%= reward[:description] %></span>
+                                      <% end %>
+                                    </div>
+                                  <% elsif col[:status].present? %>
+                                    <div class="mt-1">
+                                      <% rewards = col[:status].split(',').map(&:strip) rescue [col[:status]] %>
+                                      <% rewards.each do |r| %>
+                                        <span class="badge bg-dark text-white me-1 small"><%= r %></span>
+                                      <% end %>
+                                    </div>
+                                  <% end %>
 
-                                <%# Compact material chips: show up to 6, with collapse for the rest %>
-                                <% if col[:materials].present? %>
-                                  <div class="mt-2">
-                                    <% visible = col[:materials].first(6) %>
-                                    <% visible.each do |m| %>
-                                      <span class="badge bg-warning text-dark me-1 mb-1 small"><%= m[:name] %> <span class="fw-bold"><%= m[:current] %>/<%= m[:max] %></span></span>
-                                    <% end %>
+                                  <% if col[:materials].present? %>
+                                    <div class="mt-2">
+                                      <% visible = col[:materials].first(6) %>
+                                      <% visible.each do |m| %>
+                                        <span class="badge bg-warning text-dark me-1 mb-1 small"><%= m[:name] %> <span class="fw-bold"><%= m[:current] %>/<%= m[:max] %></span></span>
+                                      <% end %>
 
-                                    <% if col[:materials].size > visible.size %>
-                                      <a class="small text-decoration-none ms-1" data-bs-toggle="collapse" href="#<%= mat_id %>" role="button" aria-expanded="false" aria-controls="<%= mat_id %>">
-                                        Show all (<%= col[:materials].size %>)
-                                      </a>
-                                      <div class="collapse mt-2" id="<%= mat_id %>">
-                                        <div class="d-flex flex-wrap">
-                                          <% col[:materials].each do |m| %>
-                                            <div class="me-2 mb-2">
-                                              <span class="badge bg-warning text-dark small"><%= m[:name] %> <span class="fw-bold"><%= m[:current] %>/<%= m[:max] %></span></span>
-                                            </div>
-                                          <% end %>
+                                      <% if col[:materials].size > visible.size %>
+                                        <a class="small text-decoration-none ms-1" data-bs-toggle="collapse" href="#<%= mat_id %>" role="button" aria-expanded="false" aria-controls="<%= mat_id %>">
+                                          Show all (<%= col[:materials].size %>)
+                                        </a>
+                                        <div class="collapse mt-2" id="<%= mat_id %>">
+                                          <div class="d-flex flex-wrap">
+                                            <% col[:materials].each do |m| %>
+                                              <div class="me-2 mb-2">
+                                                <span class="badge bg-warning text-dark small"><%= m[:name] %> <span class="fw-bold"><%= m[:current] %>/<%= m[:max] %></span></span>
+                                              </div>
+                                            <% end %>
+                                          </div>
                                         </div>
-                                      </div>
-                                    <% end %>
-                                  </div>
-                                <% end %>
+                                      <% end %>
+                                    </div>
+                                  <% end %>
+                                </div>
                               </div>
-                            </div>
-                          </li>
-                        <% end %>
-                      </ul>
+                            </li>
+                          <% end %>
+                        </ul>
+                      </div>
                     </div>
                   </div>
-                </div>
-              <% end %>
+                <% end %>
+              </div>
             <% end %>
           </main>
         </div>
