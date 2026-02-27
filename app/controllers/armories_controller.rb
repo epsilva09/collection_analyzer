@@ -176,6 +176,8 @@ class ArmoriesController < ApplicationController
     name_a = params[:name_a].presence
     name_b = params[:name_b].presence
 
+    @comparison_ready = name_a.present? && name_b.present?
+
     client = ArmoryClient.new
     @error = nil
     @result = {
@@ -191,62 +193,64 @@ class ArmoriesController < ApplicationController
     }
 
     begin
-      @result[:character_idx_a] = client.fetch_character_idx(name_a)
-      @result[:character_idx_b] = client.fetch_character_idx(name_b)
+      if @comparison_ready
+        @result[:character_idx_a] = client.fetch_character_idx(name_a)
+        @result[:character_idx_b] = client.fetch_character_idx(name_b)
 
-      if @result[:character_idx_a]
-        details = client.fetch_collection_details(@result[:character_idx_a])
-        @result[:values_a] = (details[:values] || []).map(&:to_s).map(&:strip)
-        @result[:collection_data_a] = details[:data] || []
+        if @result[:character_idx_a]
+          details = client.fetch_collection_details(@result[:character_idx_a])
+          @result[:values_a] = (details[:values] || []).map(&:to_s).map(&:strip)
+          @result[:collection_data_a] = details[:data] || []
+        end
+
+        if @result[:character_idx_b]
+          details = client.fetch_collection_details(@result[:character_idx_b])
+          @result[:values_b] = (details[:values] || []).map(&:to_s).map(&:strip)
+          @result[:collection_data_b] = details[:data] || []
+        end
+
+        # Parse attributes into structured numeric values
+        parsed_a = AttributeParser.parse(@result[:values_a])
+        parsed_b = AttributeParser.parse(@result[:values_b])
+
+        keys = (parsed_a.keys | parsed_b.keys).to_a.sort
+
+        detailed = keys.map do |k|
+          a = parsed_a[k] || { value: 0.0, unit: nil, raw: nil }
+          b = parsed_b[k] || { value: 0.0, unit: nil, raw: nil }
+          unit = (a[:unit] == b[:unit]) ? a[:unit] || b[:unit] : :mixed
+          val_a = a[:value] || 0.0
+          val_b = b[:value] || 0.0
+          diff = (val_a - val_b)
+          { attribute: k, value_a: val_a, value_b: val_b, unit: unit, diff: diff, raw_a: a[:raw], raw_b: b[:raw] }
+        end
+
+        @result[:detailed] = detailed
+        # Annotate rows with a cleaned attribute and is_special flag, then order using shared helpers
+        annotated = detailed.map do |row|
+          meta = annotate_value(row[:attribute])
+          row.merge(cleaned_attribute: meta[:cleaned], parsed_key: meta[:parsed_key], is_special: meta[:is_special], had_ignore_prefix: meta[:had_ignore_prefix])
+        end
+
+        special_rows = annotated.select { |r| r[:is_special] }
+        # Sort special rows according to the shared special_attributes order
+        special_rows.sort_by! do |r|
+          idx = special_attributes.find_index { |s| r[:parsed_key] == s }
+          idx || special_attributes.length
+        end
+
+        regular_rows = annotated.reject { |r| r[:is_special] }
+
+        @result[:detailed_ordered] = special_rows + regular_rows
+        @result[:common] = (parsed_a.keys & parsed_b.keys).to_a.sort
+        @result[:only_a] = (parsed_a.keys - parsed_b.keys).to_a.sort
+        @result[:only_b] = (parsed_b.keys - parsed_a.keys).to_a.sort
+
+        # Provide annotated versions for use in the view (preserve original strings)
+        @result[:common_annotated] = @result[:common].map { |item| annotate_value(item) }
+        @result[:only_a_annotated] = @result[:only_a].map { |item| annotate_value(item) }
+        @result[:only_b_annotated] = @result[:only_b].map { |item| annotate_value(item) }
       end
-
-      if @result[:character_idx_b]
-        details = client.fetch_collection_details(@result[:character_idx_b])
-        @result[:values_b] = (details[:values] || []).map(&:to_s).map(&:strip)
-        @result[:collection_data_b] = details[:data] || []
-      end
-
-      # Parse attributes into structured numeric values
-      parsed_a = AttributeParser.parse(@result[:values_a])
-      parsed_b = AttributeParser.parse(@result[:values_b])
-
-      keys = (parsed_a.keys | parsed_b.keys).to_a.sort
-
-      detailed = keys.map do |k|
-        a = parsed_a[k] || { value: 0.0, unit: nil, raw: nil }
-        b = parsed_b[k] || { value: 0.0, unit: nil, raw: nil }
-        unit = (a[:unit] == b[:unit]) ? a[:unit] || b[:unit] : :mixed
-        val_a = a[:value] || 0.0
-        val_b = b[:value] || 0.0
-        diff = (val_a - val_b)
-        { attribute: k, value_a: val_a, value_b: val_b, unit: unit, diff: diff, raw_a: a[:raw], raw_b: b[:raw] }
-      end
-
-      @result[:detailed] = detailed
-      # Annotate rows with a cleaned attribute and is_special flag, then order using shared helpers
-      annotated = detailed.map do |row|
-        meta = annotate_value(row[:attribute])
-        row.merge(cleaned_attribute: meta[:cleaned], parsed_key: meta[:parsed_key], is_special: meta[:is_special], had_ignore_prefix: meta[:had_ignore_prefix])
-      end
-
-      special_rows = annotated.select { |r| r[:is_special] }
-      # Sort special rows according to the shared special_attributes order
-      special_rows.sort_by! do |r|
-        idx = special_attributes.find_index { |s| r[:parsed_key] == s }
-        idx || special_attributes.length
-      end
-
-      regular_rows = annotated.reject { |r| r[:is_special] }
-
-      @result[:detailed_ordered] = special_rows + regular_rows
-      @result[:common] = (parsed_a.keys & parsed_b.keys).to_a.sort
-      @result[:only_a] = (parsed_a.keys - parsed_b.keys).to_a.sort
-      @result[:only_b] = (parsed_b.keys - parsed_a.keys).to_a.sort
-
-      # Provide annotated versions for use in the view (preserve original strings)
-      @result[:common_annotated] = @result[:common].map { |item| annotate_value(item) }
-      @result[:only_a_annotated] = @result[:only_a].map { |item| annotate_value(item) }
-      @result[:only_b_annotated] = @result[:only_b].map { |item| annotate_value(item) }
     rescue StandardError => e
       @error = localized_error_message(e)
     end

@@ -64,7 +64,7 @@
               </div>
             <% end %>
 
-            <% if @result %>
+            <% if @comparison_ready && @result && @result[:values_a].present? && @result[:values_b].present? %>
               <!-- Summary Cards -->
               <div class="row mb-4">
                 <div class="col-12">
@@ -369,6 +369,11 @@
                     </div>
                   </div>
                 </div>
+              </div>
+            <% elsif (params[:name_a].present? ^ params[:name_b].present?) %>
+              <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <%= t('armories.compare.hints.both_names_required') %>
               </div>
             <% end %>
           </main>

@@ -75,3 +75,5 @@ pt-BR:
       actions:
         view_progress: "Ver progressão de %{name}"
         back_to_index: "Voltar para pesquisa"
+      hints:
+        both_names_required: "Informe os dois personagens para comparar as coleções."
