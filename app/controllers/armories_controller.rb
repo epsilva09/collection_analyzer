@@ -159,6 +159,11 @@ class ArmoriesController < ApplicationController
       @error = localized_error_message(e)
     end
 
+    # Order each progress bucket from highest to lowest progress
+    @progress_data.each_key do |bucket|
+      @progress_data[bucket].sort_by! { |entry| -entry[:progress].to_i }
+    end
+
     respond_to do |format|
       format.html
       format.json { render json: { name: @name, character_idx: @character_idx, progress: @progress_data, error: @error } }
