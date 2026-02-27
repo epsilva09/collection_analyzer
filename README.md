@@ -3,7 +3,7 @@
 
 [![CI](https://github.com/epsilva09/collection_analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/epsilva09/collection_analyzer/actions/workflows/ci.yml)
 [![CD](https://github.com/epsilva09/collection_analyzer/actions/workflows/cd.yml/badge.svg)](https://github.com/epsilva09/collection_analyzer/actions/workflows/cd.yml)
-[![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fepsilva09%2Fcollection_analyzer-2496ED?logo=docker&logoColor=white)](https://github.com/epsilva09/collection_analyzer/pkgs/container/collection_analyzer)
+[![Image Tag](https://img.shields.io/github/v/tag/epsilva09/collection_analyzer?label=image%20tag&logo=docker)](https://github.com/epsilva09/collection_analyzer/pkgs/container/collection_analyzer)
 
 This Rails application fetches a character's `characterIdx` from an external API
 and then retrieves the character collection `values` to present in a web page.
