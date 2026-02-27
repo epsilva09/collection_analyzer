@@ -1,0 +1,70 @@
+pt-BR:
+  armories_shared:
+    language: "Idioma"
+    portuguese: "Português"
+    english: "Inglês"
+  armories:
+    index:
+      page_title: "Coleções"
+      heading: "Coleções"
+      form:
+        character_name: "Nome do personagem:"
+        placeholder: "Digite o nome do personagem..."
+        search: "Pesquisar"
+      alerts:
+        error: "Erro"
+      character_info: "Informações do personagem"
+      actions:
+        view_progress_details: "Ver detalhes de progressão"
+        compare_with_another: "Comparar com outro personagem"
+      collection_attributes: "Atributos da coleção"
+      top_attributes: "Atributos principais"
+      top_attribute: "Atributo principal"
+      other_attributes: "Outros atributos"
+      collection_item: "Item de coleção"
+      no_items_found: "Nenhum item encontrado"
+      no_items_found_description: "Este personagem ainda não possui itens de coleção."
+      character_not_found: "Personagem não encontrado"
+      no_data_available: "Não há dados disponíveis para \"%{name}\". Verifique o nome do personagem e tente novamente."
+    progress:
+      page_title: "Progresso do Armory"
+      heading: "Progresso das Coleções"
+      form:
+        character: "Personagem"
+        search: "Pesquisar"
+      alerts:
+        error: "Erro"
+      labels:
+        near: "≥ 80% de progresso"
+        mid: "30–59% de progresso"
+        low: "1–29% de progresso"
+        below_one: "< 1% de progresso"
+      badges:
+        progress: "Progresso"
+        missing: "Falta"
+      actions:
+        show_all: "Ver todos (%{count})"
+    compare:
+      page_title: "Comparar Coleções"
+      heading: "Comparar Coleções"
+      form:
+        character_a: "Personagem A"
+        character_b: "Personagem B"
+        compare: "Comparar"
+      alerts:
+        error: "Erro"
+      summary: "Resumo da Coleção"
+      common_attributes: "Atributos em Comum"
+      special_attributes: "Atributos Especiais"
+      special_items: "Itens Especiais"
+      more_items: "… e %{count} mais"
+      no_common_attributes: "Sem atributos em comum"
+      only: "Apenas %{name}"
+      no_unique_items: "Sem itens exclusivos"
+      detailed_comparison: "Comparação Detalhada de Atributos"
+      numeric_attributes: "Atributos Numéricos"
+      table:
+        attribute: "Atributo"
+        difference: "Diferença (A - B)"
+        winner: "Vencedor"
+      tie: "Empate"
