@@ -1,6 +1,10 @@
 
 # Collection Analyzer (Rails)
 
+[![CI](https://github.com/epsilva09/collection_analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/epsilva09/collection_analyzer/actions/workflows/ci.yml)
+[![CD](https://github.com/epsilva09/collection_analyzer/actions/workflows/cd.yml/badge.svg)](https://github.com/epsilva09/collection_analyzer/actions/workflows/cd.yml)
+[![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fepsilva09%2Fcollection_analyzer-2496ED?logo=docker&logoColor=white)](https://github.com/epsilva09/collection_analyzer/pkgs/container/collection_analyzer)
+
 This Rails application fetches a character's `characterIdx` from an external API
 and then retrieves the character collection `values` to present in a web page.
 
@@ -32,6 +36,21 @@ Tests
 
 ```bash
 bin/rails test
+```
+
+CI/CD (GitHub Actions)
+
+- CI: `.github/workflows/ci.yml`
+	- roda em `push` e `pull_request`
+	- executa segurança (`brakeman`, `importmap audit`), lint (`rubocop`) e testes
+- CD: `.github/workflows/cd.yml`
+	- roda em `push` para `main` (e `workflow_dispatch`)
+	- builda e publica imagem Docker no GHCR: `ghcr.io/<owner>/<repo>`
+
+Para usar a imagem publicada:
+
+```bash
+docker pull ghcr.io/<owner>/<repo>:latest
 ```
 
 Files of interest

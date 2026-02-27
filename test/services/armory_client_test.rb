@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'json'
+require 'ostruct'
 
 class ArmoryClientTest < ActiveSupport::TestCase
   test 'fetch_character_idx returns id when API responds' do
