@@ -18,8 +18,8 @@
           <main class="text-center">
             <div class="d-flex justify-content-end mb-2">
               <span class="small me-2"><%= t('armories_shared.language') %>:</span>
-              <%= link_to t('armories_shared.portuguese'), url_for(locale: :'pt-BR'), class: "btn btn-sm #{I18n.locale.to_s == 'pt-BR' ? 'btn-primary' : 'btn-outline-primary'} me-1" %>
-              <%= link_to t('armories_shared.english'), url_for(locale: :en), class: "btn btn-sm #{I18n.locale.to_s == 'en' ? 'btn-primary' : 'btn-outline-primary'}" %>
+              <%= link_to t('armories_shared.portuguese'), locale_switch_url(:'pt-BR'), class: "btn btn-sm #{I18n.locale.to_s == 'pt-BR' ? 'btn-primary' : 'btn-outline-primary'} me-1" %>
+              <%= link_to t('armories_shared.english'), locale_switch_url(:en), class: "btn btn-sm #{I18n.locale.to_s == 'en' ? 'btn-primary' : 'btn-outline-primary'}" %>
             </div>
             <h1 class="my-4"><%= t('armories.compare.heading') %></h1>
             <div class="row justify-content-center mb-4">
@@ -224,6 +224,10 @@
                     regular_only_b = @result[:only_b].reject { |item| special_items.any? { |special| item.include?(special) } }
                   %>
 
+                  <% only_b_annot = @result[:only_b_annotated] || [] %>
+                  <% special_only_b = only_b_annot.select { |a| a[:is_special] } %>
+                  <% regular_only_b = only_b_annot.reject { |a| a[:is_special] } %>
+
                   <!-- Special Only B Items -->
                   <% if special_only_b.any? %>
                     <div class="mb-3">
@@ -232,7 +236,7 @@
                       </h6>
                       <% special_only_b.first(3).each do |item| %>
                         <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
-                          <span class="text-truncate fw-bold text-warning fs-6"><%= item %></span>
+                          <span class="text-truncate fw-bold text-warning fs-6"><%= item[:parsed_key] %></span>
                           <i class="fas fa-crown text-warning"></i>
                         </div>
                       <% end %>
@@ -244,7 +248,7 @@
                     <div class="list-group list-group-flush">
                       <% regular_only_b.first(5).each do |item| %>
                         <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                          <span class="text-truncate"><%= item %></span>
+                          <span class="text-truncate"><%= item[:parsed_key] %></span>
                           <i class="fas fa-arrow-left text-info"></i>
                         </div>
                       <% end %>
