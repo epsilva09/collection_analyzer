@@ -64,7 +64,7 @@ class ArmoriesController < ApplicationController
     client = ArmoryClient.new
     @error = nil
     @character_idx = nil
-    @progress_data = { low: [], mid: [], near: [] }
+    @progress_data = { near: [], mid: [], low: [], below_one: [] }
 
     begin
       @character_idx = client.fetch_character_idx(@name)
@@ -77,9 +77,30 @@ class ArmoriesController < ApplicationController
           next unless tier.is_a?(Hash) && tier['collections'].is_a?(Array)
           tier['collections'].each do |col|
             prog = col['progress'].to_i
-            next unless prog > 0 && prog < 100
+            next unless prog >= 0 && prog < 100
             missing = 100 - prog
-            status = (col['rewards'] || []).map { |r| r['description'] }.join(', ')
+            rewards = (col['rewards'] || []).map.with_index do |reward, index|
+              # Prefer API truth when available; fallback to progress thresholds.
+              unlocked = if reward.key?('applied')
+                           !!reward['applied']
+                         else
+                           total_rewards = (col['rewards'] || []).size
+                           threshold = if total_rewards == 3
+                                         [30, 60, 100][index] || 100
+                                       elsif total_rewards.positive?
+                                         (((index + 1) * 100.0) / total_rewards).round
+                                       else
+                                         100
+                                       end
+                           prog >= threshold
+                         end
+
+              {
+                description: reward['description'].to_s,
+                unlocked: unlocked
+              }
+            end
+            status = rewards.map { |r| r[:description] }.join(', ')
             # determine any required materials still outstanding
             materials = []
 
@@ -110,9 +131,19 @@ class ArmoriesController < ApplicationController
               end
             end
 
-            entry = { tier: tier['name'], name: col['name'], progress: prog, missing: missing, status: status, materials: materials }
+            entry = {
+              tier: tier['name'],
+              name: col['name'],
+              progress: prog,
+              missing: missing,
+              status: status,
+              rewards: rewards,
+              materials: materials
+            }
 
-            if prog <= 29
+            if prog < 1
+              @progress_data[:below_one] << entry
+            elsif prog <= 29
               @progress_data[:low] << entry
             elsif prog <= 59
               @progress_data[:mid] << entry
