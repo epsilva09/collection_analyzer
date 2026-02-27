@@ -29,3 +29,76 @@
 
 en:
   hello: "Hello world"
+  armories_shared:
+    language: "Language"
+    portuguese: "Portuguese"
+    english: "English"
+  armories:
+    errors:
+      character_idx_not_found: "characterIdx not found for %{name}"
+      invalid_json_response: "Invalid JSON response: %{detail}"
+      unexpected: "Unexpected error"
+    index:
+      page_title: "Collections"
+      heading: "Collections"
+      form:
+        character_name: "Character name:"
+        placeholder: "Type character name..."
+        search: "Search"
+      alerts:
+        error: "Error"
+      character_info: "Character information"
+      actions:
+        view_progress_details: "View progress details"
+        compare_with_another: "Compare with another character"
+      collection_attributes: "Collection attributes"
+      top_attributes: "Top attributes"
+      top_attribute: "Top attribute"
+      other_attributes: "Other attributes"
+      collection_item: "Collection item"
+      no_items_found: "No items found"
+      no_items_found_description: "This character does not have collection items yet."
+      character_not_found: "Character not found"
+      no_data_available: "No data available for \"%{name}\". Check the name and try again."
+    progress:
+      page_title: "Armory progress"
+      heading: "Collection progress"
+      form:
+        character: "Character"
+        search: "Search"
+      alerts:
+        error: "Error"
+      labels:
+        near: "≥ 80% progress"
+        mid: "30–59% progress"
+        low: "1–29% progress"
+        below_one: "< 1% progress"
+      badges:
+        progress: "Progress"
+        missing: "Missing"
+      actions:
+        show_all: "Show all (%{count})"
+    compare:
+      page_title: "Compare collections"
+      heading: "Compare collections"
+      form:
+        character_a: "Character A"
+        character_b: "Character B"
+        compare: "Compare"
+      alerts:
+        error: "Error"
+      summary: "Collection summary"
+      common_attributes: "Common attributes"
+      special_attributes: "Special attributes"
+      special_items: "Special items"
+      more_items: "… and %{count} more"
+      no_common_attributes: "No common attributes"
+      only: "Only %{name}"
+      no_unique_items: "No unique items"
+      detailed_comparison: "Detailed attribute comparison"
+      numeric_attributes: "Numeric attributes"
+      table:
+        attribute: "Attribute"
+        difference: "Difference (A - B)"
+        winner: "Winner"
+      tie: "Tie"

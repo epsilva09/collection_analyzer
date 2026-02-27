@@ -1,8 +1,16 @@
 
 # Collection Analyzer (Rails)
 
+[![CI](https://github.com/epsilva09/collection_analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/epsilva09/collection_analyzer/actions/workflows/ci.yml)
+[![CD](https://github.com/epsilva09/collection_analyzer/actions/workflows/cd.yml/badge.svg)](https://github.com/epsilva09/collection_analyzer/actions/workflows/cd.yml)
+[![Image Tag](https://img.shields.io/github/v/tag/epsilva09/collection_analyzer?label=image%20tag&logo=docker)](https://github.com/epsilva09/collection_analyzer/pkgs/container/collection_analyzer)
+
 This Rails application fetches a character's `characterIdx` from an external API
 and then retrieves the character collection `values` to present in a web page.
+
+It also consumes the more detailed payload returned by `/armory/collection` and
+identifies which in‑game collections are **nearly complete** (default threshold 80%).
+These are surfaced in both the index and compare views.
 
 Setup
 
@@ -30,6 +38,33 @@ Tests
 bin/rails test
 ```
 
+Lint (RuboCop)
+
+```bash
+bin/rubocop
+```
+
+Auto-correct (safe)
+
+```bash
+bin/rubocop -a
+```
+
+CI/CD (GitHub Actions)
+
+- CI: `.github/workflows/ci.yml`
+	- roda em `push` e `pull_request`
+	- executa segurança (`brakeman`, `importmap audit`), lint (`rubocop`) e testes
+- CD: `.github/workflows/cd.yml`
+	- roda em `push` para `main` (e `workflow_dispatch`)
+	- builda e publica imagem Docker no GHCR: `ghcr.io/epsilva09/collection_analyzer`
+
+Para usar a imagem publicada:
+
+```bash
+docker pull ghcr.io/epsilva09/collection_analyzer:latest
+```
+
 Files of interest
 
 - `app/services/armory_client.rb` — encapsulates external API requests.
@@ -40,3 +75,9 @@ Compare feature
 
 - Visit `/armory/compare?name_a=Cadamantis&name_b=OtherName` or open the Compare page from `/armory/compare`.
 - The page shows common collection values and those unique to each character.
+
+Progress overview
+
+- A new route `/armory/progress` lists in‑progress collections for a character.
+- Collections are bucketed by progress: 1–29 %, 30–59 %, and near completion (≥ 80 %).
+- Each entry shows how much is missing, the rewards/status granted, and any specific materials still required for that collection.

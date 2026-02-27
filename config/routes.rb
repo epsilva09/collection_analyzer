@@ -10,9 +10,10 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
-  root to: 'armories#index'
+  root to: "armories#index"
 
   # Armory lookup
-  get 'armory', to: 'armories#index'
-  get 'armory/compare', to: 'armories#compare', as: :compare_armory
+  get "armory", to: "armories#index"
+  get "armory/compare", to: "armories#compare", as: :compare_armory
+  get "armory/progress", to: "armories#progress", as: :progress_armory
 end
