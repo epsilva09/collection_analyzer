@@ -1,16 +1,16 @@
 <!doctype html>
 <html lang="en">
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width,initial-scale=1">
-      <title>Armory Compare</title>
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-      <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-      <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-      <%= stylesheet_link_tag 'application', media: 'all' %>
-      <%= stylesheet_link_tag 'armory', media: 'all' %>
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </head>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Armory Compare</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+    <%= stylesheet_link_tag 'armory', media: 'all' %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </head>
   <body>
     <div class="container-fluid">
       <div class="row justify-content-center">
@@ -32,26 +32,24 @@
                     <%= f.submit 'Compare', class: 'btn btn-primary w-50' %>
                   </div>
                 <% end %>
+              </div>
+            </div>
 
-      <% if @error.present? %>
-        <div class="alert alert-danger" role="alert">
-          <strong>Error:</strong> <%= @error %>
-        </div>
-      <% end %>
-
-      <% if @result %>
+            <% if @error.present? %>
+              <div class="alert alert-danger" role="alert">
+                <strong>Error:</strong> <%= @error %>
               </div>
             <% end %>
-          </div>
-        <% end %>
-        <!-- Summary Cards -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <h2 class="mb-3">
-              <i class="fas fa-chart-pie me-2"></i>Collection Summary
-            </h2>
-          </div>
-        </div>
+
+            <% if @result %>
+              <!-- Summary Cards -->
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h2 class="mb-3">
+                    <i class="fas fa-chart-pie me-2"></i>Collection Summary
+                  </h2>
+                </div>
+              </div>
 
         <div class="row mb-4">
           <div class="col-md-4 mb-3">
@@ -345,7 +343,7 @@
             </div>
           </div>
         </div>
-        <% end %>
+            <% end %>
           </main>
         </div>
       </div>
