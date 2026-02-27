@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Armory Compare</title>
+    <title><%= t('armories.compare.page_title') %></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -16,20 +16,25 @@
       <div class="row justify-content-center">
         <div class="col-12 col-md-10 col-lg-8">
           <main class="text-center">
-            <h1 class="my-4">Compare Collections</h1>
+            <div class="d-flex justify-content-end mb-2">
+              <span class="small me-2"><%= t('armories_shared.language') %>:</span>
+              <%= link_to t('armories_shared.portuguese'), url_for(locale: :'pt-BR'), class: "btn btn-sm #{I18n.locale.to_s == 'pt-BR' ? 'btn-primary' : 'btn-outline-primary'} me-1" %>
+              <%= link_to t('armories_shared.english'), url_for(locale: :en), class: "btn btn-sm #{I18n.locale.to_s == 'en' ? 'btn-primary' : 'btn-outline-primary'}" %>
+            </div>
+            <h1 class="my-4"><%= t('armories.compare.heading') %></h1>
             <div class="row justify-content-center mb-4">
               <div class="col-12">
                 <%= form_with url: compare_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center' do |f| %>
                   <div class="col-12 col-md-5">
-                    <%= f.label :name_a, 'Character A', class: 'form-label' %>
+                    <%= f.label :name_a, t('armories.compare.form.character_a'), class: 'form-label' %>
                     <%= f.text_field :name_a, value: params[:name_a], class: 'form-control' %>
                   </div>
                   <div class="col-12 col-md-5">
-                    <%= f.label :name_b, 'Character B', class: 'form-label' %>
+                    <%= f.label :name_b, t('armories.compare.form.character_b'), class: 'form-label' %>
                     <%= f.text_field :name_b, value: params[:name_b], class: 'form-control' %>
                   </div>
                   <div class="col-12 text-center">
-                    <%= f.submit 'Compare', class: 'btn btn-primary w-50' %>
+                    <%= f.submit t('armories.compare.form.compare'), class: 'btn btn-primary w-50' %>
                   </div>
                 <% end %>
               </div>
@@ -37,7 +42,7 @@
 
             <% if @error.present? %>
               <div class="alert alert-danger" role="alert">
-                <strong>Error:</strong> <%= @error %>
+                <strong><%= t('armories.compare.alerts.error') %>:</strong> <%= @error %>
               </div>
             <% end %>
 
@@ -46,21 +51,21 @@
               <div class="row mb-4">
                 <div class="col-12">
                   <h2 class="mb-3">
-                    <i class="fas fa-chart-pie me-2"></i>Collection Summary
+                    <i class="fas fa-chart-pie me-2"></i><%= t('armories.compare.summary') %>
                   </h2>
                 </div>
               </div>
 
-        <div class="row mb-4">
-          <div class="col-md-4 mb-3">
-            <div class="card border-success h-100 summary-card shadow">
-              <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                  <i class="fas fa-check-circle me-2"></i>Common Attributes
-                </h5>
-                <span class="badge bg-light text-success fs-6"><%= @result[:common].size %></span>
-              </div>
-              <div class="card-body">
+              <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                  <div class="card border-success h-100 summary-card shadow">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                      <h5 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i><%= t('armories.compare.common_attributes') %>
+                      </h5>
+                      <span class="badge bg-light text-success fs-6"><%= @result[:common].size %></span>
+                    </div>
+                    <div class="card-body">
                 <% if @result[:common].any? %>
                   <%
                     special_items = [
@@ -81,7 +86,7 @@
                   <% if special_common.any? %>
                     <div class="mb-3">
                       <h6 class="text-warning fw-bold mb-2">
-                        <i class="fas fa-star me-1"></i>Special Attributes
+                        <i class="fas fa-star me-1"></i><%= t('armories.compare.special_attributes') %>
                       </h6>
                       <% special_common.first(3).each do |item| %>
                         <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
@@ -104,7 +109,7 @@
                       <% if regular_common.size > 5 %>
                         <div class="list-group-item text-center">
                           <a class="text-decoration-none" data-bs-toggle="collapse" href="#more-common" role="button" aria-expanded="false" aria-controls="more-common">
-                            … and <%= regular_common.size - 5 %> more
+                            <%= t('armories.compare.more_items', count: regular_common.size - 5) %>
                           </a>
                         </div>
                         <div class="collapse" id="more-common">
@@ -119,17 +124,17 @@
                     </div>
                   <% end %>
                 <% else %>
-                  <p class="text-muted mb-0">No common attributes</p>
+                  <p class="text-muted mb-0"><%= t('armories.compare.no_common_attributes') %></p>
                 <% end %>
-              </div>
-            </div>
-          </div>
+                    </div>
+                  </div>
+                </div>
 
           <div class="col-md-4 mb-3">
             <div class="card border-primary h-100 summary-card shadow">
               <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
-                  <i class="fas fa-user me-2"></i>Only <%= @result[:name_a] %>
+                  <i class="fas fa-user me-2"></i><%= t('armories.compare.only', name: @result[:name_a]) %>
                 </h5>
                 <span class="badge bg-light text-primary fs-6"><%= @result[:only_a].size %></span>
               </div>
@@ -154,7 +159,7 @@
                   <% if special_only_a.any? %>
                     <div class="mb-3">
                       <h6 class="text-warning fw-bold mb-2">
-                        <i class="fas fa-star me-1"></i>Special Items
+                        <i class="fas fa-star me-1"></i><%= t('armories.compare.special_items') %>
                       </h6>
                       <% special_only_a.first(3).each do |item| %>
                         <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
@@ -177,7 +182,7 @@
                       <% if regular_only_a.size > 5 %>
                         <div class="list-group-item text-center">
                           <a class="text-decoration-none" data-bs-toggle="collapse" href="#more-only-a" role="button" aria-expanded="false" aria-controls="more-only-a">
-                            … and <%= regular_only_a.size - 5 %> more
+                            <%= t('armories.compare.more_items', count: regular_only_a.size - 5) %>
                           </a>
                         </div>
                         <div class="collapse" id="more-only-a">
@@ -192,7 +197,7 @@
                     </div>
                   <% end %>
                 <% else %>
-                  <p class="text-muted mb-0">No unique items</p>
+                  <p class="text-muted mb-0"><%= t('armories.compare.no_unique_items') %></p>
                 <% end %>
               </div>
             </div>
@@ -202,7 +207,7 @@
             <div class="card border-info h-100 summary-card shadow">
               <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
-                  <i class="fas fa-user me-2"></i>Only <%= @result[:name_b] %>
+                  <i class="fas fa-user me-2"></i><%= t('armories.compare.only', name: @result[:name_b]) %>
                 </h5>
                 <span class="badge bg-light text-info fs-6"><%= @result[:only_b].size %></span>
               </div>
@@ -223,7 +228,7 @@
                   <% if special_only_b.any? %>
                     <div class="mb-3">
                       <h6 class="text-warning fw-bold mb-2">
-                        <i class="fas fa-star me-1"></i>Special Items
+                        <i class="fas fa-star me-1"></i><%= t('armories.compare.special_items') %>
                       </h6>
                       <% special_only_b.first(3).each do |item| %>
                         <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
@@ -246,7 +251,7 @@
                       <% if regular_only_b.size > 5 %>
                         <div class="list-group-item text-center">
                           <a class="text-decoration-none" data-bs-toggle="collapse" href="#more-only-b" role="button" aria-expanded="false" aria-controls="more-only-b">
-                            … and <%= regular_only_b.size - 5 %> more
+                            <%= t('armories.compare.more_items', count: regular_only_b.size - 5) %>
                           </a>
                         </div>
                         <div class="collapse" id="more-only-b">
@@ -261,45 +266,45 @@
                     </div>
                   <% end %>
                 <% else %>
-                  <p class="text-muted mb-0">No unique items</p>
+                  <p class="text-muted mb-0"><%= t('armories.compare.no_unique_items') %></p>
                 <% end %>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Detailed Comparison Table -->
-        <div class="row">
-          <div class="col-12">
-            <h2 class="mb-3">
-              <i class="fas fa-balance-scale me-2"></i>Detailed Attribute Comparison
-            </h2>
-            <div class="card shadow">
-              <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                  <i class="fas fa-chart-bar me-2"></i>
-                  Numeric Attributes
-                </h5>
-                <span class="badge bg-light text-dark fs-6">
-                  <i class="fas fa-hashtag me-1"></i><%= @result[:detailed].size %>
-                </span>
-              </div>
-              <div class="card-body p-0">
-                <div class="table-responsive">
-                  <table class="table table-dark table-hover mb-0">
+              <!-- Detailed Comparison Table -->
+              <div class="row">
+                <div class="col-12">
+                  <h2 class="mb-3">
+                    <i class="fas fa-balance-scale me-2"></i><%= t('armories.compare.detailed_comparison') %>
+                  </h2>
+                  <div class="card shadow">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                      <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        <%= t('armories.compare.numeric_attributes') %>
+                      </h5>
+                      <span class="badge bg-light text-dark fs-6">
+                        <i class="fas fa-hashtag me-1"></i><%= @result[:detailed].size %>
+                      </span>
+                    </div>
+                    <div class="card-body p-0">
+                      <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0">
                     <thead class="table-dark sticky-top">
                       <tr>
-                        <th class="border-0 fw-bold text-light">Attribute</th>
+                        <th class="border-0 fw-bold text-light"><%= t('armories.compare.table.attribute') %></th>
                         <th class="border-0 fw-bold header-a text-white text-center"><%= @result[:name_a] %></th>
                         <th class="border-0 fw-bold header-b text-white text-center"><%= @result[:name_b] %></th>
-                        <th class="border-0 fw-bold text-light text-center">Difference (A - B)</th>
-                        <th class="border-0 fw-bold text-light text-center">Winner</th>
+                        <th class="border-0 fw-bold text-light text-center"><%= t('armories.compare.table.difference') %></th>
+                        <th class="border-0 fw-bold text-light text-center"><%= t('armories.compare.table.winner') %></th>
                       </tr>
                     </thead>
                     <tbody>
                       <% @result[:detailed_ordered].each do |row| %>
                         <% diff_val = row[:diff].to_f %>
-                        <% winner = diff_val > 0 ? @result[:name_a] : (diff_val < 0 ? @result[:name_b] : 'Tie') %>
+                        <% winner = diff_val > 0 ? @result[:name_a] : (diff_val < 0 ? @result[:name_b] : t('armories.compare.tie')) %>
                         <% if diff_val > 0 %>
                           <% winner_bg = 'winner-a' %>
                           <% winner_text = 'text-white' %>
@@ -337,12 +342,12 @@
                         </tr>
                       <% end %>
                     </tbody>
-                  </table>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
             <% end %>
           </main>
         </div>

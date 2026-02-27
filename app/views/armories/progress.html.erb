@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Armory Progress</title>
+    <title><%= t('armories.progress.page_title') %></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -24,16 +24,21 @@
       <div class="row justify-content-center">
         <div class="col-12 col-md-10 col-lg-8">
           <main class="text-center">
-            <h1 class="my-4">Collection Progress</h1>
+            <div class="d-flex justify-content-end mb-2">
+              <span class="small me-2"><%= t('armories_shared.language') %>:</span>
+              <%= link_to t('armories_shared.portuguese'), url_for(locale: :'pt-BR'), class: "btn btn-sm #{I18n.locale.to_s == 'pt-BR' ? 'btn-primary' : 'btn-outline-primary'} me-1" %>
+              <%= link_to t('armories_shared.english'), url_for(locale: :en), class: "btn btn-sm #{I18n.locale.to_s == 'en' ? 'btn-primary' : 'btn-outline-primary'}" %>
+            </div>
+            <h1 class="my-4"><%= t('armories.progress.heading') %></h1>
             <div class="row justify-content-center mb-4">
               <div class="col-12">
                 <%= form_with url: progress_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center', data: { turbo: false } do |f| %>
                   <div class="col-12 col-md-5">
-                    <%= f.label :name, 'Character', class: 'form-label' %>
+                    <%= f.label :name, t('armories.progress.form.character'), class: 'form-label' %>
                     <%= f.text_field :name, value: params[:name], class: 'form-control' %>
                   </div>
                   <div class="col-12 text-center">
-                    <%= f.submit 'Search', class: 'btn btn-primary w-50' %>
+                    <%= f.submit t('armories.progress.form.search'), class: 'btn btn-success w-50' %>
                   </div>
                 <% end %>
               </div>
@@ -41,12 +46,12 @@
 
             <% if @error.present? %>
               <div class="alert alert-danger" role="alert">
-                <strong>Error:</strong> <%= @error %>
+                <strong><%= t('armories.progress.alerts.error') %>:</strong> <%= @error %>
               </div>
             <% end %>
 
             <% if @progress_data.present? %>
-              <% labels = { near: '≥ 80% progress', mid: '30–59% progress', low: '1–29% progress', below_one: '< 1% progress' } %>
+              <% labels = { near: t('armories.progress.labels.near'), mid: t('armories.progress.labels.mid'), low: t('armories.progress.labels.low'), below_one: t('armories.progress.labels.below_one') } %>
               <% ordered_buckets = [:near, :mid, :low, :below_one] %>
 
               <div class="accordion" id="progress-groups">
@@ -85,8 +90,8 @@
                                   <div class="d-flex align-items-baseline justify-content-between">
                                     <strong class="me-2"><%= col[:tier] %> – <%= col[:name] %></strong>
                                     <div class="text-end ms-2">
-                                      <span class="badge bg-secondary me-1">Progress: <%= col[:progress] %>%</span>
-                                      <span class="badge bg-info">Missing: <%= col[:missing] %>%</span>
+                                      <span class="badge bg-secondary me-1"><%= t('armories.progress.badges.progress') %>: <%= col[:progress] %>%</span>
+                                      <span class="badge bg-info"><%= t('armories.progress.badges.missing') %>: <%= col[:missing] %>%</span>
                                     </div>
                                   </div>
 
@@ -114,7 +119,7 @@
 
                                       <% if col[:materials].size > visible.size %>
                                         <a class="small text-decoration-none ms-1" data-bs-toggle="collapse" href="#<%= mat_id %>" role="button" aria-expanded="false" aria-controls="<%= mat_id %>">
-                                          Show all (<%= col[:materials].size %>)
+                                          <%= t('armories.progress.actions.show_all', count: col[:materials].size) %>
                                         </a>
                                         <div class="collapse mt-2" id="<%= mat_id %>">
                                           <div class="d-flex flex-wrap">

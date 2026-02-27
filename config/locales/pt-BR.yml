@@ -4,6 +4,10 @@ pt-BR:
     portuguese: "Português"
     english: "Inglês"
   armories:
+    errors:
+      character_idx_not_found: "characterIdx não encontrado para %{name}"
+      invalid_json_response: "Resposta JSON inválida: %{detail}"
+      unexpected: "Erro inesperado"
     index:
       page_title: "Coleções"
       heading: "Coleções"

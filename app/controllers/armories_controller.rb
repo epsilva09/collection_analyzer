@@ -16,10 +16,10 @@ class ArmoriesController < ApplicationController
         @collection_data = details[:data] || []
         @values = (details[:values] || []).map(&:to_s).map(&:strip)
       else
-        @error = "characterIdx not found for #{@name}"
+        @error = t('armories.errors.character_idx_not_found', name: @name)
       end
     rescue StandardError => e
-      @error = e.message
+      @error = localized_error_message(e)
     end
 
     # If we have values, normalize and prioritize special attributes for the index view
@@ -153,10 +153,10 @@ class ArmoriesController < ApplicationController
           end
         end
       else
-        @error = "characterIdx not found for #{@name}"
+        @error = t('armories.errors.character_idx_not_found', name: @name)
       end
     rescue StandardError => e
-      @error = e.message
+      @error = localized_error_message(e)
     end
 
     respond_to do |format|
@@ -243,7 +243,7 @@ class ArmoriesController < ApplicationController
       @result[:only_a_annotated] = @result[:only_a].map { |item| annotate_value(item) }
       @result[:only_b_annotated] = @result[:only_b].map { |item| annotate_value(item) }
     rescue StandardError => e
-      @error = e.message
+      @error = localized_error_message(e)
     end
 
     respond_to do |format|
@@ -288,5 +288,18 @@ class ArmoriesController < ApplicationController
     is_special = special_attributes.include?(parsed_key) unless had_ignore
 
     { raw: raw, cleaned: cleaned, parsed_key: parsed_key, is_special: is_special, had_ignore_prefix: had_ignore }
+  end
+
+  def localized_error_message(error)
+    message = error.to_s
+
+    if message.start_with?('Invalid JSON response:')
+      detail = message.split(':', 2).last.to_s.strip
+      t('armories.errors.invalid_json_response', detail: detail)
+    elsif message.present?
+      message
+    else
+      t('armories.errors.unexpected')
+    end
   end
 end

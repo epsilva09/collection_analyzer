@@ -34,6 +34,10 @@ en:
     portuguese: "Portuguese"
     english: "English"
   armories:
+    errors:
+      character_idx_not_found: "characterIdx not found for %{name}"
+      invalid_json_response: "Invalid JSON response: %{detail}"
+      unexpected: "Unexpected error"
     index:
       page_title: "Collections"
       heading: "Collections"
