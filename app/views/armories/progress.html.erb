@@ -78,8 +78,7 @@
                     <div
                       id="<%= collapse_id %>"
                       class="accordion-collapse collapse <%= group_index.zero? ? 'show' : '' %>"
-                      aria-labelledby="<%= heading_id %>"
-                      data-bs-parent="#progress-groups">
+                      aria-labelledby="<%= heading_id %>">
                       <div class="accordion-body p-0">
                         <ul class="list-group list-group-flush">
                           <% items.each_with_index do |col, idx| %>

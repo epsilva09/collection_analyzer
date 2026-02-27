@@ -102,3 +102,6 @@ en:
         difference: "Difference (A - B)"
         winner: "Winner"
       tie: "Tie"
+      actions:
+        view_progress: "View progress for %{name}"
+        back_to_index: "Back to search"

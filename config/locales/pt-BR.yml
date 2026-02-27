@@ -72,3 +72,6 @@ pt-BR:
         difference: "Diferença (A - B)"
         winner: "Vencedor"
       tie: "Empate"
+      actions:
+        view_progress: "Ver progressão de %{name}"
+        back_to_index: "Voltar para pesquisa"
