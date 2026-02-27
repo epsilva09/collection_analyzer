@@ -58,31 +58,14 @@
                         Character Information
                       </h5>
                     </div>
-                    <div class="card-body">
-                      <div class="row">
-                        <div class="col-md-6">
-                          <p class="mb-1">
-                            <strong>Character ID:</strong>
-                            <span class="badge bg-primary ms-2"><%= @character_idx %></span>
-                          </p>
-                        </div>
-                        <div class="col-md-6">
-                          <p class="mb-1">
-                            <strong>Status:</strong>
-                            <span class="badge bg-success ms-2">
-                              <i class="fas fa-check-circle me-1"></i>Found
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
 
               <div class="row mb-4">
-                <div class="col-12 text-center">
+                <div class="col-12 text-center d-flex flex-wrap justify-content-center gap-2">
                   <%= link_to 'View progress details', progress_armory_path(name: @name), class: 'btn btn-outline-secondary' %>
+                  <%= link_to 'Compare with another character', compare_armory_path(name_a: @name), class: 'btn btn-outline-primary' %>
                 </div>
               </div>
             <% end %>
