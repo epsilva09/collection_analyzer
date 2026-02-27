@@ -44,6 +44,12 @@
               </div>
             </div>
 
+            <div class="row justify-content-center mb-4">
+              <div class="col-12 text-center">
+                <%= link_to t('armories.compare.actions.back_to_index'), armory_path, class: 'btn btn-outline-secondary btn-sm' %>
+              </div>
+            </div>
+
             <% if @error.present? %>
               <div class="alert alert-danger" role="alert">
                 <strong><%= t('armories.progress.alerts.error') %>:</strong> <%= @error %>
