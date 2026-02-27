@@ -38,6 +38,18 @@ Tests
 bin/rails test
 ```
 
+Lint (RuboCop)
+
+```bash
+bin/rubocop
+```
+
+Auto-correct (safe)
+
+```bash
+bin/rubocop -a
+```
+
 CI/CD (GitHub Actions)
 
 - CI: `.github/workflows/ci.yml`
@@ -45,12 +57,12 @@ CI/CD (GitHub Actions)
 	- executa segurança (`brakeman`, `importmap audit`), lint (`rubocop`) e testes
 - CD: `.github/workflows/cd.yml`
 	- roda em `push` para `main` (e `workflow_dispatch`)
-	- builda e publica imagem Docker no GHCR: `ghcr.io/<owner>/<repo>`
+	- builda e publica imagem Docker no GHCR: `ghcr.io/epsilva09/collection_analyzer`
 
 Para usar a imagem publicada:
 
 ```bash
-docker pull ghcr.io/<owner>/<repo>:latest
+docker pull ghcr.io/epsilva09/collection_analyzer:latest
 ```
 
 Files of interest

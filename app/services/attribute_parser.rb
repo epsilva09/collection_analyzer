@@ -17,12 +17,12 @@ class AttributeParser
         # fallback if name empty (rare)
         name = s if name.empty?
 
-        unit = num_token.end_with?('%') ? :percent : :number
+        unit = num_token.end_with?("%") ? :percent : :number
         # normalize number: remove percent or plus signs and replace unicode minus
-        cleaned = num_token.tr('＋', '+').tr('−', '-')
-        cleaned = cleaned.delete('+')
-        cleaned = cleaned.delete_suffix('%')
-        value = cleaned.include?('.') ? cleaned.to_f : cleaned.to_f
+        cleaned = num_token.tr("＋", "+").tr("−", "-")
+        cleaned = cleaned.delete("+")
+        cleaned = cleaned.delete_suffix("%")
+        value = cleaned.include?(".") ? cleaned.to_f : cleaned.to_f
 
         memo[name] = { value: value, unit: unit, raw: raw }
       else
