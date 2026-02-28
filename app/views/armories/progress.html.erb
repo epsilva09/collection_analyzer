@@ -30,6 +30,9 @@
               <%= link_to t('armories_shared.english'), locale_switch_url(:en), class: "btn btn-sm #{I18n.locale.to_s == 'en' ? 'btn-primary' : 'btn-outline-primary'}" %>
             </div>
             <h1 class="my-4"><%= t('armories.progress.heading') %></h1>
+
+            <%= render 'menu', current_page: :progress, name: @name %>
+
             <div class="row justify-content-center mb-4">
               <div class="col-12">
                 <%= form_with url: progress_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center', data: { turbo: false } do |f| %>
@@ -41,13 +44,6 @@
                     <%= f.submit t('armories.progress.form.search'), class: 'btn btn-success w-50' %>
                   </div>
                 <% end %>
-              </div>
-            </div>
-
-            <div class="row justify-content-center mb-4">
-              <div class="col-12 text-center">
-                <%= link_to t('armories.materials.heading'), materials_armory_path(name: @name), class: 'btn btn-outline-success btn-sm me-2' %>
-                <%= link_to t('armories.compare.actions.back_to_index'), armory_path, class: 'btn btn-outline-secondary btn-sm' %>
               </div>
             </div>
 

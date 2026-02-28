@@ -3,6 +3,11 @@ pt-BR:
     language: "Idioma"
     portuguese: "Português"
     english: "Inglês"
+    menu:
+      index: "Pesquisa"
+      compare: "Comparar"
+      progress: "Progresso"
+      materials: "Materiais"
   armories:
     errors:
       character_idx_not_found: "characterIdx não encontrado para %{name}"

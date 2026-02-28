@@ -17,7 +17,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_includes response.body, "HP +1250"
       assert_includes response.body, "Defesa +647"
-      assert_includes response.body, I18n.t("armories.index.actions.view_progress_details")
+      assert_includes response.body, I18n.t("armories_shared.menu.progress")
     end
   end
 

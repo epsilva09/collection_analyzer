@@ -32,6 +32,8 @@
 
             <h1 class="my-4"><%= t('armories.materials.heading') %></h1>
 
+            <%= render 'menu', current_page: :materials, name: @name %>
+
             <div class="row justify-content-center mb-4">
               <div class="col-12">
                 <%= form_with url: materials_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center', data: { turbo: false } do |f| %>
@@ -43,13 +45,6 @@
                     <%= f.submit t('armories.progress.form.search'), class: 'btn btn-success w-50' %>
                   </div>
                 <% end %>
-              </div>
-            </div>
-
-            <div class="row justify-content-center mb-3">
-              <div class="col-12 text-center">
-                <%= link_to t('armories.progress.heading'), progress_armory_path(name: @name), class: 'btn btn-outline-secondary btn-sm me-2' %>
-                <%= link_to t('armories.compare.actions.back_to_index'), armory_path, class: 'btn btn-outline-secondary btn-sm' %>
               </div>
             </div>
 

@@ -22,6 +22,9 @@
               <%= link_to t('armories_shared.english'), locale_switch_url(:en), class: "btn btn-sm #{I18n.locale.to_s == 'en' ? 'btn-primary' : 'btn-outline-primary'}" %>
             </div>
             <h1 class="my-4"><%= t('armories.compare.heading') %></h1>
+
+            <%= render 'menu', current_page: :compare, name_a: params[:name_a], name_b: params[:name_b] %>
+
             <div class="row justify-content-center mb-4">
               <div class="col-12">
                 <%= form_with url: compare_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center' do |f| %>
@@ -37,30 +40,6 @@
                     <%= f.submit t('armories.compare.form.compare'), class: 'btn btn-success w-50' %>
                   </div>
                 <% end %>
-              </div>
-            </div>
-
-            <div class="row justify-content-center mb-4">
-              <div class="col-12 d-flex flex-wrap justify-content-center gap-2">
-                <% if params[:name_a].present? %>
-                  <%= link_to t('armories.compare.actions.view_progress', name: params[:name_a]),
-                              progress_armory_path(name: params[:name_a]),
-                              class: 'btn btn-outline-success btn-sm' %>
-                  <%= link_to t('armories.compare.actions.view_materials', name: params[:name_a]),
-                              materials_armory_path(name: params[:name_a]),
-                              class: 'btn btn-outline-warning btn-sm' %>
-                <% end %>
-                <% if params[:name_b].present? %>
-                  <%= link_to t('armories.compare.actions.view_progress', name: params[:name_b]),
-                              progress_armory_path(name: params[:name_b]),
-                              class: 'btn btn-outline-success btn-sm' %>
-                  <%= link_to t('armories.compare.actions.view_materials', name: params[:name_b]),
-                              materials_armory_path(name: params[:name_b]),
-                              class: 'btn btn-outline-warning btn-sm' %>
-                <% end %>
-                <%= link_to t('armories.compare.actions.back_to_index'),
-                            armory_path,
-                            class: 'btn btn-outline-secondary btn-sm' %>
               </div>
             </div>
 

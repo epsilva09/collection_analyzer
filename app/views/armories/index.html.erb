@@ -26,6 +26,8 @@
               <%= t('armories.index.heading') %>
             </h1>
 
+            <%= render 'menu', current_page: :index, name: (@character_idx.present? ? @name : nil) %>
+
             <!-- Search Form -->
             <div class="row justify-content-center mb-4">
               <div class="col-12 col-md-6">
@@ -49,30 +51,6 @@
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 <strong><%= t('armories.index.alerts.error') %>:</strong> <%= @error %>
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              </div>
-            <% end %>
-
-            <!-- Character Info -->
-            <% if @character_idx.present? %>
-              <div class="row mb-4">
-                <div class="col-12">
-                  <div class="card border-info">
-                    <div class="card-header bg-info text-white">
-                      <h5 class="mb-0">
-                        <i class="fas fa-id-card me-2"></i>
-                        <%= t('armories.index.character_info') %>
-                      </h5>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mb-4">
-                <div class="col-12 text-center d-flex flex-wrap justify-content-center gap-2">
-                  <%= link_to t('armories.index.actions.view_progress_details'), progress_armory_path(name: @name), class: 'btn btn-outline-secondary' %>
-                  <%= link_to t('armories.index.actions.view_required_materials'), materials_armory_path(name: @name), class: 'btn btn-outline-success' %>
-                  <%= link_to t('armories.index.actions.compare_with_another'), compare_armory_path(name_a: @name), class: 'btn btn-outline-primary' %>
-                </div>
               </div>
             <% end %>
 

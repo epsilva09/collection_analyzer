@@ -33,6 +33,11 @@ en:
     language: "Language"
     portuguese: "Portuguese"
     english: "English"
+    menu:
+      index: "Search"
+      compare: "Compare"
+      progress: "Progress"
+      materials: "Materials"
   armories:
     errors:
       character_idx_not_found: "characterIdx not found for %{name}"
