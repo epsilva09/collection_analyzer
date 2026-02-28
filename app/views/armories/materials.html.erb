@@ -24,11 +24,7 @@
       <div class="row justify-content-center">
         <div class="col-12 col-md-10 col-lg-8">
           <main class="text-center">
-            <div class="d-flex justify-content-end mb-2">
-              <span class="small me-2"><%= t('armories_shared.language') %>:</span>
-              <%= link_to t('armories_shared.portuguese'), locale_switch_url(:'pt-BR'), class: "btn btn-sm #{I18n.locale.to_s == 'pt-BR' ? 'btn-primary' : 'btn-outline-primary'} me-1" %>
-              <%= link_to t('armories_shared.english'), locale_switch_url(:en), class: "btn btn-sm #{I18n.locale.to_s == 'en' ? 'btn-primary' : 'btn-outline-primary'}" %>
-            </div>
+            <%= render 'locale_switcher' %>
 
             <h1 class="my-4"><%= t('armories.materials.heading') %></h1>
 
