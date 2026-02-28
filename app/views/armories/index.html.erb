@@ -70,6 +70,7 @@
               <div class="row mb-4">
                 <div class="col-12 text-center d-flex flex-wrap justify-content-center gap-2">
                   <%= link_to t('armories.index.actions.view_progress_details'), progress_armory_path(name: @name), class: 'btn btn-outline-secondary' %>
+                  <%= link_to t('armories.index.actions.view_required_materials'), materials_armory_path(name: @name), class: 'btn btn-outline-success' %>
                   <%= link_to t('armories.index.actions.compare_with_another'), compare_armory_path(name_a: @name), class: 'btn btn-outline-primary' %>
                 </div>
               </div>

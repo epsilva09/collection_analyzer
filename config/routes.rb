@@ -16,4 +16,5 @@ Rails.application.routes.draw do
   get "armory", to: "armories#index"
   get "armory/compare", to: "armories#compare", as: :compare_armory
   get "armory/progress", to: "armories#progress", as: :progress_armory
+  get "armory/materials", to: "armories#materials", as: :materials_armory
 end

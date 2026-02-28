@@ -46,6 +46,7 @@
 
             <div class="row justify-content-center mb-4">
               <div class="col-12 text-center">
+                <%= link_to t('armories.materials.heading'), materials_armory_path(name: @name), class: 'btn btn-outline-success btn-sm me-2' %>
                 <%= link_to t('armories.compare.actions.back_to_index'), armory_path, class: 'btn btn-outline-secondary btn-sm' %>
               </div>
             </div>
@@ -115,29 +116,7 @@
                                     </div>
                                   <% end %>
 
-                                  <% if col[:materials].present? %>
-                                    <div class="mt-2">
-                                      <% visible = col[:materials].first(6) %>
-                                      <% visible.each do |m| %>
-                                        <span class="badge bg-warning text-dark me-1 mb-1 small"><%= m[:name] %> <span class="fw-bold"><%= m[:current] %>/<%= m[:max] %></span></span>
-                                      <% end %>
-
-                                      <% if col[:materials].size > visible.size %>
-                                        <a class="small text-decoration-none ms-1" data-bs-toggle="collapse" href="#<%= mat_id %>" role="button" aria-expanded="false" aria-controls="<%= mat_id %>">
-                                          <%= t('armories.progress.actions.show_all', count: col[:materials].size) %>
-                                        </a>
-                                        <div class="collapse mt-2" id="<%= mat_id %>">
-                                          <div class="d-flex flex-wrap">
-                                            <% col[:materials].each do |m| %>
-                                              <div class="me-2 mb-2">
-                                                <span class="badge bg-warning text-dark small"><%= m[:name] %> <span class="fw-bold"><%= m[:current] %>/<%= m[:max] %></span></span>
-                                              </div>
-                                            <% end %>
-                                          </div>
-                                        </div>
-                                      <% end %>
-                                    </div>
-                                  <% end %>
+                                  <%# Materials details moved to the dedicated materials route %>
                                 </div>
                               </div>
                             </li>

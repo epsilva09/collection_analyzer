@@ -46,11 +46,17 @@
                   <%= link_to t('armories.compare.actions.view_progress', name: params[:name_a]),
                               progress_armory_path(name: params[:name_a]),
                               class: 'btn btn-outline-success btn-sm' %>
+                  <%= link_to t('armories.compare.actions.view_materials', name: params[:name_a]),
+                              materials_armory_path(name: params[:name_a]),
+                              class: 'btn btn-outline-warning btn-sm' %>
                 <% end %>
                 <% if params[:name_b].present? %>
                   <%= link_to t('armories.compare.actions.view_progress', name: params[:name_b]),
                               progress_armory_path(name: params[:name_b]),
                               class: 'btn btn-outline-success btn-sm' %>
+                  <%= link_to t('armories.compare.actions.view_materials', name: params[:name_b]),
+                              materials_armory_path(name: params[:name_b]),
+                              class: 'btn btn-outline-warning btn-sm' %>
                 <% end %>
                 <%= link_to t('armories.compare.actions.back_to_index'),
                             armory_path,

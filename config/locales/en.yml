@@ -50,6 +50,7 @@ en:
       character_info: "Character information"
       actions:
         view_progress_details: "View progress details"
+        view_required_materials: "View missing items"
         compare_with_another: "Compare with another character"
       collection_attributes: "Collection attributes"
       top_attributes: "Top attributes"
@@ -78,6 +79,18 @@ en:
         missing: "Missing"
       actions:
         show_all: "Show all (%{count})"
+      top_materials:
+        heading: "Most requested items to complete collections"
+        item: "Item"
+        total_needed: "Total missing quantity"
+        collections_count: "Collections affected"
+        example_mission: "Example mission"
+        no_mission: "No specific mission"
+    materials:
+      page_title: "Required collection items"
+      heading: "Items missing to complete collections"
+      labels:
+        general: "General (all collections)"
     compare:
       page_title: "Compare collections"
       heading: "Compare collections"
@@ -105,5 +118,6 @@ en:
       actions:
         view_progress: "View progress for %{name}"
         back_to_index: "Back to search"
+        view_materials: "View missing items for %{name}"
       hints:
         both_names_required: "Fill in both characters to compare collections."

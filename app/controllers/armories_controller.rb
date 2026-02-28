@@ -57,116 +57,33 @@ class ArmoriesController < ApplicationController
     end
   end
 
-  # Compare collections of two characters by name.
-  # Expects params[:name_a] and params[:name_b]
   def progress
     @name = params[:name].presence || "Cadamantis"
-    client = ArmoryClient.new
-    @error = nil
-    @character_idx = nil
-    @progress_data = { near: [], mid: [], low: [], below_one: [] }
-
-    begin
-      @character_idx = client.fetch_character_idx(@name)
-      if @character_idx
-        details = client.fetch_collection_details(@character_idx)
-        @collection_data = details[:data] || []
-
-        # categorize by progress
-        @collection_data.each do |tier|
-          next unless tier.is_a?(Hash) && tier["collections"].is_a?(Array)
-          tier["collections"].each do |col|
-            prog = col["progress"].to_i
-            next unless prog >= 0 && prog < 100
-            missing = 100 - prog
-            rewards = (col["rewards"] || []).map.with_index do |reward, index|
-              # Prefer API truth when available; fallback to progress thresholds.
-              unlocked = if reward.key?("applied")
-                           !!reward["applied"]
-              else
-                           total_rewards = (col["rewards"] || []).size
-                           threshold = if total_rewards == 3
-                                         [ 30, 60, 100 ][index] || 100
-                           elsif total_rewards.positive?
-                                         (((index + 1) * 100.0) / total_rewards).round
-                           else
-                                         100
-                           end
-                           prog >= threshold
-              end
-
-              {
-                description: reward["description"].to_s,
-                unlocked: unlocked
-              }
-            end
-            status = rewards.map { |r| r[:description] }.join(", ")
-            # determine any required materials still outstanding
-            materials = []
-
-            # Some API shapes put required items directly under 'data' on the collection
-            if col["data"].is_a?(Array)
-              col["data"].each do |m|
-                m_progress = m["progress"].to_i
-                m_max = m["max"].to_i
-                needed = m_max - m_progress
-                if needed > 0
-                  materials << { name: m["name"], needed: needed, image: m["imageUrl"], mission: nil, current: m_progress, max: m_max }
-                end
-              end
-            end
-
-            # Other shapes embed required items under missions -> data
-            if col["missions"].is_a?(Array)
-              col["missions"].each do |mission|
-                mission_name = mission["name"] || mission["title"]
-                (mission["data"] || []).each do |m|
-                  m_progress = m["progress"].to_i
-                  m_max = m["max"].to_i
-                  needed = m_max - m_progress
-                  if needed > 0
-                    materials << { name: m["name"], needed: needed, image: m["imageUrl"], mission: mission_name, current: m_progress, max: m_max }
-                  end
-                end
-              end
-            end
-
-            entry = {
-              tier: tier["name"],
-              name: col["name"],
-              progress: prog,
-              missing: missing,
-              status: status,
-              rewards: rewards,
-              materials: materials
-            }
-
-            if prog < 1
-              @progress_data[:below_one] << entry
-            elsif prog <= 29
-              @progress_data[:low] << entry
-            elsif prog <= 59
-              @progress_data[:mid] << entry
-            elsif prog >= NEAR_COMPLETION_THRESHOLD
-              @progress_data[:near] << entry
-            end
-          end
-        end
-      else
-        @error = t("armories.errors.character_idx_not_found", name: @name)
-      end
-    rescue StandardError => e
-      @error = localized_error_message(e)
-    end
-
-    # Order each progress bucket from highest to lowest progress
-    @progress_data.each_key do |bucket|
-      @progress_data[bucket].sort_by! { |entry| -entry[:progress].to_i }
-    end
+    snapshot = build_progress_snapshot(@name)
+    @character_idx = snapshot[:character_idx]
+    @progress_data = snapshot[:progress_data]
+    @top_materials = snapshot[:top_materials]
+    @collection_data = snapshot[:collection_data]
+    @error = snapshot[:error]
 
     respond_to do |format|
       format.html
-      format.json { render json: { name: @name, character_idx: @character_idx, progress: @progress_data, error: @error } }
+      format.json { render json: { name: @name, character_idx: @character_idx, progress: @progress_data, top_materials: @top_materials, error: @error } }
+    end
+  end
+
+  def materials
+    @name = params[:name].presence || "Cadamantis"
+    snapshot = build_progress_snapshot(@name)
+    @character_idx = snapshot[:character_idx]
+    @progress_data = snapshot[:progress_data]
+    @top_materials = snapshot[:top_materials]
+    @materials_by_bucket = snapshot[:materials_by_bucket]
+    @error = snapshot[:error]
+
+    respond_to do |format|
+      format.html
+      format.json { render json: { name: @name, character_idx: @character_idx, progress: @progress_data, bucket_materials: @materials_by_bucket, top_materials: @top_materials, error: @error } }
     end
   end
 
@@ -267,6 +184,156 @@ class ArmoriesController < ApplicationController
   end
 
   private
+
+  def build_progress_snapshot(name)
+    client = ArmoryClient.new
+    error = nil
+    character_idx = nil
+    progress_data = { near: [], mid: [], low: [], below_one: [] }
+    collection_data = []
+
+    begin
+      character_idx = client.fetch_character_idx(name)
+      if character_idx
+        details = client.fetch_collection_details(character_idx)
+        collection_data = details[:data] || []
+
+        collection_data.each do |tier|
+          next unless tier.is_a?(Hash) && tier["collections"].is_a?(Array)
+
+          tier["collections"].each do |col|
+            prog = col["progress"].to_i
+            next unless prog >= 0 && prog < 100
+
+            missing = 100 - prog
+            rewards_raw = col["rewards"] || []
+
+            rewards = rewards_raw.map.with_index do |reward, index|
+              unlocked = if reward.key?("applied")
+                           !!reward["applied"]
+              else
+                           total_rewards = rewards_raw.size
+                           threshold = if total_rewards == 3
+                                         [30, 60, 100][index] || 100
+                           elsif total_rewards.positive?
+                                         (((index + 1) * 100.0) / total_rewards).round
+                           else
+                                         100
+                           end
+                           prog >= threshold
+              end
+
+              {
+                description: reward["description"].to_s,
+                unlocked: unlocked
+              }
+            end
+
+            status = rewards.map { |r| r[:description] }.join(", ")
+
+            materials = []
+
+            if col["data"].is_a?(Array)
+              col["data"].each do |m|
+                m_progress = m["progress"].to_i
+                m_max = m["max"].to_i
+                needed = m_max - m_progress
+                if needed > 0
+                  materials << { name: m["name"], needed: needed, mission: nil, current: m_progress, max: m_max }
+                end
+              end
+            end
+
+            if col["missions"].is_a?(Array)
+              col["missions"].each do |mission|
+                mission_name = mission["name"] || mission["title"]
+                (mission["data"] || []).each do |m|
+                  m_progress = m["progress"].to_i
+                  m_max = m["max"].to_i
+                  needed = m_max - m_progress
+                  if needed > 0
+                    materials << { name: m["name"], needed: needed, mission: mission_name, current: m_progress, max: m_max }
+                  end
+                end
+              end
+            end
+
+            entry = {
+              tier: tier["name"],
+              name: col["name"],
+              progress: prog,
+              missing: missing,
+              status: status,
+              rewards: rewards,
+              materials: materials
+            }
+
+            if prog < 1
+              progress_data[:below_one] << entry
+            elsif prog <= 29
+              progress_data[:low] << entry
+            elsif prog <= 59
+              progress_data[:mid] << entry
+            elsif prog >= NEAR_COMPLETION_THRESHOLD
+              progress_data[:near] << entry
+            end
+          end
+        end
+      else
+        error = t("armories.errors.character_idx_not_found", name: name)
+      end
+    rescue StandardError => e
+      error = localized_error_message(e)
+    end
+
+    progress_data.each_key do |bucket|
+      progress_data[bucket].sort_by! { |entry| -entry[:progress].to_i }
+    end
+
+    # Aggregate materials by bucket
+    materials_by_bucket = {}
+
+    progress_data.each_key do |bucket|
+      entries = progress_data[bucket] || []
+      bucket_materials = entries.flat_map { |entry| entry[:materials] || [] }
+      grouped_bucket = bucket_materials.group_by { |m| m[:name] }
+
+      materials_by_bucket[bucket] = grouped_bucket.map do |material_name, mats|
+        total_needed = mats.sum { |m| m[:needed].to_i }
+        collections_count = mats.size
+
+        {
+          name: material_name,
+          total_needed: total_needed,
+          collections_count: collections_count
+        }
+      end.sort_by { |m| [-m[:total_needed].to_i, -m[:collections_count].to_i, m[:name].to_s] }
+    end
+
+    # Aggregate materials across all buckets (general view)
+    all_materials = progress_data.values.flatten.flat_map { |entry| entry[:materials] || [] }
+    grouped = all_materials.group_by { |m| m[:name] }
+
+    top_materials = grouped.map do |material_name, mats|
+      total_needed = mats.sum { |m| m[:needed].to_i }
+      collections_count = mats.size
+
+      {
+        name: material_name,
+        total_needed: total_needed,
+        collections_count: collections_count
+      }
+    end.sort_by { |m| [-m[:total_needed].to_i, -m[:collections_count].to_i, m[:name].to_s] }
+
+    {
+      character_idx: character_idx,
+      progress_data: progress_data,
+      top_materials: top_materials,
+      collection_data: collection_data,
+      materials_by_bucket: materials_by_bucket,
+      error: error
+    }
+  end
 
   def special_attributes
     [

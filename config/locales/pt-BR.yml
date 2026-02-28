@@ -20,6 +20,7 @@ pt-BR:
       character_info: "Informações do personagem"
       actions:
         view_progress_details: "Ver detalhes de progressão"
+        view_required_materials: "Ver itens que faltam"
         compare_with_another: "Comparar com outro personagem"
       collection_attributes: "Atributos da coleção"
       top_attributes: "Atributos principais"
@@ -48,6 +49,18 @@ pt-BR:
         missing: "Falta"
       actions:
         show_all: "Ver todos (%{count})"
+      top_materials:
+        heading: "Itens mais requisitados para concluir coleções"
+        item: "Item"
+        total_needed: "Quantidade total faltante"
+        collections_count: "Coleções impactadas"
+        example_mission: "Exemplo de missão"
+        no_mission: "Sem missão específica"
+    materials:
+      page_title: "Itens de Coleção Necessários"
+      heading: "Itens que faltam para completar coleções"
+      labels:
+        general: "Geral (todas as coleções)"
     compare:
       page_title: "Comparar Coleções"
       heading: "Comparar Coleções"
@@ -75,5 +88,6 @@ pt-BR:
       actions:
         view_progress: "Ver progressão de %{name}"
         back_to_index: "Voltar para pesquisa"
+        view_materials: "Ver itens que faltam de %{name}"
       hints:
         both_names_required: "Informe os dois personagens para comparar as coleções."
