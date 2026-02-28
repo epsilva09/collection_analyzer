@@ -115,8 +115,38 @@
                                       <% end %>
                                     </div>
                                   <% end %>
+                                  <% if col[:materials].present? %>
+                                    <% grouped_materials = col[:materials].group_by { |m| m[:name] } %>
+                                    <% aggregated_materials = grouped_materials.map do |name, mats|
+                                         { name: name, needed: mats.sum { |m| m[:needed].to_i } }
+                                       end.sort_by { |m| -m[:needed].to_i } %>
 
-                                  <%# Materials details moved to the dedicated materials route %>
+                                    <div class="mt-2">
+                                      <% visible = aggregated_materials.first(10) %>
+                                      <% visible.each do |m| %>
+                                        <span class="badge bg-warning text-dark me-1 mb-1 small">
+                                          <%= m[:name] %> (+<%= m[:needed] %>)
+                                        </span>
+                                      <% end %>
+
+                                      <% if aggregated_materials.size > visible.size %>
+                                        <a class="small text-decoration-none ms-1" data-bs-toggle="collapse" href="#<%= mat_id %>" role="button" aria-expanded="false" aria-controls="<%= mat_id %>">
+                                          <%= t('armories.progress.actions.show_all', count: aggregated_materials.size) %>
+                                        </a>
+                                        <div class="collapse mt-2" id="<%= mat_id %>">
+                                          <div class="d-flex flex-wrap">
+                                            <% aggregated_materials.drop(visible.size).each do |m| %>
+                                              <div class="me-2 mb-2">
+                                                <span class="badge bg-warning text-dark small">
+                                                  <%= m[:name] %> (+<%= m[:needed] %>)
+                                                </span>
+                                              </div>
+                                            <% end %>
+                                          </div>
+                                        </div>
+                                      <% end %>
+                                    </div>
+                                  <% end %>
                                 </div>
                               </div>
                             </li>

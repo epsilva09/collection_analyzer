@@ -47,6 +47,7 @@ pt-BR:
       badges:
         progress: "Progresso"
         missing: "Falta"
+        missing_items: "%{count} itens faltando"
       actions:
         show_all: "Ver todos (%{count})"
       top_materials:

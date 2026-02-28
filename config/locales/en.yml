@@ -77,6 +77,7 @@ en:
       badges:
         progress: "Progress"
         missing: "Missing"
+        missing_items: "%{count} items missing"
       actions:
         show_all: "Show all (%{count})"
       top_materials:
