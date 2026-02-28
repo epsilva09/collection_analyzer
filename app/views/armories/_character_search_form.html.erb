@@ -1,0 +1,20 @@
+<% turbo_disabled = local_assigns.key?(:turbo_disabled) ? turbo_disabled : true %>
+
+<div class="row justify-content-center mb-4">
+  <div class="col-12 col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <%= form_with url: url, method: :get, local: true, data: { turbo: !turbo_disabled } do |f| %>
+          <div class="mb-3">
+            <%= f.label :name, label, class: 'form-label fw-bold' %>
+            <%= f.text_field :name,
+                             value: value,
+                             class: 'form-control form-control-lg',
+                             placeholder: placeholder %>
+          </div>
+          <%= f.submit submit_text, class: 'btn btn-success btn-lg w-100' %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

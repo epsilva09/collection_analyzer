@@ -71,6 +71,7 @@ en:
       heading: "Collection progress"
       form:
         character: "Character"
+        placeholder: "Type character name..."
         search: "Search"
       alerts:
         error: "Error"

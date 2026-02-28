@@ -34,19 +34,12 @@
 
             <%= render 'menu', current_page: :materials, name: @name %>
 
-            <div class="row justify-content-center mb-4">
-              <div class="col-12">
-                <%= form_with url: materials_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center', data: { turbo: false } do |f| %>
-                  <div class="col-12 col-md-5">
-                    <%= f.label :name, t('armories.progress.form.character'), class: 'form-label' %>
-                    <%= f.text_field :name, value: params[:name], class: 'form-control' %>
-                  </div>
-                  <div class="col-12 text-center">
-                    <%= f.submit t('armories.progress.form.search'), class: 'btn btn-success w-50' %>
-                  </div>
-                <% end %>
-              </div>
-            </div>
+            <%= render 'character_search_form',
+                       url: materials_armory_path,
+                       value: params[:name],
+                       label: t('armories.progress.form.character'),
+                       placeholder: t('armories.progress.form.placeholder'),
+                       submit_text: t('armories.progress.form.search') %>
 
             <% if @error.present? %>
               <div class="alert alert-danger" role="alert">

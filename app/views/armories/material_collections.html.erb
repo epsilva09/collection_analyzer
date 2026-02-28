@@ -68,32 +68,17 @@
                             <td class="text-start">
                               <strong><%= col[:tier] %> – <%= col[:collection_name] %></strong>
 
-                              <% if col[:rewards].present? %>
+                              <% badges_html = reward_badges(rewards: col[:rewards], status: col[:status]) %>
+                              <% if badges_html.present? %>
                                 <div class="mt-1">
-                                  <% col[:rewards].each do |reward| %>
-                                    <span class="badge <%= reward[:unlocked] ? 'bg-success' : 'bg-dark text-white' %> me-1 small"><%= reward[:description] %></span>
-                                  <% end %>
-                                </div>
-                              <% elsif col[:status].present? %>
-                                <div class="mt-1">
-                                  <% rewards = col[:status].to_s.split(',').map(&:strip) %>
-                                  <% rewards.each do |r| %>
-                                    <span class="badge bg-dark text-white me-1 small"><%= r %></span>
-                                  <% end %>
+                                  <%= badges_html %>
                                 </div>
                               <% end %>
                             </td>
                             <td class="text-center">
-                              <% case col[:bucket]
-                                 when :near %>
-                                   <span class="badge bg-warning text-dark"><%= t('armories.progress.labels.near') %></span>
-                              <%   when :mid %>
-                                   <span class="badge bg-secondary"><%= t('armories.progress.labels.mid') %></span>
-                              <%   when :low %>
-                                   <span class="badge bg-secondary"><%= t('armories.progress.labels.low') %></span>
-                              <%   else %>
-                                   <span class="badge bg-secondary"><%= t('armories.progress.labels.below_one') %></span>
-                              <% end %>
+                              <span class="badge <%= progress_bucket_badge_class(col[:bucket]) %>">
+                                <%= progress_bucket_label(col[:bucket]) %>
+                              </span>
                             </td>
                             <td class="text-center">
                               <span class="badge bg-secondary"><%= col[:progress] %>%</span>

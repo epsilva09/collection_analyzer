@@ -33,19 +33,12 @@
 
             <%= render 'menu', current_page: :progress, name: @name %>
 
-            <div class="row justify-content-center mb-4">
-              <div class="col-12">
-                <%= form_with url: progress_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center', data: { turbo: false } do |f| %>
-                  <div class="col-12 col-md-5">
-                    <%= f.label :name, t('armories.progress.form.character'), class: 'form-label' %>
-                    <%= f.text_field :name, value: params[:name], class: 'form-control' %>
-                  </div>
-                  <div class="col-12 text-center">
-                    <%= f.submit t('armories.progress.form.search'), class: 'btn btn-success w-50' %>
-                  </div>
-                <% end %>
-              </div>
-            </div>
+            <%= render 'character_search_form',
+                       url: progress_armory_path,
+                       value: params[:name],
+                       label: t('armories.progress.form.character'),
+                       placeholder: t('armories.progress.form.placeholder'),
+                       submit_text: t('armories.progress.form.search') %>
 
             <% if @error.present? %>
               <div class="alert alert-danger" role="alert">
@@ -97,41 +90,30 @@
                                     </div>
                                   </div>
 
-                                  <% if col[:rewards].present? %>
+                                  <% badges_html = reward_badges(rewards: col[:rewards], status: col[:status]) %>
+                                  <% if badges_html.present? %>
                                     <div class="mt-1">
-                                      <% col[:rewards].each do |reward| %>
-                                        <span class="badge <%= reward[:unlocked] ? 'bg-success' : 'bg-dark text-white' %> me-1 small"><%= reward[:description] %></span>
-                                      <% end %>
-                                    </div>
-                                  <% elsif col[:status].present? %>
-                                    <div class="mt-1">
-                                      <% rewards = col[:status].split(',').map(&:strip) rescue [col[:status]] %>
-                                      <% rewards.each do |r| %>
-                                        <span class="badge bg-dark text-white me-1 small"><%= r %></span>
-                                      <% end %>
+                                      <%= badges_html %>
                                     </div>
                                   <% end %>
                                   <% if col[:materials].present? %>
-                                    <% grouped_materials = col[:materials].group_by { |m| m[:name] } %>
-                                    <% aggregated_materials = grouped_materials.map do |name, mats|
-                                         { name: name, needed: mats.sum { |m| m[:needed].to_i } }
-                                       end.sort_by { |m| -m[:needed].to_i } %>
+                                    <% materials = aggregated_materials(col[:materials]) %>
 
                                     <div class="mt-2">
-                                      <% visible = aggregated_materials.first(10) %>
+                                      <% visible = materials.first(10) %>
                                       <% visible.each do |m| %>
                                         <span class="badge bg-warning text-dark me-1 mb-1 small">
                                           <%= m[:name] %> (+<%= m[:needed] %>)
                                         </span>
                                       <% end %>
 
-                                      <% if aggregated_materials.size > visible.size %>
+                                      <% if materials.size > visible.size %>
                                         <a class="small text-decoration-none ms-1" data-bs-toggle="collapse" href="#<%= mat_id %>" role="button" aria-expanded="false" aria-controls="<%= mat_id %>">
-                                          <%= t('armories.progress.actions.show_all', count: aggregated_materials.size) %>
+                                          <%= t('armories.progress.actions.show_all', count: materials.size) %>
                                         </a>
                                         <div class="collapse mt-2" id="<%= mat_id %>">
                                           <div class="d-flex flex-wrap">
-                                            <% aggregated_materials.drop(visible.size).each do |m| %>
+                                            <% materials.drop(visible.size).each do |m| %>
                                               <div class="me-2 mb-2">
                                                 <span class="badge bg-warning text-dark small">
                                                   <%= m[:name] %> (+<%= m[:needed] %>)

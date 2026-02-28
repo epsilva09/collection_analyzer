@@ -28,22 +28,13 @@
 
             <%= render 'menu', current_page: :index, name: (@character_idx.present? ? @name : nil) %>
 
-            <!-- Search Form -->
-            <div class="row justify-content-center mb-4">
-              <div class="col-12 col-md-6">
-                <div class="card shadow-sm">
-                  <div class="card-body">
-                    <%= form_with url: armory_path, method: :get, local: true do |f| %>
-                      <div class="mb-3">
-                        <%= f.label :name, t('armories.index.form.character_name'), class: 'form-label fw-bold' %>
-                        <%= f.text_field :name, value: @name, class: 'form-control form-control-lg', placeholder: t('armories.index.form.placeholder') %>
-                      </div>
-                      <%= f.submit t('armories.index.form.search'), class: 'btn btn-success btn-lg w-100' %>
-                    <% end %>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <%= render 'character_search_form',
+                       url: armory_path,
+                       value: @name,
+                       label: t('armories.index.form.character_name'),
+                       placeholder: t('armories.index.form.placeholder'),
+                       submit_text: t('armories.index.form.search'),
+                       turbo_disabled: false %>
 
             <!-- Error Alert -->
             <% if @error.present? %>

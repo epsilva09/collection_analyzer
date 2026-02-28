@@ -41,6 +41,7 @@ pt-BR:
       heading: "Progresso das Coleções"
       form:
         character: "Personagem"
+        placeholder: "Digite o nome do personagem..."
         search: "Pesquisar"
       alerts:
         error: "Erro"
