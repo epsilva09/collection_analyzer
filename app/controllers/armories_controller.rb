@@ -128,14 +128,7 @@ class ArmoriesController < ApplicationController
       end
 
       @collections_for_material.sort_by! do |col|
-        bucket_weight = case col[:bucket]
-                        when :near then 3
-                        when :mid then 2
-                        when :low then 1
-                        else 0
-                        end
-
-        [ -bucket_weight, -col[:progress].to_i ]
+        [ -bucket_weight(col[:bucket]), -col[:progress].to_i ]
       end
     end
 
@@ -251,6 +244,15 @@ class ArmoriesController < ApplicationController
   end
 
   private
+
+  def bucket_weight(bucket)
+    case bucket
+    when :near then 3
+    when :mid then 2
+    when :low then 1
+    else 0
+    end
+  end
 
   def build_progress_snapshot(name)
     client = ArmoryClient.new
