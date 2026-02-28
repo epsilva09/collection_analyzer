@@ -1,18 +1,67 @@
-
 # Collection Analyzer (Rails)
 
 [![CI](https://github.com/epsilva09/collection_analyzer/actions/workflows/ci.yml/badge.svg)](https://github.com/epsilva09/collection_analyzer/actions/workflows/ci.yml)
 [![CD](https://github.com/epsilva09/collection_analyzer/actions/workflows/cd.yml/badge.svg)](https://github.com/epsilva09/collection_analyzer/actions/workflows/cd.yml)
 [![Image Tag](https://img.shields.io/github/v/tag/epsilva09/collection_analyzer?label=image%20tag&logo=docker)](https://github.com/epsilva09/collection_analyzer/pkgs/container/collection_analyzer)
 
-This Rails application fetches a character's `characterIdx` from an external API
-and then retrieves the character collection `values` to present in a web page.
+Collection Analyzer is a Ruby on Rails web app that reads character
+collection data from an external Armory API and presents actionable
+progress insights.
 
-It also consumes the more detailed payload returned by `/armory/collection` and
-identifies which in‑game collections are **nearly complete** (default threshold 80%).
-These are surfaced in both the index and compare views.
+The application helps you:
 
-Setup
+- Inspect a character's collection attributes.
+- Compare two characters side by side.
+- Track in-progress collections by completion range.
+- Identify missing materials globally and by progress bucket.
+- Drill down from a material to the exact collections that still
+  require it.
+
+## Main Features
+
+- **Character search**
+  - Looks up a character and shows parsed collection attributes.
+- **Character comparison**
+  - Compares two characters and highlights common, unique, and numeric
+    differences.
+  - Runs only when both names are provided.
+- **Collection progress dashboard**
+  - Buckets collections into ranges: `<1%`, `1–29%`, `30–59%`, and
+    `≥80%`.
+  - Shows collection rewards/status and missing materials summary.
+- **Materials analytics**
+  - Aggregates missing materials by progress bucket and in a general
+    combined view.
+  - Supports click-through to see all collections that still need a
+    specific material.
+- **Localization**
+  - Supports English and Brazilian Portuguese (`en`, `pt-BR`).
+- **Shared navigation menu**
+  - Standardized menu across index, compare, progress, and materials
+    pages.
+
+## Routes Overview
+
+- `GET /armory`
+  - Main search page (also available at `/`).
+- `GET /armory/compare?name_a=...&name_b=...`
+  - Comparison page.
+- `GET /armory/progress?name=...`
+  - Collection progress page.
+- `GET /armory/materials?name=...`
+  - Missing materials dashboard.
+- `GET /armory/materials/collections?name=...&material=...`
+  - Collections that still need a selected material.
+
+## Quick Start
+
+### Prerequisites
+
+- Ruby (project-managed version)
+- Bundler
+- SQLite (default local database)
+
+### Install
 
 ```bash
 cd /home/epsilva09/projects/collection_analyzer
@@ -20,64 +69,87 @@ bundle install
 bin/rails db:create db:migrate
 ```
 
-Run
+### Run locally
 
 ```bash
 bin/rails server -b 0.0.0.0 -p 3000
 ```
 
-Open http://localhost:3000 or GET `/armory?name=Cadamantis`.
+Open:
+[http://localhost:3000](http://localhost:3000)
 
-Configuration
+## Configuration
 
-- To change the API base URL set the environment variable `ASC_API_BASE_URL`.
+- `ASC_API_BASE_URL`
+  - Optional. Overrides the external API base URL used by `ArmoryClient`.
 
-Tests
+## How to Use the App
+
+1. Open the **Search** page and enter a character name.
+2. Use the menu to navigate to:
+   - **Progress** for collection completion ranges.
+   - **Materials** for grouped missing materials.
+   - **Compare** to compare two characters.
+3. In **Materials**, click a material row to open the detail page
+   showing where that material is still required.
+
+## Code Structure (Key Files)
+
+- `app/services/armory_client.rb`
+  - Encapsulates all external API requests.
+- `app/services/attribute_parser.rb`
+  - Normalizes and parses collection attribute values.
+- `app/controllers/armories_controller.rb`
+  - Main controller for index, compare, progress, materials, and
+    material collections.
+- `app/views/armories/*.html.erb`
+  - UI pages and shared menu partial.
+
+## Quality and Security
+
+### Tests
 
 ```bash
 bin/rails test
 ```
 
-Lint (RuboCop)
+### Lint (RuboCop)
 
 ```bash
 bin/rubocop
 ```
 
-Auto-correct (safe)
+### Auto-correct (safe)
 
 ```bash
 bin/rubocop -a
 ```
 
-CI/CD (GitHub Actions)
+### Security scan (Brakeman)
 
-- CI: `.github/workflows/ci.yml`
-	- roda em `push` e `pull_request`
-	- executa segurança (`brakeman`, `importmap audit`), lint (`rubocop`) e testes
-- CD: `.github/workflows/cd.yml`
-	- roda em `push` para `main` (e `workflow_dispatch`)
-	- builda e publica imagem Docker no GHCR: `ghcr.io/epsilva09/collection_analyzer`
+```bash
+bin/brakeman
+```
 
-Para usar a imagem publicada:
+## CI and CD
+
+- **CI**: `.github/workflows/ci.yml`
+  - Runs on `push` and `pull_request`.
+  - Includes security checks (`brakeman`, `importmap audit`), lint,
+    and test suite.
+- **CD**: `.github/workflows/cd.yml`
+  - Runs on pushes to `main` and `workflow_dispatch`.
+  - Builds and publishes a Docker image to GHCR.
+
+Published image:
 
 ```bash
 docker pull ghcr.io/epsilva09/collection_analyzer:latest
 ```
 
-Files of interest
+## Notes
 
-- `app/services/armory_client.rb` — encapsulates external API requests.
-- `app/controllers/armories_controller.rb` — controller that serves the UI and JSON.
-- `app/views/armories/index.html.erb` — HTML view showing the `values`.
-
-Compare feature
-
-- Visit `/armory/compare?name_a=Cadamantis&name_b=OtherName` or open the Compare page from `/armory/compare`.
-- The page shows common collection values and those unique to each character.
-
-Progress overview
-
-- A new route `/armory/progress` lists in‑progress collections for a character.
-- Collections are bucketed by progress: 1–29 %, 30–59 %, and near completion (≥ 80 %).
-- Each entry shows how much is missing, the rewards/status granted, and any specific materials still required for that collection.
+- This project is read-only from the app perspective.
+- It analyzes remote API data and local calculations.
+- If the external API is unavailable, pages return graceful error
+  feedback in the UI.
