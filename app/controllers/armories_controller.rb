@@ -214,7 +214,7 @@ class ArmoriesController < ApplicationController
               else
                            total_rewards = rewards_raw.size
                            threshold = if total_rewards == 3
-                                         [30, 60, 100][index] || 100
+                                         [ 30, 60, 100 ][index] || 100
                            elsif total_rewards.positive?
                                          (((index + 1) * 100.0) / total_rewards).round
                            else
@@ -307,7 +307,7 @@ class ArmoriesController < ApplicationController
           total_needed: total_needed,
           collections_count: collections_count
         }
-      end.sort_by { |m| [-m[:total_needed].to_i, -m[:collections_count].to_i, m[:name].to_s] }
+      end.sort_by { |m| [ -m[:total_needed].to_i, -m[:collections_count].to_i, m[:name].to_s ] }
     end
 
     # Aggregate materials across all buckets (general view)
@@ -323,7 +323,7 @@ class ArmoriesController < ApplicationController
         total_needed: total_needed,
         collections_count: collections_count
       }
-    end.sort_by { |m| [-m[:total_needed].to_i, -m[:collections_count].to_i, m[:name].to_s] }
+    end.sort_by { |m| [ -m[:total_needed].to_i, -m[:collections_count].to_i, m[:name].to_s ] }
 
     {
       character_idx: character_idx,

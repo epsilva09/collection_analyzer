@@ -69,9 +69,34 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_includes response.body, I18n.t("armories.progress.labels.low")
       assert_includes response.body, "Low"
-      assert_includes response.body, "Material A"
       assert_includes response.body, "Mid"
       assert_includes response.body, "Near"
+    end
+  end
+
+  test "materials lists aggregated required items by bucket and general view" do
+    details = {
+      values: [],
+      data: [
+        { "name" => "Tier1", "collections" => [
+            { "name" => "Low",  "progress" => 10, "rewards" => [ { "description" => "HP +5" } ],
+              "data" => [ { "name" => "Material A", "progress" => 0, "max" => 3 } ] },
+            { "name" => "Mid",  "progress" => 50, "rewards" => [ { "description" => "DEF +2" } ] },
+            { "name" => "Near", "progress" => 82, "rewards" => [ { "description" => "STR +1" } ] }
+          ] }
+      ]
+    }
+
+    with_stubbed_client(
+      fetch_character_idx: ->(_name) { 222 },
+      fetch_collection_details: ->(_idx) { details }
+    ) do
+      get materials_armory_path, params: { name: "X" }
+      assert_response :success
+      # Should show per-bucket aggregated materials and a general view.
+      assert_includes response.body, I18n.t("armories.progress.labels.low")
+      assert_includes response.body, I18n.t("armories.materials.labels.general")
+      assert_includes response.body, "Material A"
     end
   end
 
