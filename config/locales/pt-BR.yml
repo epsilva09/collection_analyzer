@@ -62,6 +62,15 @@ pt-BR:
       heading: "Itens que faltam para completar coleções"
       labels:
         general: "Geral (todas as coleções)"
+    material_collections:
+      page_title: "Coleções que precisam de %{material}"
+      heading: "Coleções que ainda precisam de %{material}"
+      list_heading: "Coleções relacionadas"
+      table:
+        collection: "Coleção"
+        bucket: "Faixa de progresso"
+        needed: "Quantidade faltante"
+      empty: "Nenhuma coleção precisa mais de %{material}."
     compare:
       page_title: "Comparar Coleções"
       heading: "Comparar Coleções"

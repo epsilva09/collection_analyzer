@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title><%= t('armories.material_collections.page_title', material: @material_name.presence || '-') %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+    <%= stylesheet_link_tag 'armory', media: 'all' %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+          <main class="text-center">
+            <div class="d-flex justify-content-end mb-2">
+              <span class="small me-2"><%= t('armories_shared.language') %>:</span>
+              <%= link_to t('armories_shared.portuguese'), locale_switch_url(:'pt-BR'), class: "btn btn-sm #{I18n.locale.to_s == 'pt-BR' ? 'btn-primary' : 'btn-outline-primary'} me-1" %>
+              <%= link_to t('armories_shared.english'), locale_switch_url(:en), class: "btn btn-sm #{I18n.locale.to_s == 'en' ? 'btn-primary' : 'btn-outline-primary'}" %>
+            </div>
+
+            <h1 class="my-4">
+              <i class="fas fa-box-open me-2"></i>
+              <%= t('armories.material_collections.heading', material: @material_name) %>
+            </h1>
+
+            <div class="row justify-content-center mb-3">
+              <div class="col-12 text-center">
+                <%= link_to t('armories.materials.heading'), materials_armory_path(name: @name), class: 'btn btn-outline-secondary btn-sm me-2' %>
+                <%= link_to t('armories.progress.heading'), progress_armory_path(name: @name), class: 'btn btn-outline-secondary btn-sm me-2' %>
+                <%= link_to t('armories.compare.actions.back_to_index'), armory_path, class: 'btn btn-outline-secondary btn-sm' %>
+              </div>
+            </div>
+
+            <% if @error.present? %>
+              <div class="alert alert-danger" role="alert">
+                <strong><%= t('armories.progress.alerts.error') %>:</strong> <%= @error %>
+              </div>
+            <% end %>
+
+            <% if @collections_for_material.present? %>
+              <div class="card shadow-sm mt-3">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                  <h2 class="h5 mb-0">
+                    <i class="fas fa-list-ul me-2"></i>
+                    <%= t('armories.material_collections.list_heading') %>
+                  </h2>
+                  <span class="badge bg-light text-dark"><%= @collections_for_material.size %></span>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0 align-middle">
+                      <thead>
+                        <tr>
+                          <th class="border-0"><%= t('armories.material_collections.table.collection') %></th>
+                          <th class="border-0 text-center"><%= t('armories.material_collections.table.bucket') %></th>
+                          <th class="border-0 text-center"><%= t('armories.progress.badges.progress') %></th>
+                          <th class="border-0 text-center"><%= t('armories.progress.badges.missing') %></th>
+                          <th class="border-0 text-center"><%= t('armories.material_collections.table.needed') %></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% @collections_for_material.each do |col| %>
+                          <tr>
+                            <td class="text-start">
+                              <strong><%= col[:tier] %> – <%= col[:collection_name] %></strong>
+
+                              <% if col[:rewards].present? %>
+                                <div class="mt-1">
+                                  <% col[:rewards].each do |reward| %>
+                                    <span class="badge <%= reward[:unlocked] ? 'bg-success' : 'bg-dark text-white' %> me-1 small"><%= reward[:description] %></span>
+                                  <% end %>
+                                </div>
+                              <% elsif col[:status].present? %>
+                                <div class="mt-1">
+                                  <% rewards = col[:status].to_s.split(',').map(&:strip) %>
+                                  <% rewards.each do |r| %>
+                                    <span class="badge bg-dark text-white me-1 small"><%= r %></span>
+                                  <% end %>
+                                </div>
+                              <% end %>
+                            </td>
+                            <td class="text-center">
+                              <% case col[:bucket]
+                                 when :near %>
+                                   <span class="badge bg-warning text-dark"><%= t('armories.progress.labels.near') %></span>
+                              <%   when :mid %>
+                                   <span class="badge bg-secondary"><%= t('armories.progress.labels.mid') %></span>
+                              <%   when :low %>
+                                   <span class="badge bg-secondary"><%= t('armories.progress.labels.low') %></span>
+                              <%   else %>
+                                   <span class="badge bg-secondary"><%= t('armories.progress.labels.below_one') %></span>
+                              <% end %>
+                            </td>
+                            <td class="text-center">
+                              <span class="badge bg-secondary"><%= col[:progress] %>%</span>
+                            </td>
+                            <td class="text-center">
+                              <span class="badge bg-info"><%= col[:missing] %>%</span>
+                            </td>
+                            <td class="text-center fw-bold text-warning">
+                              +<%= col[:needed] %>
+                            </td>
+                          </tr>
+                        <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            <% else %>
+              <div class="alert alert-info mt-4" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <%= t('armories.material_collections.empty', material: @material_name) %>
+              </div>
+            <% end %>
+          </main>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -87,6 +87,73 @@ class ArmoriesController < ApplicationController
     end
   end
 
+  def material_collections
+    @name = params[:name].presence || "Cadamantis"
+    @material_name = params[:material].to_s
+    @bucket = params[:bucket].presence&.to_sym
+
+    snapshot = build_progress_snapshot(@name)
+    @character_idx = snapshot[:character_idx]
+    @progress_data = snapshot[:progress_data]
+    @error = snapshot[:error]
+
+    valid_buckets = %i[near mid low below_one]
+    # For this view we always search all progress ranges so the user
+    # can see every collection that still needs the chosen material.
+    buckets_to_search = valid_buckets
+
+    @collections_for_material = []
+
+    if @material_name.present? && @error.blank?
+      buckets_to_search.each do |bucket|
+        (@progress_data[bucket] || []).each do |entry|
+          next unless entry[:materials].present?
+
+          mats_for_material = entry[:materials].select { |m| m[:name] == @material_name && m[:needed].to_i.positive? }
+          next if mats_for_material.empty?
+
+          total_needed = mats_for_material.sum { |m| m[:needed].to_i }
+
+          @collections_for_material << {
+            bucket: bucket,
+            tier: entry[:tier],
+            collection_name: entry[:name],
+            progress: entry[:progress],
+            missing: entry[:missing],
+            needed: total_needed,
+            rewards: entry[:rewards],
+            status: entry[:status]
+          }
+        end
+      end
+
+      @collections_for_material.sort_by! do |col|
+        bucket_weight = case col[:bucket]
+                        when :near then 3
+                        when :mid then 2
+                        when :low then 1
+                        else 0
+                        end
+
+        [ -bucket_weight, -col[:progress].to_i ]
+      end
+    end
+
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: {
+          name: @name,
+          character_idx: @character_idx,
+          material: @material_name,
+          bucket: @bucket,
+          collections: @collections_for_material,
+          error: @error
+        }
+      end
+    end
+  end
+
   # Compare collections of two characters by name.
   # Expects params[:name_a] and params[:name_b]
   def compare

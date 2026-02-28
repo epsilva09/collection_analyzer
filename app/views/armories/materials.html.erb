@@ -104,7 +104,7 @@
                             </thead>
                             <tbody>
                               <% items.each do |m| %>
-                                <tr>
+                                <tr class="cursor-pointer" onclick="window.location='<%= material_collections_armory_path(name: @name, material: m[:name], bucket: (section == :general ? nil : section)) %>'">
                                   <td>
                                     <span class="fw-semibold"><%= m[:name] %></span>
                                   </td>

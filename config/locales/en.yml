@@ -92,6 +92,15 @@ en:
       heading: "Items missing to complete collections"
       labels:
         general: "General (all collections)"
+    material_collections:
+      page_title: "Collections that need %{material}"
+      heading: "Collections still needing %{material}"
+      list_heading: "Related collections"
+      table:
+        collection: "Collection"
+        bucket: "Progress range"
+        needed: "Missing quantity"
+      empty: "No collections still need %{material}."
     compare:
       page_title: "Compare collections"
       heading: "Compare collections"
