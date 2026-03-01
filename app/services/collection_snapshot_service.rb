@@ -1,10 +1,39 @@
 class CollectionSnapshotService
-  def initialize(client: ArmoryClient.new, near_completion_threshold: 80)
+  DEFAULT_CACHE_TTL = 2.minutes
+
+  def initialize(client: ArmoryClient.new, near_completion_threshold: 80, cache: Rails.cache, cache_ttl: DEFAULT_CACHE_TTL)
     @client = client
     @near_completion_threshold = near_completion_threshold
+    @cache = cache
+    @cache_ttl = cache_ttl
   end
 
-  def call(name)
+  def call(name, locale: I18n.locale)
+    normalized_name = name.to_s.strip
+    cache_key = snapshot_cache_key(name: normalized_name, locale: locale)
+
+    cached_snapshot = read_cached_snapshot(cache_key)
+    return cached_snapshot if cached_snapshot
+
+    started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    snapshot = build_snapshot(normalized_name)
+    duration_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1000.0).round(2)
+
+    ActiveSupport::Notifications.instrument(
+      "collection_snapshot.build",
+      name: normalized_name,
+      locale: locale.to_s,
+      duration_ms: duration_ms
+    )
+
+    write_cached_snapshot(cache_key, snapshot)
+
+    snapshot.deep_dup
+  end
+
+  private
+
+  def build_snapshot(name)
     character_idx = @client.fetch_character_idx(name)
     collection_data = []
     progress_data = { near: [], mid: [], low: [], below_one: [] }
@@ -24,7 +53,31 @@ class CollectionSnapshotService
     }
   end
 
-  private
+  def snapshot_cache_key(name:, locale:)
+    [
+      "collection_snapshot",
+      "v1",
+      name.to_s.downcase,
+      locale.to_s,
+      @near_completion_threshold
+    ].join(":")
+  end
+
+  def read_cached_snapshot(cache_key)
+    return nil unless @cache
+
+    snapshot = @cache.read(cache_key)
+    return nil unless snapshot
+
+    ActiveSupport::Notifications.instrument("collection_snapshot.cache_hit", cache_key: cache_key)
+    snapshot.deep_dup
+  end
+
+  def write_cached_snapshot(cache_key, snapshot)
+    return unless @cache
+
+    @cache.write(cache_key, snapshot, expires_in: @cache_ttl)
+  end
 
   def build_progress_data(collection_data)
     progress_data = { near: [], mid: [], low: [], below_one: [] }

@@ -118,6 +118,18 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "progress shows localized invalid JSON error message" do
+    with_stubbed_client(
+      fetch_character_idx: ->(_name) { raise "Invalid JSON response: unexpected token at '{'" },
+      fetch_collection_details: ->(_idx) { { values: [], data: [] } }
+    ) do
+      get progress_armory_path, params: { name: "X" }
+      assert_response :success
+      assert_includes response.body, "Resposta JSON inválida"
+      assert_includes response.body, "unexpected token at"
+    end
+  end
+
   private
 
   def with_stubbed_client(fetch_character_idx:, fetch_collection_details:)

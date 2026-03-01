@@ -1,6 +1,43 @@
 require "test_helper"
 
 class CollectionSnapshotServiceTest < ActiveSupport::TestCase
+  test "reuses cached snapshot for repeated requests" do
+    cache = ActiveSupport::Cache::MemoryStore.new
+
+    fetch_idx_calls = 0
+    fetch_details_calls = 0
+
+    fake_client = Object.new
+    fake_client.define_singleton_method(:fetch_character_idx) do |_name|
+      fetch_idx_calls += 1
+      999
+    end
+
+    fake_client.define_singleton_method(:fetch_collection_details) do |_idx|
+      fetch_details_calls += 1
+      {
+        values: [],
+        data: [
+          {
+            "name" => "Tier 1",
+            "collections" => [
+              { "name" => "Any", "progress" => 10, "rewards" => [ { "description" => "HP +1" } ] }
+            ]
+          }
+        ]
+      }
+    end
+
+    service = CollectionSnapshotService.new(client: fake_client, cache: cache, cache_ttl: 10.minutes)
+
+    first = service.call("Cadamantis")
+    second = service.call("Cadamantis")
+
+    assert_equal 1, fetch_idx_calls
+    assert_equal 1, fetch_details_calls
+    assert_equal first, second
+  end
+
   test "builds progress buckets and aggregated materials" do
     fake_client = Object.new
 
