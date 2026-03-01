@@ -33,6 +33,7 @@ traceability.
 - 2026-03 Cycle 21: `docs/engineering-cycles/2026-03-cycle-21.md`
 - 2026-03 Cycle 22: `docs/engineering-cycles/2026-03-cycle-22.md`
 - 2026-03 Cycle 23: `docs/engineering-cycles/2026-03-cycle-23.md`
+- 2026-03 Cycle 24: `docs/engineering-cycles/2026-03-cycle-24.md`
 
 ## Point 1 — Performance
 
@@ -312,6 +313,15 @@ traceability.
   and important attribute normalization.
 - Increased suite confidence for interactive filter flows and future
   refactors.
+
+## Cycle 24 — Test Coverage Matrix and Prioritization
+
+- Added `docs/test-coverage-matrix.md` with feature-by-screen and
+  layer-by-layer coverage status.
+- Documented current risk hotspots (Stimulus regressions, system test
+  runtime constraints, visual/sticky regressions).
+- Added prioritized roadmap (`P1`/`P2`/`P3`) and recommended quality gates
+  for continued suite hardening.
 
 ---
 
