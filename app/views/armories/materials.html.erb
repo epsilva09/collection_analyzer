@@ -8,14 +8,19 @@
 
             <h1 class="my-4"><%= t('armories.materials.heading') %></h1>
 
-            <%= render 'menu', current_page: :materials, name: @name %>
+            <%= render 'menu',
+                       current_page: :materials,
+                       name: @name,
+                       name_a: nil,
+                       name_b: nil %>
 
             <%= render 'character_search_form',
                        url: materials_armory_path,
                        value: params[:name],
                        label: t('armories.progress.form.character'),
                        placeholder: t('armories.progress.form.placeholder'),
-                       submit_text: t('armories.progress.form.search') %>
+                       submit_text: t('armories.progress.form.search'),
+                       turbo_disabled: true %>
 
             <% if @error.present? %>
               <div class="alert alert-danger" role="alert">
@@ -24,69 +29,14 @@
             <% end %>
 
             <% if @materials_by_bucket.present? || @top_materials.present? %>
-              <% labels = { near: t('armories.progress.labels.near'), mid: t('armories.progress.labels.mid'), low: t('armories.progress.labels.low'), below_one: t('armories.progress.labels.below_one'), general: t('armories.materials.labels.general') } %>
-              <% ordered_sections = [:near, :mid, :low, :below_one, :general] %>
+              <% sections = materials_sections(@materials_by_bucket, @top_materials) %>
 
               <div class="accordion" id="materials-groups">
-                <% ordered_sections.each_with_index do |section, index| %>
-                  <% items = if section == :general
-                               @top_materials || []
-                             else
-                               (@materials_by_bucket[section] || [])
-                             end %>
-                  <% next if items.blank? %>
-                  <% collapse_id = "materials-#{section}" %>
-                  <% heading_id = "heading-materials-#{section}" %>
-
-                  <div class="accordion-item mb-3 border-0 bg-transparent">
-                    <h2 class="accordion-header" id="<%= heading_id %>">
-                      <button
-                        class="accordion-button materials-title-btn <%= index.zero? ? '' : 'collapsed' %>"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#<%= collapse_id %>"
-                        aria-expanded="<%= index.zero? ? 'true' : 'false' %>"
-                        aria-controls="<%= collapse_id %>">
-                        <span class="me-2"><%= labels[section] %></span>
-                        <span class="badge <%= section == :near ? 'bg-warning text-dark' : 'bg-secondary' %>"><%= items.size %></span>
-                      </button>
-                    </h2>
-
-                    <div
-                      id="<%= collapse_id %>"
-                      class="accordion-collapse collapse <%= index.zero? ? 'show' : '' %>"
-                      aria-labelledby="<%= heading_id %>">
-                      <div class="accordion-body p-0">
-                        <div class="table-responsive">
-                          <table class="table table-dark table-hover mb-0 align-middle">
-                            <thead>
-                              <tr>
-                                <th class="border-0"><%= t('armories.progress.top_materials.item') %></th>
-                                <th class="border-0 text-center"><%= t('armories.progress.top_materials.total_needed') %></th>
-                                <th class="border-0 text-center"><%= t('armories.progress.top_materials.collections_count') %></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <% items.each do |m| %>
-                                <% material_link = material_collections_armory_path(name: @name, material: m[:name], bucket: (section == :general ? nil : section)) %>
-                                <tr>
-                                  <td>
-                                    <%= link_to m[:name], material_link, class: 'fw-semibold text-decoration-none' %>
-                                  </td>
-                                  <td class="text-center fw-bold text-warning">
-                                    <%= m[:total_needed] %>
-                                  </td>
-                                  <td class="text-center">
-                                    <span class="badge bg-secondary"><%= m[:collections_count] %></span>
-                                  </td>
-                                </tr>
-                              <% end %>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <% sections.each_with_index do |section_data, index| %>
+                  <%= render 'materials_section',
+                             section_data: section_data,
+                             index: index,
+                             character_name: @name %>
                 <% end %>
               </div>
             <% end %>

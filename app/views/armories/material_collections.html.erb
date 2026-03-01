@@ -48,32 +48,7 @@
                       </thead>
                       <tbody>
                         <% @collections_for_material.each do |col| %>
-                          <tr>
-                            <td class="text-start">
-                              <strong><%= col[:tier] %> – <%= col[:collection_name] %></strong>
-
-                              <% badges_html = reward_badges(rewards: col[:rewards], status: col[:status]) %>
-                              <% if badges_html.present? %>
-                                <div class="mt-1">
-                                  <%= badges_html %>
-                                </div>
-                              <% end %>
-                            </td>
-                            <td class="text-center">
-                              <span class="badge <%= progress_bucket_badge_class(col[:bucket]) %>">
-                                <%= progress_bucket_label(col[:bucket]) %>
-                              </span>
-                            </td>
-                            <td class="text-center">
-                              <span class="badge bg-secondary"><%= col[:progress] %>%</span>
-                            </td>
-                            <td class="text-center">
-                              <span class="badge bg-info"><%= col[:missing] %>%</span>
-                            </td>
-                            <td class="text-center fw-bold text-warning">
-                              +<%= col[:needed] %>
-                            </td>
-                          </tr>
+                          <%= render 'material_collections_row', collection: col %>
                         <% end %>
                       </tbody>
                     </table>

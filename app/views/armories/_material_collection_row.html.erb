@@ -1,0 +1,26 @@
+<tr>
+  <td class="text-start">
+    <strong><%= collection[:tier] %> – <%= collection[:collection_name] %></strong>
+
+    <% badges_html = reward_badges(rewards: collection[:rewards], status: collection[:status]) %>
+    <% if badges_html.present? %>
+      <div class="mt-1">
+        <%= badges_html %>
+      </div>
+    <% end %>
+  </td>
+  <td class="text-center">
+    <span class="badge <%= progress_bucket_badge_class(collection[:bucket]) %>">
+      <%= progress_bucket_label(collection[:bucket]) %>
+    </span>
+  </td>
+  <td class="text-center">
+    <span class="badge bg-secondary"><%= collection[:progress] %>%</span>
+  </td>
+  <td class="text-center">
+    <span class="badge bg-info"><%= collection[:missing] %>%</span>
+  </td>
+  <td class="text-center fw-bold text-warning">
+    +<%= collection[:needed] %>
+  </td>
+</tr>
