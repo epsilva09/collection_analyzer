@@ -118,6 +118,63 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "compare renders detailed table filters and row filter attributes" do
+    details_a = { values: [ "HP +1250", "Defesa +647", "STR +10" ], data: [] }
+    details_b = { values: [ "HP +1250", "INT +5" ], data: [] }
+
+    with_stubbed_client(
+      fetch_character_idx: ->(name) { name == "A" ? 1 : (name == "B" ? 2 : nil) },
+      fetch_collection_details: ->(idx) { idx == 1 ? details_a : (idx == 2 ? details_b : { values: [], data: [] }) }
+    ) do
+      get compare_armory_path, params: { name_a: "A", name_b: "B" }
+      assert_response :success
+
+      assert_includes response.body, "data-controller=\"compare-table-filters\""
+      assert_select "#compare-attribute-filter"
+      assert_select "#compare-winner-filter"
+      assert_select "datalist#compare-attribute-options option", minimum: 1
+      assert_select "tbody tr[data-compare-row='true']", minimum: 1
+    end
+  end
+
+  test "material collections renders filter controls and row filter metadata" do
+    details = {
+      values: [],
+      data: [
+        {
+          "name" => "Tier1",
+          "collections" => [
+            {
+              "name" => "Low",
+              "progress" => 10,
+              "rewards" => [ { "description" => "HP +5" } ],
+              "data" => [ { "name" => "Material A", "progress" => 0, "max" => 3 } ]
+            },
+            {
+              "name" => "Mid",
+              "progress" => 50,
+              "rewards" => [ { "description" => "DEF +2" } ],
+              "data" => [ { "name" => "Material A", "progress" => 0, "max" => 2 } ]
+            }
+          ]
+        }
+      ]
+    }
+
+    with_stubbed_client(
+      fetch_character_idx: ->(_name) { 222 },
+      fetch_collection_details: ->(_idx) { details }
+    ) do
+      get material_collections_armory_path, params: { name: "X", material: "Material A" }
+      assert_response :success
+
+      assert_includes response.body, "data-controller=\"material-collections-filters\""
+      assert_select "#material-collections-name-filter"
+      assert_select "#material-collections-bucket-filter"
+      assert_select "tr[data-material-collections-entry='true']", minimum: 1
+    end
+  end
+
   test "progress shows localized invalid JSON error message" do
     with_stubbed_client(
       fetch_character_idx: ->(_name) { raise "Invalid JSON response: unexpected token at '{'" },
