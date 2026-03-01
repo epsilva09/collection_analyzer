@@ -1,4 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
+import {
+  matchesAnyQuery,
+  normalizeToken,
+  parseCsvTokens,
+  parseRawCsvTokens,
+  refreshCsvAutocompleteOptions,
+  uniqueDisplayTokens
+} from "./utils/csv_filter_utils"
 
 export default class extends Controller {
   static targets = [
@@ -38,24 +46,20 @@ export default class extends Controller {
   }
 
   applyFilters() {
-    const materialQueries = this.parseCsvTokens(this.materialInputTarget.value)
+    const materialQueries = parseCsvTokens(this.materialInputTarget.value)
     const materialQuerySet = new Set(materialQueries)
     const materialQueryList = Array.from(materialQuerySet)
 
-    const bucketQueries = this.parseCsvTokens(this.bucketInputTarget.value)
+    const bucketQueries = parseCsvTokens(this.bucketInputTarget.value)
     const bucketQuerySet = new Set(bucketQueries)
     const bucketQueryList = Array.from(bucketQuerySet)
 
     this.entries.forEach((entryData) => {
       const { element, materialValues, bucketValues } = entryData
 
-      const materialMatches =
-        materialQuerySet.size === 0 ||
-        materialQueryList.some((query) => materialValues.some((value) => value.includes(query)))
+      const materialMatches = matchesAnyQuery(materialValues, materialQuerySet, materialQueryList)
 
-      const bucketMatches =
-        bucketQuerySet.size === 0 ||
-        bucketQueryList.some((query) => bucketValues.some((value) => value.includes(query)))
+      const bucketMatches = matchesAnyQuery(bucketValues, bucketQuerySet, bucketQueryList)
 
       element.hidden = !(materialMatches && bucketMatches)
     })
@@ -152,50 +156,11 @@ export default class extends Controller {
   }
 
   refreshAutocompleteOptions(inputElement, datalistElement, sourceOptions) {
-    const rawValue = inputElement.value || ""
-    const tokens = rawValue.split(",").map((token) => token.trim())
-    const currentToken = this.normalize(tokens[tokens.length - 1])
-    const selectedTokens = tokens
-      .slice(0, -1)
-      .map((token) => this.normalize(token))
-      .filter(Boolean)
-    const selectedTokenSet = new Set(selectedTokens)
-
-    const filteredOptions = sourceOptions
-      .filter((option) => {
-        const normalizedOption = this.normalize(option)
-
-        if (selectedTokenSet.has(normalizedOption)) {
-          return false
-        }
-
-        return !currentToken || normalizedOption.includes(currentToken)
-      })
-      .slice(0, 100)
-
-    datalistElement.innerHTML = ""
-
-    filteredOptions.forEach((option) => {
-      const suggestion = document.createElement("option")
-      suggestion.value = this.buildCsvSuggestion(rawValue, option)
-      datalistElement.appendChild(suggestion)
+    refreshCsvAutocompleteOptions({
+      inputElement,
+      datalistElement,
+      sourceOptions
     })
-  }
-
-  buildCsvSuggestion(rawValue, suggestion) {
-    const parts = (rawValue || "").split(",")
-
-    if (parts.length <= 1) {
-      return suggestion
-    }
-
-    const prefix = parts
-      .slice(0, -1)
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .join(", ")
-
-    return prefix ? `${prefix}, ${suggestion}` : suggestion
   }
 
   buildEntryCache() {
@@ -217,14 +182,14 @@ export default class extends Controller {
   }
 
   renderChips() {
-    this.renderChipGroup(this.materialChipsTarget, this.parseRawCsvTokens(this.materialInputTarget.value), "material")
-    this.renderChipGroup(this.bucketChipsTarget, this.parseRawCsvTokens(this.bucketInputTarget.value), "bucket")
+    this.renderChipGroup(this.materialChipsTarget, parseRawCsvTokens(this.materialInputTarget.value), "material")
+    this.renderChipGroup(this.bucketChipsTarget, parseRawCsvTokens(this.bucketInputTarget.value), "bucket")
   }
 
   renderChipGroup(container, tokens, chipType) {
     container.innerHTML = ""
 
-    this.uniqueDisplayTokens(tokens).forEach((token) => {
+    uniqueDisplayTokens(tokens).forEach((token) => {
       const chip = document.createElement("button")
       chip.type = "button"
       chip.className = "btn btn-sm btn-outline-secondary progress-filter-chip"
@@ -273,20 +238,6 @@ export default class extends Controller {
       .filter(Boolean)
   }
 
-  parseRawCsvTokens(rawValue) {
-    return (rawValue || "")
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean)
-  }
-
-  parseCsvTokens(rawValue) {
-    return this.normalize(rawValue)
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean)
-  }
-
   parseEntryValues(rawValue) {
     return this.normalize(rawValue)
       .split("|")
@@ -294,31 +245,14 @@ export default class extends Controller {
       .filter(Boolean)
   }
 
-  uniqueDisplayTokens(values) {
-    const seen = new Set()
-    const result = []
-
-    values.forEach((value) => {
-      const normalized = this.normalize(value)
-      if (!normalized || seen.has(normalized)) {
-        return
-      }
-
-      seen.add(normalized)
-      result.push(value)
-    })
-
-    return result
-  }
-
   removeToken(inputElement, tokenToRemove) {
-    const remaining = this.parseRawCsvTokens(inputElement.value)
+    const remaining = parseRawCsvTokens(inputElement.value)
       .filter((token) => this.normalize(token) !== tokenToRemove)
     inputElement.value = remaining.join(", ")
   }
 
   normalize(value) {
-    return (value || "").toString().trim().toLowerCase()
+    return normalizeToken(value)
   }
 
   escapeHtml(value) {

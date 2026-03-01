@@ -30,6 +30,7 @@ traceability.
 - 2026-03 Cycle 18: `docs/engineering-cycles/2026-03-cycle-18.md`
 - 2026-03 Cycle 19: `docs/engineering-cycles/2026-03-cycle-19.md`
 - 2026-03 Cycle 20: `docs/engineering-cycles/2026-03-cycle-20.md`
+- 2026-03 Cycle 21: `docs/engineering-cycles/2026-03-cycle-21.md`
 
 ## Point 1 — Performance
 
@@ -283,6 +284,15 @@ traceability.
   options derived from detailed comparison rows.
 - Kept compare filtering logic unchanged while improving input discoverability
   and typing speed.
+
+## Cycle 21 — Compare CSV Parity + Shared Refactor
+
+- Compare filters now support comma-separated multi-value filtering with
+  token-aware autocomplete behavior.
+- Introduced shared CSV filter utilities and refactored both compare and
+  materials controllers to reuse the same parsing/autocomplete/matching
+  logic.
+- Added localized multi-token hint text to compare filter toolbar.
 
 ---
 

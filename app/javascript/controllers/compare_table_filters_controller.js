@@ -1,9 +1,17 @@
 import { Controller } from "@hotwired/stimulus"
+import {
+  matchesAnyQuery,
+  normalizeToken,
+  parseCsvTokens,
+  refreshCsvAutocompleteOptions
+} from "./utils/csv_filter_utils"
 
 export default class extends Controller {
   static targets = [
     "attributeInput",
+    "attributeDatalist",
     "winnerInput",
+    "winnerDatalist",
     "visibleCount",
     "totalCount",
     "resultsSummary"
@@ -16,13 +24,23 @@ export default class extends Controller {
 
   connect() {
     this.rows = Array.from(this.element.querySelectorAll("[data-compare-row='true']"))
+    this.attributeAutocompleteOptions = this.datalistValues(this.attributeDatalistTarget)
+    this.winnerAutocompleteOptions = this.datalistValues(this.winnerDatalistTarget)
+
+    this.refreshAttributeAutocomplete()
+    this.refreshWinnerAutocomplete()
     this.renderCounter(this.rows.length)
     this.applyFilters()
   }
 
   applyFilters() {
-    const attributeQuery = this.normalize(this.attributeInputTarget.value)
-    const winnerQuery = this.normalize(this.winnerInputTarget.value)
+    const attributeQueries = parseCsvTokens(this.attributeInputTarget.value)
+    const attributeQuerySet = new Set(attributeQueries)
+    const attributeQueryList = Array.from(attributeQuerySet)
+
+    const winnerQueries = parseCsvTokens(this.winnerInputTarget.value)
+    const winnerQuerySet = new Set(winnerQueries)
+    const winnerQueryList = Array.from(winnerQuerySet)
 
     let visibleTotal = 0
 
@@ -30,8 +48,8 @@ export default class extends Controller {
       const attributeValue = this.normalize(row.dataset.compareAttributeValue)
       const winnerValue = this.normalize(row.dataset.compareWinnerValue)
 
-      const attributeMatches = !attributeQuery || attributeValue.includes(attributeQuery)
-      const winnerMatches = !winnerQuery || winnerValue.includes(winnerQuery)
+      const attributeMatches = matchesAnyQuery([ attributeValue ], attributeQuerySet, attributeQueryList)
+      const winnerMatches = matchesAnyQuery([ winnerValue ], winnerQuerySet, winnerQueryList)
 
       row.hidden = !(attributeMatches && winnerMatches)
 
@@ -40,6 +58,8 @@ export default class extends Controller {
       }
     })
 
+    this.refreshAttributeAutocomplete()
+    this.refreshWinnerAutocomplete()
     this.renderCounter(visibleTotal)
     this.renderResultsSummary(visibleTotal)
   }
@@ -48,6 +68,28 @@ export default class extends Controller {
     this.attributeInputTarget.value = ""
     this.winnerInputTarget.value = ""
     this.applyFilters()
+  }
+
+  refreshAttributeAutocomplete() {
+    refreshCsvAutocompleteOptions({
+      inputElement: this.attributeInputTarget,
+      datalistElement: this.attributeDatalistTarget,
+      sourceOptions: this.attributeAutocompleteOptions
+    })
+  }
+
+  refreshWinnerAutocomplete() {
+    refreshCsvAutocompleteOptions({
+      inputElement: this.winnerInputTarget,
+      datalistElement: this.winnerDatalistTarget,
+      sourceOptions: this.winnerAutocompleteOptions
+    })
+  }
+
+  datalistValues(datalistElement) {
+    return Array.from(datalistElement.options)
+      .map((option) => option.value)
+      .filter(Boolean)
   }
 
   renderCounter(visibleTotal) {
@@ -71,6 +113,6 @@ export default class extends Controller {
   }
 
   normalize(value) {
-    return (value || "").toString().trim().toLowerCase()
+    return normalizeToken(value)
   }
 }

@@ -165,5 +165,6 @@ pt-BR:
         attribute_placeholder: "Digite para filtrar atributo..."
         winner_label: "Vencedor"
         winner_placeholder: "Digite para filtrar vencedor..."
+        multi_hint: "Separe por vírgula para aplicar múltiplos filtros."
         clear: "Limpar"
         results_summary: "Exibindo %{count} atributos"
