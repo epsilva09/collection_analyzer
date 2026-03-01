@@ -22,6 +22,7 @@ traceability.
 - 2026-03 Cycle 10: `docs/engineering-cycles/2026-03-cycle-10.md`
 - 2026-03 Cycle 11: `docs/engineering-cycles/2026-03-cycle-11.md`
 - 2026-03 Cycle 12: `docs/engineering-cycles/2026-03-cycle-12.md`
+- 2026-03 Cycle 13: `docs/engineering-cycles/2026-03-cycle-13.md`
 
 ## Point 1 — Performance
 
@@ -207,6 +208,15 @@ traceability.
   offset calculation on connect/apply/resize.
 - Added scoped `progress-data-table` sticky-header CSS hook for parity
   with table-based pages.
+
+## Cycle 13 — Full Screen Review + Material Collections Filters
+
+- Reviewed Armories pages and added missing table filters in
+  `material_collections` (collection + progress range).
+- Added dedicated Stimulus controller and helper option builder for
+  `material_collections` filtering.
+- Fixed materials table sticky header offset by capping computed sticky
+  offset to avoid header rendering too far below filters.
 
 ---
 

@@ -1,4 +1,7 @@
-<tr>
+<tr
+  data-material-collections-entry="true"
+  data-material-collections-name-values="<%= [collection[:tier], collection[:collection_name]].compact.join(' ').downcase %>"
+  data-material-collections-bucket-values="<%= progress_bucket_label(collection[:bucket]).to_s.downcase %>">
   <td class="text-start">
     <strong><%= collection[:tier] %> – <%= collection[:collection_name] %></strong>
 

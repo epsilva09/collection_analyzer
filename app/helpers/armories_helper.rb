@@ -177,4 +177,21 @@ module ArmoriesHelper
       buckets: bucket_labels
     }
   end
+
+  def material_collections_filter_options(collections)
+    collection_list = Array(collections)
+
+    collection_names = collection_list.map do |entry|
+      [ entry[:tier], entry[:collection_name] ].compact.join(" ").strip
+    end.reject(&:blank?).uniq.sort_by(&:downcase)
+
+    bucket_labels = collection_list.map do |entry|
+      progress_bucket_label(entry[:bucket]).to_s.strip
+    end.reject(&:blank?).uniq.sort_by(&:downcase)
+
+    {
+      collections: collection_names,
+      buckets: bucket_labels
+    }
+  end
 end

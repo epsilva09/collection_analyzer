@@ -142,6 +142,18 @@ en:
       page_title: "Collections that need %{material}"
       heading: "Collections still needing %{material}"
       list_heading: "Related collections"
+      filters:
+        heading: "Collection filters"
+        collection_label: "Collection"
+        collection_placeholder: "Type to filter collection..."
+        bucket_label: "Progress range"
+        bucket_placeholder: "Type to filter range..."
+        results_summary: "Showing %{count} collections"
+        multi_hint: "Separate values with commas to apply multiple filters."
+        clear: "Clear filters"
+        empty_title: "No collections found"
+        empty_description: "Adjust filters or clear them to show results again."
+        clear_and_show_all: "Clear filters and show all"
       table:
         collection: "Collection"
         bucket: "Progress range"

@@ -112,6 +112,18 @@ pt-BR:
       page_title: "Coleções que precisam de %{material}"
       heading: "Coleções que ainda precisam de %{material}"
       list_heading: "Coleções relacionadas"
+      filters:
+        heading: "Filtros de coleções"
+        collection_label: "Coleção"
+        collection_placeholder: "Digite para filtrar coleção..."
+        bucket_label: "Faixa de progresso"
+        bucket_placeholder: "Digite para filtrar faixa..."
+        results_summary: "Exibindo %{count} coleções"
+        multi_hint: "Separe por vírgula para aplicar múltiplos filtros."
+        clear: "Limpar filtros"
+        empty_title: "Nenhuma coleção encontrada"
+        empty_description: "Ajuste os filtros ou limpe para voltar a exibir resultados."
+        clear_and_show_all: "Limpar filtros e mostrar tudo"
       table:
         collection: "Coleção"
         bucket: "Faixa de progresso"

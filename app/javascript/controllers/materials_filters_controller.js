@@ -136,7 +136,8 @@ export default class extends Controller {
     const cardRect = this.filtersCardTarget.getBoundingClientRect()
     const cardStyles = window.getComputedStyle(this.filtersCardTarget)
     const stickyTop = parseFloat(cardStyles.top || "0")
-    const stickyOffset = Math.ceil(cardRect.height + stickyTop + 8)
+    const rawOffset = Math.ceil(cardRect.height + stickyTop + 8)
+    const stickyOffset = Math.min(rawOffset, 180)
 
     this.element.style.setProperty("--materials-sticky-offset", `${stickyOffset}px`)
   }
