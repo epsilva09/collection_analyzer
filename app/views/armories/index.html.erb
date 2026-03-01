@@ -10,7 +10,11 @@
               <%= t('armories.index.heading') %>
             </h1>
 
-            <%= render 'menu', current_page: :index, name: (@character_idx.present? ? @name : nil) %>
+            <%= render 'menu',
+                       current_page: :index,
+                       name: (@character_idx.present? ? @name : nil),
+                       name_a: nil,
+                       name_b: nil %>
 
             <%= render 'character_search_form',
                        url: armory_path,
@@ -45,77 +49,8 @@
                     </div>
                     <div class="card-body">
                       <% if @values.any? %>
-                        <% special_values = @special_values || [] %>
-                        <% regular_values = @regular_values.presence || @values || [] %>
-
-                        <!-- Special Items Section -->
-                        <% if special_values.any? %>
-                          <div class="mb-4">
-                            <h5 class="text-warning mb-3">
-                              <i class="fas fa-star me-2"></i>
-                              <%= t('armories.index.top_attributes') %>
-                            </h5>
-                            <div class="row">
-                              <% special_values.each do |value| %>
-                                <div class="col-md-6 mb-3">
-                                  <div class="card h-100 border-warning shadow-sm special-item">
-                                    <div class="card-body d-flex align-items-center">
-                                      <div class="flex-shrink-0 me-3">
-                                        <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                          <i class="fas fa-crown"></i>
-                                        </div>
-                                      </div>
-                                      <div class="flex-grow-1">
-                                        <h6 class="card-title mb-1 text-truncate text-warning fw-bold" title="<%= value %>">
-                                          <%= value %>
-                                        </h6>
-                                        <small class="text-warning">
-                                          <i class="fas fa-sparkles me-1"></i><%= t('armories.index.top_attribute') %>
-                                        </small>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              <% end %>
-                            </div>
-                          </div>
-                        <% end %>
-
-                        <!-- Regular Items Section -->
-                        <% if regular_values.any? %>
-                          <div class="mb-4">
-                            <h5 class="text-white mb-3 fw-bold">
-                              <i class="fas fa-list me-2"></i>
-                              <%= t('armories.index.other_attributes') %>
-                            </h5>
-                            <div class="row">
-                              <% regular_values.each_slice(3) do |value_group| %>
-                                <% value_group.each do |value| %>
-                                  <div class="col-md-4 mb-3">
-                                    <div class="card h-100 border-0 shadow-sm">
-                                      <div class="card-body d-flex align-items-center">
-                                        <div class="flex-shrink-0 me-3">
-                                          <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                            <i class="fas fa-gem"></i>
-                                          </div>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                          <h6 class="card-title mb-1 text-truncate text-white" title="<%= value %>">
-                                            <%= value %>
-                                          </h6>
-                                          <small class="text-info"><%= t('armories.index.collection_item') %></small>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                <% end %>
-                                <% (3 - value_group.size).times do %>
-                                  <div class="col-md-4 mb-3 d-none d-md-block"></div>
-                                <% end %>
-                              <% end %>
-                            </div>
-                          </div>
-                        <% end %>
+                        <%= render 'index_special_attributes', values: (@special_values || []) %>
+                        <%= render 'index_regular_attributes', values: (@regular_values.presence || @values || []) %>
                       <% else %>
                         <div class="text-center py-5">
                           <i class="fas fa-inbox fa-3x text-white mb-3"></i>
