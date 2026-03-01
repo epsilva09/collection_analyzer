@@ -91,6 +91,7 @@ en:
         presets_label: "Quick presets"
         preset_all: "All"
         preset_important: "Important attributes"
+        preset_important_hint: "Includes: %{attributes}"
         preset_with_items: "With missing items"
         results_summary: "Showing %{count} collections"
         shortcuts_hint: "Shortcuts: Ctrl/Cmd+A selects all, Esc clears selection, Delete/Backspace removes selected options."

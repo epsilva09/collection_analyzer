@@ -61,6 +61,7 @@ pt-BR:
         presets_label: "Presets rápidos"
         preset_all: "Todos"
         preset_important: "Atributos importantes"
+        preset_important_hint: "Inclui: %{attributes}"
         preset_with_items: "Com itens faltando"
         results_summary: "Exibindo %{count} coleções"
         shortcuts_hint: "Atalhos: Ctrl/Cmd+A seleciona todos, Esc limpa seleção, Delete/Backspace remove selecionados."

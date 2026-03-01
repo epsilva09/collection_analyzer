@@ -161,6 +161,8 @@ traceability.
   `CompareCollectionsService::SPECIAL_ATTRIBUTES`.
 - Added compatibility mapping so legacy preset URL values (`near`) are
   automatically interpreted as `important`.
+- Added tooltip context in the preset button listing included important
+  attributes.
 
 ---
 
