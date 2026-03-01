@@ -5,7 +5,7 @@
     <div class="col-12 col-md-10 col-lg-8">
       <main class="text-center armory-page">
             <%= render 'locale_switcher' %>
-            <h1 class="my-4 armory-page-header"><%= t('armories.compare.heading') %></h1>
+        <%= render 'page_header', heading: t('armories.compare.heading'), icon_class: nil %>
 
             <%= render 'menu',
                        current_page: :compare,
@@ -16,9 +16,11 @@
             <%= render 'compare_search_form' %>
 
             <% if @error.present? %>
-              <div class="alert alert-danger" role="alert">
-                <strong><%= t('armories.compare.alerts.error') %>:</strong> <%= @error %>
-              </div>
+              <%= render 'error_alert',
+                         label: t('armories.compare.alerts.error'),
+                         message: @error,
+                         icon_class: nil,
+                         dismissible: false %>
             <% end %>
 
             <% if @comparison_ready && @result && @result[:values_a].present? && @result[:values_b].present? %>

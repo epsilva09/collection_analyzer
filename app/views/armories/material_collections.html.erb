@@ -6,10 +6,9 @@
       <main class="text-center armory-page">
             <%= render 'locale_switcher' %>
 
-            <h1 class="my-4 armory-page-header">
-              <i class="fas fa-box-open armory-page-icon"></i>
-              <%= t('armories.material_collections.heading', material: @material_name) %>
-            </h1>
+            <%= render 'page_header',
+                       heading: t('armories.material_collections.heading', material: @material_name),
+                       icon_class: 'fas fa-box-open' %>
 
             <div class="row justify-content-center mb-3">
               <div class="col-12 text-center">
@@ -20,9 +19,11 @@
             </div>
 
             <% if @error.present? %>
-              <div class="alert alert-danger" role="alert">
-                <strong><%= t('armories.progress.alerts.error') %>:</strong> <%= @error %>
-              </div>
+              <%= render 'error_alert',
+                         label: t('armories.progress.alerts.error'),
+                         message: @error,
+                         icon_class: nil,
+                         dismissible: false %>
             <% end %>
 
             <% if @collections_for_material.present? %>

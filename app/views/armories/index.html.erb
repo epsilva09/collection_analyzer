@@ -5,10 +5,7 @@
     <div class="col-12 col-md-10 col-lg-8">
       <main class="text-center armory-page">
             <%= render 'locale_switcher' %>
-            <h1 class="my-4 armory-page-header">
-              <i class="fas fa-shield-alt armory-page-icon"></i>
-              <%= t('armories.index.heading') %>
-            </h1>
+            <%= render 'page_header', heading: t('armories.index.heading'), icon_class: 'fas fa-shield-alt' %>
 
             <%= render 'menu',
                        current_page: :index,
@@ -27,11 +24,11 @@
 
             <!-- Error Alert -->
             <% if @error.present? %>
-              <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong><%= t('armories.index.alerts.error') %>:</strong> <%= @error %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              </div>
+              <%= render 'error_alert',
+                         label: t('armories.index.alerts.error'),
+                         message: @error,
+                         icon_class: 'fas fa-exclamation-triangle',
+                         dismissible: true %>
             <% end %>
 
             <!-- Collection Values -->

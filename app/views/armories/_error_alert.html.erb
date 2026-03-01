@@ -1,0 +1,12 @@
+<div class="alert alert-danger<%= ' alert-dismissible fade show' if dismissible %>" role="alert">
+  <% if icon_class.present? %>
+    <i class="<%= icon_class %> me-2"></i>
+  <% end %>
+  <% if label.present? %>
+    <strong><%= label %>:</strong>
+  <% end %>
+  <%= message %>
+  <% if dismissible %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  <% end %>
+</div>

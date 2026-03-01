@@ -12,6 +12,7 @@ traceability.
 
 - 2026-03 Cycle 01: `docs/engineering-cycles/2026-03-cycle-01.md`
 - 2026-03 Cycle 02: `docs/engineering-cycles/2026-03-cycle-02.md`
+- 2026-03 Cycle 03: `docs/engineering-cycles/2026-03-cycle-03.md`
 
 ## Point 1 — Performance
 
@@ -87,6 +88,17 @@ traceability.
       `material_collections`
 - Added UI governance documentation:
   - `docs/ui-identity-guidelines.md`
+
+## Cycle 03 — View Composition Standardization
+
+- Added shared UI partials for recurring structures:
+  - `app/views/armories/_page_header.html.erb`
+  - `app/views/armories/_error_alert.html.erb`
+- Replaced repeated header and error-alert markup across core views:
+  - `index`, `progress`, `materials`, `compare`,
+    `material_collections`
+- Preserved behavior while reducing duplication and keeping visual
+  identity application consistent.
 
 ---
 

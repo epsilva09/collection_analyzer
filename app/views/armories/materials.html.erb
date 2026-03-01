@@ -6,7 +6,7 @@
       <main class="text-center armory-page">
             <%= render 'locale_switcher' %>
 
-            <h1 class="my-4 armory-page-header"><%= t('armories.materials.heading') %></h1>
+        <%= render 'page_header', heading: t('armories.materials.heading'), icon_class: nil %>
 
             <%= render 'menu',
                        current_page: :materials,
@@ -24,9 +24,11 @@
                        turbo_disabled: true %>
 
             <% if @error.present? %>
-              <div class="alert alert-danger" role="alert">
-                <strong><%= t('armories.progress.alerts.error') %>:</strong> <%= @error %>
-              </div>
+              <%= render 'error_alert',
+                         label: t('armories.progress.alerts.error'),
+                         message: @error,
+                         icon_class: nil,
+                         dismissible: false %>
             <% end %>
 
             <% if @materials_by_bucket.present? || @top_materials.present? %>
