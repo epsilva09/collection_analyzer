@@ -10,13 +10,12 @@
                        heading: t('armories.material_collections.heading', material: @material_name),
                        icon_class: 'fas fa-box-open' %>
 
-            <div class="row justify-content-center mb-3">
-              <div class="col-12 text-center">
-                <%= link_to t('armories.materials.heading'), materials_armory_path(name: @name), class: 'btn btn-outline-secondary btn-sm me-2' %>
-                <%= link_to t('armories.progress.heading'), progress_armory_path(name: @name), class: 'btn btn-outline-secondary btn-sm me-2' %>
-                <%= link_to t('armories.compare.actions.back_to_index'), armory_path, class: 'btn btn-outline-secondary btn-sm' %>
-              </div>
-            </div>
+            <%= render 'menu',
+                       current_page: :materials,
+                       name: @name,
+                       name_a: nil,
+                       name_b: nil,
+                       show_compare_actions: false %>
 
             <% if @error.present? %>
               <%= render 'error_alert',
