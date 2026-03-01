@@ -4,6 +4,10 @@ This document summarizes the recent implementation wave organized by
 four execution points: performance, quality/reliability, architecture,
 and UX/accessibility.
 
+Process rule: every new development cycle must append/update a cycle
+record using `docs/engineering-cycle-template.md` to keep historical
+traceability.
+
 ## Point 1 — Performance
 
 - Added response caching in `ArmoryClient` for:

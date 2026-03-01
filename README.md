@@ -158,3 +158,7 @@ docker pull ghcr.io/epsilva09/collection_analyzer:latest
 
 - Recent implementation summary and DoD checklist:
   - [docs/engineering-changelog-2026-03.md](docs/engineering-changelog-2026-03.md)
+- Development cycle template (must be filled for every cycle):
+  - [docs/engineering-cycle-template.md](docs/engineering-cycle-template.md)
+- Pull request template with DoD and cycle record:
+  - [.github/pull_request_template.md](.github/pull_request_template.md)
