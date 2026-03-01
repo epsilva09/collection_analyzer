@@ -20,6 +20,7 @@ traceability.
 - 2026-03 Cycle 08: `docs/engineering-cycles/2026-03-cycle-08.md`
 - 2026-03 Cycle 09: `docs/engineering-cycles/2026-03-cycle-09.md`
 - 2026-03 Cycle 10: `docs/engineering-cycles/2026-03-cycle-10.md`
+- 2026-03 Cycle 11: `docs/engineering-cycles/2026-03-cycle-11.md`
 
 ## Point 1 — Performance
 
@@ -189,6 +190,13 @@ traceability.
   chips in sync with query params.
 - Kept parity with progress filters behavior while avoiding history
   pollution via `history.replaceState`.
+
+## Cycle 11 — Sticky Filters and Table Headers (Materials)
+
+- Made materials filters card sticky while scrolling.
+- Added sticky table header on materials tables.
+- Added dynamic sticky offset in materials filters Stimulus controller to
+  keep table header below the sticky filters card.
 
 ---
 

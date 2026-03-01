@@ -8,6 +8,7 @@ export default class extends Controller {
     "bucketInput",
     "bucketDatalist",
     "bucketChips",
+    "filtersCard",
     "resultsSummary",
     "visibleCount",
     "totalCount",
@@ -25,6 +26,9 @@ export default class extends Controller {
   }
 
   connect() {
+    this.handleResize = this.updateStickyOffset.bind(this)
+    window.addEventListener("resize", this.handleResize)
+
     this.loadFiltersFromUrl()
     this.entries = this.buildEntryCache()
     this.buckets = this.buildBucketCache()
@@ -35,6 +39,13 @@ export default class extends Controller {
     this.refreshBucketAutocomplete()
     this.renderCounter(this.entries.length)
     this.applyFilters()
+    this.updateStickyOffset()
+  }
+
+  disconnect() {
+    if (this.handleResize) {
+      window.removeEventListener("resize", this.handleResize)
+    }
   }
 
   applyFilters() {
@@ -80,6 +91,7 @@ export default class extends Controller {
     this.renderCounter(visibleEntriesTotal)
     this.toggleEmptyState(visibleEntriesTotal)
     this.persistFiltersToUrl()
+    this.updateStickyOffset()
   }
 
   clearFilters() {
@@ -114,6 +126,19 @@ export default class extends Controller {
     } else {
       params.delete(key)
     }
+  }
+
+  updateStickyOffset() {
+    if (!this.hasFiltersCardTarget) {
+      return
+    }
+
+    const cardRect = this.filtersCardTarget.getBoundingClientRect()
+    const cardStyles = window.getComputedStyle(this.filtersCardTarget)
+    const stickyTop = parseFloat(cardStyles.top || "0")
+    const stickyOffset = Math.ceil(cardRect.height + stickyTop + 8)
+
+    this.element.style.setProperty("--materials-sticky-offset", `${stickyOffset}px`)
   }
 
   removeChip(event) {
