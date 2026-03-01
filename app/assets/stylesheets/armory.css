@@ -40,7 +40,8 @@ h1 {
   color: var(--cabal-primary);
   text-align: center;
   text-shadow: 0 0 10px var(--cabal-primary);
-  font-size: 2.5em;
+  font-size: clamp(1.85rem, 1.35rem + 1.6vw, 2.5rem);
+  line-height: 1.15;
 }
 
 h2 {
@@ -48,6 +49,8 @@ h2 {
   text-shadow: 0 0 5px var(--cabal-primary);
   margin-top: 30px;
   margin-bottom: 15px;
+  font-size: clamp(1.15rem, 0.95rem + 0.85vw, 1.8rem);
+  line-height: 1.25;
 }
 
 h3 {
@@ -619,9 +622,32 @@ textarea:focus-visible {
 }
 
 /* Scrollable card bodies - only for summary cards in compare page */
+.summary-card {
+  min-height: 100%;
+}
+
+.summary-card .card-header {
+  min-height: 64px;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+.summary-card .card-header h5 {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
 .summary-card .card-body {
   max-height: 200px;
   overflow-y: auto;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.summary-card .list-group-item {
+  padding-top: 0.45rem !important;
+  padding-bottom: 0.45rem !important;
+  line-height: 1.25;
 }
 
 /* Custom scrollbar for summary cards */
@@ -663,11 +689,11 @@ textarea:focus-visible {
   }
 
   h1 {
-    font-size: 2rem;
+    font-size: clamp(1.6rem, 1.25rem + 1.2vw, 2rem);
   }
 
   h2 {
-    font-size: 1.2rem;
+    font-size: clamp(1.05rem, 0.92rem + 0.7vw, 1.3rem);
   }
 
   .btn-lg,
@@ -677,7 +703,15 @@ textarea:focus-visible {
   }
 
   .summary-card .card-body {
-    max-height: 170px;
+    max-height: 180px;
+  }
+
+  .summary-card .card-header {
+    min-height: 58px;
+  }
+
+  .summary-card .card-header h5 {
+    font-size: 0.92rem;
   }
 
   .armory-data-table th,
