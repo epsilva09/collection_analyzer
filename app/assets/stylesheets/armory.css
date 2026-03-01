@@ -13,12 +13,44 @@
   --cabal-border: #30363d;       /* Borders */
   --cabal-text: #f0f6fc;         /* Light text */
   --cabal-text-muted: #a5b0bc;   /* Muted text */
+
+  --armory-font-display: 'Cinzel', serif;
+  --armory-font-body: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+
+  --armory-surface-0: var(--cabal-dark);
+  --armory-surface-1: rgba(22, 26, 34, 0.95);
+  --armory-surface-2: rgba(33, 38, 45, 0.9);
+  --armory-surface-3: rgba(48, 54, 61, 0.8);
+
+  --armory-text-default: var(--cabal-text);
+  --armory-text-muted: var(--cabal-text-muted);
+  --armory-border-default: var(--cabal-border);
+
+  --armory-radius-sm: 6px;
+  --armory-radius-md: 8px;
+  --armory-radius-lg: 12px;
+  --armory-radius-xl: 15px;
+
+  --armory-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.24);
+  --armory-shadow-md: 0 6px 20px rgba(0, 0, 0, 0.3);
+  --armory-shadow-glow: 0 0 20px rgba(0, 212, 255, 0.22);
+
+  --armory-space-1: 0.25rem;
+  --armory-space-2: 0.5rem;
+  --armory-space-3: 0.75rem;
+  --armory-space-4: 1rem;
+  --armory-space-5: 1.5rem;
+  --armory-space-6: 2rem;
+
+  --armory-duration-fast: 0.2s;
+  --armory-duration-base: 0.3s;
+  --armory-ease: ease;
 }
 
 body {
-  background: linear-gradient(135deg, var(--cabal-dark) 0%, var(--cabal-darker) 30%, #1a1a2e 70%, #16213e 100%);
-  color: var(--cabal-text);
-  font-family: 'Cinzel', serif;
+  background: linear-gradient(135deg, var(--armory-surface-0) 0%, var(--cabal-darker) 30%, #1a1a2e 70%, #16213e 100%);
+  color: var(--armory-text-default);
+  font-family: var(--armory-font-body);
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -26,18 +58,20 @@ body {
 
 main {
   max-width: 1200px;
-  margin: 40px auto;
-  padding: 20px;
-  background: rgba(22, 26, 34, 0.95);
-  border-radius: 15px;
-  box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+  margin: var(--armory-space-6) auto;
+  padding: var(--armory-space-5);
+  background: var(--armory-surface-1);
+  border-radius: var(--armory-radius-xl);
+  box-shadow: var(--armory-shadow-glow);
   border: 2px solid var(--cabal-primary);
   backdrop-filter: blur(10px);
 }
 
 h1 {
-  margin-bottom: 20px;
+  margin-bottom: var(--armory-space-5);
   color: var(--cabal-primary);
+  font-family: var(--armory-font-display);
+  font-weight: 700;
   text-align: center;
   text-shadow: 0 0 10px var(--cabal-primary);
   font-size: clamp(1.85rem, 1.35rem + 1.6vw, 2.5rem);
@@ -46,15 +80,19 @@ h1 {
 
 h2 {
   color: var(--cabal-primary);
+  font-family: var(--armory-font-display);
+  font-weight: 700;
   text-shadow: 0 0 5px var(--cabal-primary);
-  margin-top: 30px;
-  margin-bottom: 15px;
+  margin-top: var(--armory-space-6);
+  margin-bottom: var(--armory-space-4);
   font-size: clamp(1.15rem, 0.95rem + 0.85vw, 1.8rem);
   line-height: 1.25;
 }
 
 h3 {
-  color: var(--cabal-text);
+  color: var(--armory-text-default);
+  font-family: var(--armory-font-display);
+  font-weight: 700;
   margin: 0;
   font-size: 1.2em;
 }
@@ -62,15 +100,15 @@ h3 {
 /* Form and Input Styles */
 input[type="text"], input[type="email"], input[type="password"], textarea, select {
   background: rgba(33, 37, 45, 0.8) !important;
-  border: 2px solid var(--cabal-border) !important;
-  color: var(--cabal-text) !important;
-  border-radius: 8px !important;
-  transition: all 0.3s ease !important;
+  border: 2px solid var(--armory-border-default) !important;
+  color: var(--armory-text-default) !important;
+  border-radius: var(--armory-radius-md) !important;
+  transition: border-color var(--armory-duration-fast) var(--armory-ease), box-shadow var(--armory-duration-fast) var(--armory-ease), background-color var(--armory-duration-fast) var(--armory-ease) !important;
 }
 
 input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
   border-color: var(--cabal-primary) !important;
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3) !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.18), 0 0 10px rgba(0, 212, 255, 0.26) !important;
   background: rgba(33, 37, 45, 0.9) !important;
 }
 
@@ -80,16 +118,60 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
 
 /* Card Improvements */
 .card {
-  background: rgba(33, 38, 45, 0.9) !important;
-  border: 1px solid var(--cabal-border) !important;
-  border-radius: 12px !important;
+  background: var(--armory-surface-2) !important;
+  border: 1px solid var(--armory-border-default) !important;
+  border-radius: var(--armory-radius-lg) !important;
+  box-shadow: var(--armory-shadow-sm) !important;
   backdrop-filter: blur(5px) !important;
 }
 
 .card-header {
+  background: var(--armory-surface-3) !important;
+  border-bottom: 1px solid var(--armory-border-default) !important;
+  border-radius: var(--armory-radius-lg) var(--armory-radius-lg) 0 0 !important;
+}
+
+.btn {
+  border-radius: var(--armory-radius-md) !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: transform var(--armory-duration-fast) var(--armory-ease), box-shadow var(--armory-duration-fast) var(--armory-ease), background-color var(--armory-duration-fast) var(--armory-ease), border-color var(--armory-duration-fast) var(--armory-ease) !important;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--cabal-primary) 0%, #0099cc 100%) !important;
+  border-color: transparent !important;
+  color: var(--cabal-dark) !important;
+  box-shadow: var(--armory-shadow-sm);
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: linear-gradient(135deg, #20dcff 0%, #00abd8 100%) !important;
+  color: var(--cabal-dark) !important;
+  box-shadow: var(--armory-shadow-md), 0 0 0 0.2rem rgba(0, 212, 255, 0.16);
+}
+
+.btn-outline-secondary {
+  border-color: var(--armory-border-default) !important;
+  color: var(--armory-text-default) !important;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus-visible {
   background: rgba(48, 54, 61, 0.8) !important;
-  border-bottom: 1px solid var(--cabal-border) !important;
-  border-radius: 12px 12px 0 0 !important;
+  border-color: var(--cabal-primary) !important;
+  color: var(--cabal-primary) !important;
+}
+
+.form-label {
+  color: var(--armory-text-default);
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 /* Badge Styles */
@@ -282,7 +364,7 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
 .text-muted,
 .small,
 .form-text {
-  color: var(--cabal-text-muted) !important;
+  color: var(--armory-text-muted) !important;
 }
 
 .progress-filter-chip {
@@ -728,6 +810,54 @@ textarea:focus-visible {
 .armory-page > h1,
 .armory-page > h2 {
   margin-bottom: 0.75rem;
+}
+
+.armory-page-header {
+  margin-bottom: var(--armory-space-4);
+}
+
+.armory-page-header .armory-page-icon {
+  color: var(--cabal-primary);
+  margin-right: var(--armory-space-2);
+}
+
+.armory-section-card {
+  border: 1px solid var(--armory-border-default) !important;
+  border-radius: var(--armory-radius-lg) !important;
+  background: var(--armory-surface-2) !important;
+  box-shadow: var(--armory-shadow-sm) !important;
+}
+
+.armory-section-card .card-header {
+  background: linear-gradient(135deg, rgba(48, 54, 61, 0.92) 0%, rgba(33, 38, 45, 0.92) 100%) !important;
+}
+
+.armory-empty-state {
+  border: 1px dashed rgba(0, 212, 255, 0.35);
+  border-radius: var(--armory-radius-lg);
+  background: rgba(0, 212, 255, 0.06);
+  padding: var(--armory-space-5);
+}
+
+.armory-empty-state i {
+  color: var(--cabal-primary);
+}
+
+.alert {
+  border-radius: var(--armory-radius-md) !important;
+  border-width: 1px !important;
+}
+
+.alert-info {
+  background: rgba(0, 188, 212, 0.16) !important;
+  color: #e8f8ff !important;
+  border-color: rgba(0, 188, 212, 0.45) !important;
+}
+
+.alert-danger {
+  background: rgba(239, 68, 68, 0.14) !important;
+  color: #ffe6ea !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
 }
 
 @media (max-width: 768px) {

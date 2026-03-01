@@ -5,7 +5,7 @@
     <div class="col-12 col-md-10 col-lg-8">
       <main class="text-center armory-page">
             <%= render 'locale_switcher' %>
-            <h1 class="my-4"><%= t('armories.progress.heading') %></h1>
+            <h1 class="my-4 armory-page-header"><%= t('armories.progress.heading') %></h1>
 
             <%= render 'menu',
                        current_page: :progress,
@@ -36,7 +36,7 @@
               <section
                 data-controller="progress-filters"
                 data-progress-filters-results-template-value="<%= t('armories.progress.filters.results_summary').gsub('%{count}', 'COUNT') %>">
-                <div class="card mb-3 text-start progress-filters-card">
+                <div class="card mb-3 text-start progress-filters-card armory-section-card">
                   <div class="card-body">
                     <div class="row g-2 align-items-end">
                       <div class="col-12 col-md-5">

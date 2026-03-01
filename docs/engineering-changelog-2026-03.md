@@ -16,33 +16,33 @@ traceability.
 ## Point 1 — Performance
 
 - Added response caching in `ArmoryClient` for:
-    - character index lookup
-    - collection details lookup
+  - character index lookup
+  - collection details lookup
 - Added snapshot-level caching in `CollectionSnapshotService`:
-    - key includes character name, locale, and threshold
-    - short TTL and defensive deep duplication on read/write
+  - key includes character name, locale, and threshold
+  - short TTL and defensive deep duplication on read/write
 - Added lightweight instrumentation with
   `ActiveSupport::Notifications`:
-    - `collection_snapshot.build`
-    - `collection_snapshot.cache_hit`
+  - `collection_snapshot.build`
+  - `collection_snapshot.cache_hit`
 - Reduced repeated CPU work in progress rendering:
-    - precomputed aggregated materials per collection entry
-    - optimized client-side filter controller to avoid repeated parsing
+  - precomputed aggregated materials per collection entry
+  - optimized client-side filter controller to avoid repeated parsing
 
 ## Point 2 — Quality and Reliability
 
 - Expanded service/controller test coverage for failure and cache paths:
-    - cache reuse in `ArmoryClient`
-    - invalid JSON error handling in `ArmoryClient`
-    - localized invalid-JSON message rendering in controller response
-    - snapshot cache behavior by locale and mutation safety
+  - cache reuse in `ArmoryClient`
+  - invalid JSON error handling in `ArmoryClient`
+  - localized invalid-JSON message rendering in controller response
+  - snapshot cache behavior by locale and mutation safety
 - Kept full suite green after each step.
 
 ## Point 3 — Architecture and Maintainability
 
 - Introduced shared defaults module:
-    - `ArmoryDefaults::PROGRESS_BUCKETS`
-    - `ArmoryDefaults.empty_progress_data`
+  - `ArmoryDefaults::PROGRESS_BUCKETS`
+  - `ArmoryDefaults.empty_progress_data`
 - Replaced duplicated empty-bucket hash literals in services/controllers
   with shared defaults.
 - Continued view decomposition into partials and helper/service-driven
@@ -51,28 +51,42 @@ traceability.
 ## Point 4 — UX and Accessibility
 
 - Progress page filters:
-    - multi-value autocomplete and advanced multi-select
-    - active filter chips with removal
-    - URL persistence of filter state
+  - multi-value autocomplete and advanced multi-select
+  - active filter chips with removal
+  - URL persistence of filter state
 - Accordion behavior:
-    - stabilized expand/collapse behavior while filtering
-    - persisted bucket expansion state per character
+  - stabilized expand/collapse behavior while filtering
+  - persisted bucket expansion state per character
 - Accessibility:
-    - visible focus styles for keyboard navigation
-    - results summary with `aria-live`
-    - keyboard shortcuts in advanced multi-select (`Ctrl/Cmd+A`, `Esc`,
+  - visible focus styles for keyboard navigation
+  - results summary with `aria-live`
+  - keyboard shortcuts in advanced multi-select (`Ctrl/Cmd+A`, `Esc`,
       `Delete/Backspace`)
 - Form feedback:
-    - submit loading state in shared search/compare forms
+  - submit loading state in shared search/compare forms
 
 ## Visual Refinement Passes
 
 - Improved layout consistency across Armories pages:
-    - unified vertical rhythm (`armory-page`)
-    - responsive table readability (`armory-data-table`)
-    - consistent compare card density
+  - unified vertical rhythm (`armory-page`)
+  - responsive table readability (`armory-data-table`)
+  - consistent compare card density
 - Isolated legacy generic CSS under scoped selectors to reduce side
   effects.
+
+## Cycle 02 — UI Identity Standardization
+
+- Added semantic UI tokens in `armory.css` for typography, surfaces,
+  spacing, shape, shadows, and motion.
+- Standardized reusable identity classes:
+  - `armory-page-header` / `armory-page-icon`
+  - `armory-section-card`
+  - `armory-empty-state`
+- Applied baseline classes across core Armories views:
+  - `index`, `progress`, `materials`, `compare`,
+      `material_collections`
+- Added UI governance documentation:
+  - `docs/ui-identity-guidelines.md`
 
 ---
 

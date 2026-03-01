@@ -20,38 +20,38 @@ The application helps you:
 ## Main Features
 
 - **Character search**
-    - Looks up a character and shows parsed collection attributes.
+  - Looks up a character and shows parsed collection attributes.
 - **Character comparison**
-    - Compares two characters and highlights common, unique, and numeric
+  - Compares two characters and highlights common, unique, and numeric
       differences.
-    - Runs only when both names are provided.
+  - Runs only when both names are provided.
 - **Collection progress dashboard**
-    - Buckets collections into ranges: `<1%`, `1–29%`, `30–59%`, and
+  - Buckets collections into ranges: `<1%`, `1–29%`, `30–59%`, and
       `≥80%`.
-    - Shows collection rewards/status and missing materials summary.
+  - Shows collection rewards/status and missing materials summary.
 - **Materials analytics**
-    - Aggregates missing materials by progress bucket and in a general
+  - Aggregates missing materials by progress bucket and in a general
       combined view.
-    - Supports click-through to see all collections that still need a
+  - Supports click-through to see all collections that still need a
       specific material.
 - **Localization**
-    - Supports English and Brazilian Portuguese (`en`, `pt-BR`).
+  - Supports English and Brazilian Portuguese (`en`, `pt-BR`).
 - **Shared navigation menu**
-    - Standardized menu across index, compare, progress, and materials
+  - Standardized menu across index, compare, progress, and materials
       pages.
 
 ## Routes Overview
 
 - `GET /armory`
-    - Main search page (also available at `/`).
+  - Main search page (also available at `/`).
 - `GET /armory/compare?name_a=...&name_b=...`
-    - Comparison page.
+  - Comparison page.
 - `GET /armory/progress?name=...`
-    - Collection progress page.
+  - Collection progress page.
 - `GET /armory/materials?name=...`
-    - Missing materials dashboard.
+  - Missing materials dashboard.
 - `GET /armory/materials/collections?name=...&material=...`
-    - Collections that still need a selected material.
+  - Collections that still need a selected material.
 
 ## Quick Start
 
@@ -81,7 +81,7 @@ Open:
 ## Configuration
 
 - `ASC_API_BASE_URL`
-    - Optional. Overrides the external API base URL used by `ArmoryClient`.
+  - Optional. Overrides the external API base URL used by `ArmoryClient`.
 
 ## How to Use the App
 
@@ -95,14 +95,14 @@ Open:
 ## Code Structure (Key Files)
 
 - `app/services/armory_client.rb`
-    - Encapsulates all external API requests.
+  - Encapsulates all external API requests.
 - `app/services/attribute_parser.rb`
-    - Normalizes and parses collection attribute values.
+  - Normalizes and parses collection attribute values.
 - `app/controllers/armories_controller.rb`
-    - Main controller for index, compare, progress, materials, and
+  - Main controller for index, compare, progress, materials, and
       material collections.
 - `app/views/armories/*.html.erb`
-    - UI pages and shared menu partial.
+  - UI pages and shared menu partial.
 
 ## Quality and Security
 
@@ -142,12 +142,12 @@ bin/brakeman
 ## CI and CD
 
 - **CI**: `.github/workflows/ci.yml`
-    - Runs on `push` and `pull_request`.
-    - Includes security checks (`brakeman`, `importmap audit`), lint,
+  - Runs on `push` and `pull_request`.
+  - Includes security checks (`brakeman`, `importmap audit`), lint,
       and test suite.
 - **CD**: `.github/workflows/cd.yml`
-    - Runs on pushes to `main` and `workflow_dispatch`.
-    - Builds and publishes a Docker image to GHCR.
+  - Runs on pushes to `main` and `workflow_dispatch`.
+  - Builds and publishes a Docker image to GHCR.
 
 ### CI Jobs
 
@@ -173,8 +173,10 @@ docker pull ghcr.io/epsilva09/collection_analyzer:latest
 ## Engineering Notes
 
 - Recent implementation summary and DoD checklist:
-    - [docs/engineering-changelog-2026-03.md](docs/engineering-changelog-2026-03.md)
+  - [docs/engineering-changelog-2026-03.md](docs/engineering-changelog-2026-03.md)
 - Development cycle template (must be filled for every cycle):
-    - [docs/engineering-cycle-template.md](docs/engineering-cycle-template.md)
+  - [docs/engineering-cycle-template.md](docs/engineering-cycle-template.md)
 - Pull request template with DoD and cycle record:
-    - [.github/pull_request_template.md](.github/pull_request_template.md)
+  - [.github/pull_request_template.md](.github/pull_request_template.md)
+- UI identity and consistency guide:
+  - [docs/ui-identity-guidelines.md](docs/ui-identity-guidelines.md)

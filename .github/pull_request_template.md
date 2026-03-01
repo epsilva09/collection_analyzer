@@ -13,7 +13,7 @@
 - Owner:
 - Related issue/task:
 - Changelog doc updated:
-    - [ ] Yes (`docs/engineering-changelog-YYYY-MM.md`)
+  - [ ] Yes (`docs/engineering-changelog-YYYY-MM.md`)
 
 ## Delivery by Area
 
