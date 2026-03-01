@@ -189,3 +189,11 @@ en:
         view_materials: "View missing items for %{name}"
       hints:
         both_names_required: "Fill in both characters to compare collections."
+      filters:
+        heading: "Comparison filters"
+        attribute_label: "Attribute"
+        attribute_placeholder: "Type to filter attribute..."
+        winner_label: "Winner"
+        winner_placeholder: "Type to filter winner..."
+        clear: "Clear"
+        results_summary: "Showing %{count} attributes"

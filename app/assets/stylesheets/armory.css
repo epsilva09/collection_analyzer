@@ -388,6 +388,12 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
   background: rgba(48, 54, 61, 0.95) !important;
 }
 
+.progress-group-header {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 11;
+}
+
 .progress-filters-toolbar {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding-bottom: 0.5rem;
@@ -873,6 +879,12 @@ textarea:focus-visible {
   line-height: 1.25;
 }
 
+.armory-data-table .table-col-numeric {
+  text-align: center !important;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 .armory-data-table a {
   color: var(--cabal-primary) !important;
   text-decoration: underline;
@@ -902,6 +914,7 @@ textarea:focus-visible {
   color: #ffe6ea !important;
 }
 
+.armory-data-table th:first-child,
 .armory-data-table td:first-child {
   min-width: 220px;
 }

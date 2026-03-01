@@ -1,60 +1,121 @@
 <div class="row">
   <div class="col-12">
-    <h2 class="mb-3">
-      <i class="fas fa-balance-scale me-2"></i><%= t('armories.compare.detailed_comparison') %>
-    </h2>
-    <div class="card shadow">
-      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-          <i class="fas fa-chart-bar me-2"></i>
-          <%= t('armories.compare.numeric_attributes') %>
-        </h5>
-        <span class="badge bg-light text-dark fs-6">
-          <i class="fas fa-hashtag me-1"></i><%= result[:detailed].size %>
-        </span>
-      </div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-dark table-hover mb-0 armory-data-table compare-data-table">
-            <thead>
-              <tr>
-                <th class="border-0 fw-bold text-light"><%= t('armories.compare.table.attribute') %></th>
-                <th class="border-0 fw-bold text-light text-center"><%= result[:name_a] %></th>
-                <th class="border-0 fw-bold text-light text-center"><%= result[:name_b] %></th>
-                <th class="border-0 fw-bold text-light text-center"><%= t('armories.compare.table.difference') %></th>
-                <th class="border-0 fw-bold text-light text-center"><%= t('armories.compare.table.winner') %></th>
-              </tr>
-            </thead>
-            <tbody>
-              <% result[:detailed_ordered].each do |row| %>
-                <% row_view = compare_row_presentation(row, name_a: result[:name_a], name_b: result[:name_b]) %>
-                <% is_special = row[:is_special] %>
-                <% row_class = is_special ? 'special-attribute-row' : '' %>
-                <tr class="<%= row_class %>">
-                  <td class="fw-semibold <%= is_special ? 'text-warning' : '' %>">
-                    <% if is_special %>
-                      <i class="fas fa-star me-1"></i>
-                    <% end %>
-                    <%= row[:attribute] %>
-                  </td>
-                  <td class="text-primary fw-bold"><%= row[:value_a].to_s %><%= row_view[:unit_suffix] %></td>
-                  <td class="text-info fw-bold"><%= row[:value_b].to_s %><%= row_view[:unit_suffix] %></td>
-                  <td class="text-center">
-                    <span class="<%= row_view[:diff_class] %> fw-bold">
-                      <%= row_view[:diff_text] %><%= row_view[:unit_suffix] %>
-                    </span>
-                  </td>
-                  <td class="text-center">
-                    <span class="<%= row_view[:winner_bg] %> <%= row_view[:winner_text] %> fw-bold d-inline-block px-2 py-1 rounded">
-                      <i class="<%= row_view[:winner_icon] %> me-1"></i><%= row_view[:winner] %>
-                    </span>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
+    <section
+      data-controller="compare-table-filters"
+      data-compare-table-filters-total-count-value="<%= result[:detailed].size %>"
+      data-compare-table-filters-results-template-value="<%= t('armories.compare.filters.results_summary').gsub('%{count}', 'COUNT') %>">
+      <h2 class="mb-3">
+        <i class="fas fa-balance-scale me-2"></i><%= t('armories.compare.detailed_comparison') %>
+      </h2>
+
+      <div class="card mb-3 text-start materials-filters-card armory-section-card">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 materials-filters-toolbar">
+            <h2 class="h6 mb-0"><%= t('armories.compare.filters.heading') %></h2>
+            <span class="badge bg-secondary-subtle text-light-emphasis progress-filters-counter">
+              <span data-compare-table-filters-target="visibleCount">0</span>
+              /
+              <span data-compare-table-filters-target="totalCount"><%= result[:detailed].size %></span>
+            </span>
+          </div>
+
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-8">
+              <label for="compare-attribute-filter" class="form-label mb-1"><%= t('armories.compare.filters.attribute_label') %></label>
+              <input
+                id="compare-attribute-filter"
+                type="text"
+                class="form-control"
+                placeholder="<%= t('armories.compare.filters.attribute_placeholder') %>"
+                data-compare-table-filters-target="attributeInput"
+                data-action="input->compare-table-filters#applyFilters">
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label for="compare-winner-filter" class="form-label mb-1"><%= t('armories.compare.filters.winner_label') %></label>
+              <input
+                id="compare-winner-filter"
+                type="text"
+                class="form-control"
+                list="compare-winner-options"
+                placeholder="<%= t('armories.compare.filters.winner_placeholder') %>"
+                data-compare-table-filters-target="winnerInput"
+                data-action="input->compare-table-filters#applyFilters">
+              <datalist id="compare-winner-options">
+                <option value="<%= result[:name_a] %>"></option>
+                <option value="<%= result[:name_b] %>"></option>
+                <option value="<%= t('armories.compare.tie') %>"></option>
+              </datalist>
+            </div>
+
+            <div class="col-12 col-md-1 d-grid">
+              <button type="button" class="btn btn-outline-light" data-action="click->compare-table-filters#clearFilters">
+                <%= t('armories.compare.filters.clear') %>
+              </button>
+            </div>
+          </div>
+
+          <p class="small mt-2 mb-0" data-compare-table-filters-target="resultsSummary" aria-live="polite"></p>
         </div>
       </div>
-    </div>
+
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="fas fa-chart-bar me-2"></i>
+            <%= t('armories.compare.numeric_attributes') %>
+          </h5>
+          <span class="badge bg-light text-dark fs-6">
+            <i class="fas fa-hashtag me-1"></i><%= result[:detailed].size %>
+          </span>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 armory-data-table compare-data-table">
+              <thead>
+                <tr>
+                  <th class="border-0 fw-bold text-light"><%= t('armories.compare.table.attribute') %></th>
+                  <th class="border-0 fw-bold text-light table-col-numeric"><%= result[:name_a] %></th>
+                  <th class="border-0 fw-bold text-light table-col-numeric"><%= result[:name_b] %></th>
+                  <th class="border-0 fw-bold text-light table-col-numeric"><%= t('armories.compare.table.difference') %></th>
+                  <th class="border-0 fw-bold text-light text-center"><%= t('armories.compare.table.winner') %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% result[:detailed_ordered].each do |row| %>
+                  <% row_view = compare_row_presentation(row, name_a: result[:name_a], name_b: result[:name_b]) %>
+                  <% is_special = row[:is_special] %>
+                  <% row_class = is_special ? 'special-attribute-row' : '' %>
+                  <tr
+                    class="<%= row_class %>"
+                    data-compare-row="true"
+                    data-compare-attribute-value="<%= row[:attribute].to_s.downcase %>"
+                    data-compare-winner-value="<%= row_view[:winner].to_s.downcase %>">
+                    <td class="fw-semibold <%= is_special ? 'text-warning' : '' %>">
+                      <% if is_special %>
+                        <i class="fas fa-star me-1"></i>
+                      <% end %>
+                      <%= row[:attribute] %>
+                    </td>
+                    <td class="text-primary fw-bold table-col-numeric"><%= row[:value_a].to_s %><%= row_view[:unit_suffix] %></td>
+                    <td class="text-info fw-bold table-col-numeric"><%= row[:value_b].to_s %><%= row_view[:unit_suffix] %></td>
+                    <td class="table-col-numeric">
+                      <span class="<%= row_view[:diff_class] %> fw-bold">
+                        <%= row_view[:diff_text] %><%= row_view[:unit_suffix] %>
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <span class="<%= row_view[:winner_bg] %> <%= row_view[:winner_text] %> fw-bold d-inline-block px-2 py-1 rounded">
+                        <i class="<%= row_view[:winner_icon] %> me-1"></i><%= row_view[:winner] %>
+                      </span>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </div>

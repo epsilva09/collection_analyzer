@@ -4,7 +4,7 @@
 <div class="accordion-item mb-3 border-0 bg-transparent" data-progress-bucket="<%= bucket %>">
   <h2 class="accordion-header" id="<%= heading_id %>">
     <button
-      class="accordion-button progress-title-btn <%= group_index.zero? ? '' : 'collapsed' %>"
+      class="accordion-button progress-title-btn progress-group-header <%= group_index.zero? ? '' : 'collapsed' %>"
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#<%= collapse_id %>"

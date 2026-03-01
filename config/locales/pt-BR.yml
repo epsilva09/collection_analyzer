@@ -159,3 +159,11 @@ pt-BR:
         view_materials: "Ver itens que faltam de %{name}"
       hints:
         both_names_required: "Informe os dois personagens para comparar as coleções."
+      filters:
+        heading: "Filtros da comparação"
+        attribute_label: "Atributo"
+        attribute_placeholder: "Digite para filtrar atributo..."
+        winner_label: "Vencedor"
+        winner_placeholder: "Digite para filtrar vencedor..."
+        clear: "Limpar"
+        results_summary: "Exibindo %{count} atributos"

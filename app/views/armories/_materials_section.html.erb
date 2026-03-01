@@ -27,8 +27,8 @@
           <thead>
             <tr>
               <th class="border-0"><%= t('armories.progress.top_materials.item') %></th>
-              <th class="border-0 text-center"><%= t('armories.progress.top_materials.total_needed') %></th>
-              <th class="border-0 text-center"><%= t('armories.progress.top_materials.collections_count') %></th>
+              <th class="border-0 table-col-numeric"><%= t('armories.progress.top_materials.total_needed') %></th>
+              <th class="border-0 table-col-numeric"><%= t('armories.progress.top_materials.collections_count') %></th>
             </tr>
           </thead>
           <tbody>
@@ -38,10 +38,10 @@
                 <td>
                   <%= link_to item[:name], material_link, class: 'fw-semibold text-decoration-none' %>
                 </td>
-                <td class="text-center fw-bold text-warning">
+                <td class="table-col-numeric fw-bold text-warning">
                   <%= item[:total_needed] %>
                 </td>
-                <td class="text-center">
+                <td class="table-col-numeric">
                   <span class="badge bg-secondary"><%= item[:collections_count] %></span>
                 </td>
               </tr>
