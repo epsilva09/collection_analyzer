@@ -3,6 +3,7 @@ require "httparty"
 class ArmoryClient
   BASE_URL = ENV.fetch("ASC_API_BASE_URL", "https://asc-api-admin.atkz.dev")
   DEFAULT_CACHE_TTL = 5.minutes
+  REQUEST_TIMEOUT = 8
 
   def initialize(http_client = HTTParty, cache: Rails.cache, cache_ttl: DEFAULT_CACHE_TTL)
     @http = http_client
@@ -15,7 +16,7 @@ class ArmoryClient
     key = cache_key("character_idx", name.to_s.downcase)
 
     fetch_cached(key) do
-      resp = @http.get("#{BASE_URL}/api/website/armory", query: { name: name }, headers: { "Accept" => "application/json" })
+      resp = @http.get("#{BASE_URL}/api/website/armory", request_options(query: { name: name }))
       parsed = parse_response(resp)
       parsed.dig("character", "characterIdx")
     end
@@ -37,7 +38,7 @@ class ArmoryClient
     key = cache_key("collection_details", character_idx)
 
     fetch_cached(key) do
-      resp = @http.get("#{BASE_URL}/api/website/armory/collection/#{character_idx}", headers: { "Accept" => "application/json" })
+      resp = @http.get("#{BASE_URL}/api/website/armory/collection/#{character_idx}", request_options)
       parsed = parse_response(resp)
       {
         values: parsed["values"] || [],
@@ -50,6 +51,16 @@ class ArmoryClient
 
   def cache_key(prefix, value)
     "armory_client:#{prefix}:#{value}"
+  end
+
+  def json_headers
+    { "Accept" => "application/json" }
+  end
+
+  def request_options(query: nil)
+    options = { headers: json_headers, timeout: REQUEST_TIMEOUT }
+    options[:query] = query if query.present?
+    options
   end
 
   def fetch_cached(key)
