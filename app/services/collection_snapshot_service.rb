@@ -36,7 +36,7 @@ class CollectionSnapshotService
   def build_snapshot(name)
     character_idx = @client.fetch_character_idx(name)
     collection_data = []
-    progress_data = { near: [], mid: [], low: [], below_one: [] }
+    progress_data = ArmoryDefaults.empty_progress_data
 
     if character_idx
       details = @client.fetch_collection_details(character_idx)
@@ -80,7 +80,7 @@ class CollectionSnapshotService
   end
 
   def build_progress_data(collection_data)
-    progress_data = { near: [], mid: [], low: [], below_one: [] }
+    progress_data = ArmoryDefaults.empty_progress_data
 
     collection_data.each do |tier|
       next unless tier.is_a?(Hash) && tier["collections"].is_a?(Array)

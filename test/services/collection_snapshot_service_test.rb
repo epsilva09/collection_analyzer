@@ -38,6 +38,68 @@ class CollectionSnapshotServiceTest < ActiveSupport::TestCase
     assert_equal first, second
   end
 
+  test "cache is scoped by locale" do
+    cache = ActiveSupport::Cache::MemoryStore.new
+    fetch_idx_calls = 0
+
+    fake_client = Object.new
+    fake_client.define_singleton_method(:fetch_character_idx) do |_name|
+      fetch_idx_calls += 1
+      777
+    end
+
+    fake_client.define_singleton_method(:fetch_collection_details) do |_idx|
+      {
+        values: [],
+        data: [
+          {
+            "name" => "Tier 1",
+            "collections" => [
+              { "name" => "Any", "progress" => 10, "rewards" => [ { "description" => "HP +1" } ] }
+            ]
+          }
+        ]
+      }
+    end
+
+    service = CollectionSnapshotService.new(client: fake_client, cache: cache, cache_ttl: 10.minutes)
+
+    service.call("Cadamantis", locale: "pt-BR")
+    service.call("Cadamantis", locale: "pt-BR")
+    service.call("Cadamantis", locale: "en")
+
+    assert_equal 2, fetch_idx_calls
+  end
+
+  test "cached snapshot is not mutated across calls" do
+    cache = ActiveSupport::Cache::MemoryStore.new
+
+    fake_client = Object.new
+    fake_client.define_singleton_method(:fetch_character_idx) { |_name| 321 }
+    fake_client.define_singleton_method(:fetch_collection_details) do |_idx|
+      {
+        values: [],
+        data: [
+          {
+            "name" => "Tier 1",
+            "collections" => [
+              { "name" => "Any", "progress" => 10, "rewards" => [ { "description" => "HP +1" } ] }
+            ]
+          }
+        ]
+      }
+    end
+
+    service = CollectionSnapshotService.new(client: fake_client, cache: cache, cache_ttl: 10.minutes)
+
+    first = service.call("Cadamantis")
+    first[:progress_data][:low].clear
+
+    second = service.call("Cadamantis")
+
+    assert_equal 1, second[:progress_data][:low].size
+  end
+
   test "builds progress buckets and aggregated materials" do
     fake_client = Object.new
 

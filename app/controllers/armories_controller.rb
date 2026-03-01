@@ -73,7 +73,7 @@ class ArmoriesController < ApplicationController
       @error = t("armories.errors.character_idx_not_found", name: @name) unless @character_idx
     rescue StandardError => e
       @character_idx = nil
-      @progress_data = { near: [], mid: [], low: [], below_one: [] }
+      @progress_data = ArmoryDefaults.empty_progress_data
       @top_materials = []
       @collection_data = []
       @error = localized_error_message(e)
@@ -101,9 +101,9 @@ class ArmoriesController < ApplicationController
       @error = t("armories.errors.character_idx_not_found", name: @name) unless @character_idx
     rescue StandardError => e
       @character_idx = nil
-      @progress_data = { near: [], mid: [], low: [], below_one: [] }
+      @progress_data = ArmoryDefaults.empty_progress_data
       @top_materials = []
-      @materials_by_bucket = { near: [], mid: [], low: [], below_one: [] }
+      @materials_by_bucket = ArmoryDefaults.empty_progress_data
       @error = localized_error_message(e)
     end
 
@@ -130,7 +130,7 @@ class ArmoriesController < ApplicationController
       @error = t("armories.errors.character_idx_not_found", name: @name) unless @character_idx
     rescue StandardError => e
       @character_idx = nil
-      @progress_data = { near: [], mid: [], low: [], below_one: [] }
+      @progress_data = ArmoryDefaults.empty_progress_data
       @error = localized_error_message(e)
     end
 
