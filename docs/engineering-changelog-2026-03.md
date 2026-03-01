@@ -13,6 +13,7 @@ traceability.
 - 2026-03 Cycle 01: `docs/engineering-cycles/2026-03-cycle-01.md`
 - 2026-03 Cycle 02: `docs/engineering-cycles/2026-03-cycle-02.md`
 - 2026-03 Cycle 03: `docs/engineering-cycles/2026-03-cycle-03.md`
+- 2026-03 Cycle 04: `docs/engineering-cycles/2026-03-cycle-04.md`
 
 ## Point 1 — Performance
 
@@ -99,6 +100,16 @@ traceability.
     `material_collections`
 - Preserved behavior while reducing duplication and keeping visual
   identity application consistent.
+
+## Cycle 04 — Section Card Reuse
+
+- Added reusable section card partial:
+  - `app/views/armories/_section_card.html.erb`
+- Replaced duplicated section-card markup in:
+  - `app/views/armories/index.html.erb`
+  - `app/views/armories/material_collections.html.erb`
+- Parameterized title/icon/count and style overrides to preserve page
+  behavior while improving consistency and maintainability.
 
 ---
 
