@@ -89,6 +89,7 @@ en:
         active_status: "Active attributes"
         active_items: "Active items"
         results_summary: "Showing %{count} collections"
+        shortcuts_hint: "Shortcuts: Ctrl/Cmd+A selects all, Esc clears selection, Delete/Backspace removes selected options."
         clear: "Clear filters"
       alerts:
         error: "Error"

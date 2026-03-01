@@ -110,7 +110,7 @@
                             size="5"
                             aria-label="<%= t('armories.progress.filters.status_multi_label') %>"
                             data-progress-filters-target="statusMulti"
-                            data-action="change->progress-filters#applyFilters">
+                            data-action="change->progress-filters#applyFilters keydown->progress-filters#handleMultiSelectKeydown">
                             <% filter_options[:status].each do |status_option| %>
                               <option value="<%= status_option.downcase %>"><%= status_option %></option>
                             <% end %>
@@ -125,13 +125,14 @@
                             size="5"
                             aria-label="<%= t('armories.progress.filters.item_multi_label') %>"
                             data-progress-filters-target="itemMulti"
-                            data-action="change->progress-filters#applyFilters">
+                            data-action="change->progress-filters#applyFilters keydown->progress-filters#handleMultiSelectKeydown">
                             <% filter_options[:items].each do |item_option| %>
                               <option value="<%= item_option.downcase %>"><%= item_option %></option>
                             <% end %>
                           </select>
                         </div>
                       </div>
+                      <div class="form-text mt-1"><%= t('armories.progress.filters.shortcuts_hint') %></div>
                     </div>
                   </div>
                 </div>

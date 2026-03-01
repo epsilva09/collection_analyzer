@@ -59,6 +59,7 @@ pt-BR:
         active_status: "Atributos ativos"
         active_items: "Itens ativos"
         results_summary: "Exibindo %{count} coleções"
+        shortcuts_hint: "Atalhos: Ctrl/Cmd+A seleciona todos, Esc limpa seleção, Delete/Backspace remove selecionados."
         clear: "Limpar filtros"
       alerts:
         error: "Erro"

@@ -25,14 +25,20 @@ export default class extends Controller {
 
   connect() {
     this.loadFiltersFromUrl()
+    this.savedBucketStateMap = this.readBucketStateMap()
     this.entries = this.buildEntryCache()
     this.buckets = this.buildBucketCache()
+    this.registerBucketStateListeners()
     this.statusAutocompleteOptions = this.datalistValues(this.statusDatalistTarget)
     this.itemAutocompleteOptions = this.datalistValues(this.itemDatalistTarget)
 
     this.refreshStatusAutocomplete()
     this.refreshItemAutocomplete()
     this.applyFilters()
+  }
+
+  disconnect() {
+    this.unregisterBucketStateListeners()
   }
 
   applyFilters() {
@@ -94,6 +100,7 @@ export default class extends Controller {
     this.refreshItemAutocomplete()
     this.renderChips()
     this.persistFiltersToUrl()
+    this.persistBucketStates()
     this.renderResultsSummary(visibleEntriesTotal)
 
     const nextTop = this.statusInputTarget.getBoundingClientRect().top
@@ -134,6 +141,44 @@ export default class extends Controller {
     }
 
     this.applyFilters()
+  }
+
+  handleMultiSelectKeydown(event) {
+    const selectElement = event.currentTarget
+    if (!selectElement) {
+      return
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "a") {
+      event.preventDefault()
+      Array.from(selectElement.options).forEach((option) => {
+        option.selected = true
+      })
+      this.applyFilters()
+      return
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault()
+      Array.from(selectElement.options).forEach((option) => {
+        option.selected = false
+      })
+      this.applyFilters()
+      return
+    }
+
+    if (event.key === "Backspace" || event.key === "Delete") {
+      const selectedOptions = Array.from(selectElement.selectedOptions)
+      if (selectedOptions.length === 0) {
+        return
+      }
+
+      event.preventDefault()
+      selectedOptions.forEach((option) => {
+        option.selected = false
+      })
+      this.applyFilters()
+    }
   }
 
   refreshStatusAutocomplete() {
@@ -209,13 +254,16 @@ export default class extends Controller {
 
   buildBucketCache() {
     return Array.from(this.element.querySelectorAll("[data-progress-bucket]")).map((bucket) => ({
+      key: bucket.dataset.progressBucket,
       element: bucket,
       badge: bucket.querySelector("[data-progress-count-badge='true']"),
       entries: Array.from(bucket.querySelectorAll("[data-progress-entry='true']")),
       collapseElement: bucket.querySelector(".accordion-collapse"),
       toggleButton: bucket.querySelector(".accordion-button"),
-      initialExpanded: bucket.querySelector(".accordion-collapse")?.classList.contains("show") || false,
-      lastExpanded: undefined
+      initialExpanded: this.initialExpandedStateFor(bucket),
+      lastExpanded: this.initialExpandedStateFor(bucket),
+      shownListener: null,
+      hiddenListener: null
     }))
   }
 
@@ -351,6 +399,91 @@ export default class extends Controller {
 
     bucketData.toggleButton.classList.toggle("collapsed", !expanded)
     bucketData.toggleButton.setAttribute("aria-expanded", expanded ? "true" : "false")
+  }
+
+  registerBucketStateListeners() {
+    this.buckets.forEach((bucketData) => {
+      if (!bucketData.collapseElement || !bucketData.key) {
+        return
+      }
+
+      bucketData.shownListener = () => {
+        bucketData.lastExpanded = true
+        this.persistBucketStates()
+      }
+
+      bucketData.hiddenListener = () => {
+        bucketData.lastExpanded = false
+        this.persistBucketStates()
+      }
+
+      bucketData.collapseElement.addEventListener("shown.bs.collapse", bucketData.shownListener)
+      bucketData.collapseElement.addEventListener("hidden.bs.collapse", bucketData.hiddenListener)
+    })
+  }
+
+  unregisterBucketStateListeners() {
+    this.buckets?.forEach((bucketData) => {
+      if (!bucketData.collapseElement) {
+        return
+      }
+
+      if (bucketData.shownListener) {
+        bucketData.collapseElement.removeEventListener("shown.bs.collapse", bucketData.shownListener)
+      }
+
+      if (bucketData.hiddenListener) {
+        bucketData.collapseElement.removeEventListener("hidden.bs.collapse", bucketData.hiddenListener)
+      }
+    })
+  }
+
+  buildBucketStateStorageKey() {
+    const params = new URLSearchParams(window.location.search)
+    const characterName = this.normalize(params.get("name")) || "unknown"
+    return `progress:buckets:${window.location.pathname}:${characterName}`
+  }
+
+  readBucketStateMap() {
+    try {
+      const raw = window.localStorage.getItem(this.buildBucketStateStorageKey())
+      if (!raw) {
+        return {}
+      }
+
+      const parsed = JSON.parse(raw)
+      return parsed && typeof parsed === "object" ? parsed : {}
+    } catch (_error) {
+      return {}
+    }
+  }
+
+  persistBucketStates() {
+    try {
+      const payload = {}
+
+      this.buckets.forEach((bucketData) => {
+        if (!bucketData.key) {
+          return
+        }
+
+        payload[bucketData.key] = bucketData.lastExpanded ?? this.isBucketExpanded(bucketData)
+      })
+
+      window.localStorage.setItem(this.buildBucketStateStorageKey(), JSON.stringify(payload))
+    } catch (_error) {
+      // Ignore localStorage errors (private mode/quota)
+    }
+  }
+
+  initialExpandedStateFor(bucketElement) {
+    const key = bucketElement.dataset.progressBucket
+    const stored = this.savedBucketStateMap?.[key]
+    if (typeof stored === "boolean") {
+      return stored
+    }
+
+    return bucketElement.querySelector(".accordion-collapse")?.classList.contains("show") || false
   }
 
   datalistValues(datalistElement) {
