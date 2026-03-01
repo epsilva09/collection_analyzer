@@ -48,4 +48,14 @@ module ArmoriesHelper
   def progress_bucket_badge_class(bucket)
     bucket&.to_sym == :near ? "bg-warning text-dark" : "bg-secondary"
   end
+
+  def normalize_reward_attribute(label)
+    normalized = label.to_s.squish
+    return "" if normalized.blank?
+
+    normalized = normalized.gsub(/[-+−]?\s*\d+(?:[.,]\d+)?\s*%?/u, "").squish
+    normalized = normalized.gsub(/[()]/, "").squish
+
+    normalized
+  end
 end

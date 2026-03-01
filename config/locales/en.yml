@@ -73,6 +73,16 @@ en:
         character: "Character"
         placeholder: "Type character name..."
         search: "Search"
+      filters:
+        status_label: "Collection status/attribute"
+        status_all: "All statuses"
+        status_placeholder: "Type to search attribute..."
+        status_multi_label: "Select multiple attributes"
+        item_label: "Required item"
+        item_placeholder: "Type to search item..."
+        item_multi_label: "Select multiple items"
+        multi_hint: "You can separate values with commas or select multiple options below."
+        clear: "Clear filters"
       alerts:
         error: "Error"
       labels:

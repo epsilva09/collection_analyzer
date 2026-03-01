@@ -1,0 +1,25 @@
+<div class="row justify-content-center mb-4">
+  <div class="col-12 col-md-10 col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <%= form_with url: compare_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center' do |f| %>
+          <div class="col-12 col-md-5">
+            <%= f.label :name_a, t('armories.compare.form.character_a'), class: 'form-label fw-bold' %>
+            <%= f.text_field :name_a,
+                             value: params[:name_a],
+                             class: 'form-control form-control-lg' %>
+          </div>
+          <div class="col-12 col-md-5">
+            <%= f.label :name_b, t('armories.compare.form.character_b'), class: 'form-label fw-bold' %>
+            <%= f.text_field :name_b,
+                             value: params[:name_b],
+                             class: 'form-control form-control-lg' %>
+          </div>
+          <div class="col-12 text-center">
+            <%= f.submit t('armories.compare.form.compare'), class: 'btn btn-success btn-lg w-100' %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -259,6 +259,15 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
   transition: all 0.3s ease !important;
 }
 
+.progress-title-btn,
+.progress-title-btn:not(.collapsed),
+.materials-title-btn,
+.materials-title-btn:not(.collapsed) {
+  background: #ffffff !important;
+  color: #212529 !important;
+  box-shadow: none !important;
+}
+
 .dropdown-item:hover {
   background: rgba(48, 54, 61, 0.8) !important;
   color: var(--cabal-primary) !important;

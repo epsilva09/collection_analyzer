@@ -43,6 +43,16 @@ pt-BR:
         character: "Personagem"
         placeholder: "Digite o nome do personagem..."
         search: "Pesquisar"
+      filters:
+        status_label: "Status/Atributo da coleção"
+        status_all: "Todos os status"
+        status_placeholder: "Digite para buscar atributo..."
+        status_multi_label: "Selecionar múltiplos atributos"
+        item_label: "Item necessário"
+        item_placeholder: "Digite para buscar item..."
+        item_multi_label: "Selecionar múltiplos itens"
+        multi_hint: "Você pode separar por vírgula ou selecionar múltiplos na lista abaixo."
+        clear: "Limpar filtros"
       alerts:
         error: "Erro"
       labels:

@@ -1,43 +1,15 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title><%= t('armories.compare.page_title') %></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <%= stylesheet_link_tag 'application', media: 'all' %>
-    <%= stylesheet_link_tag 'armory', media: 'all' %>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  </head>
-  <body>
-    <div class="container-fluid">
-      <div class="row justify-content-center">
-        <div class="col-12 col-md-10 col-lg-8">
-          <main class="text-center">
+<% content_for :title, t('armories.compare.page_title') %>
+
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+      <main class="text-center">
             <%= render 'locale_switcher' %>
             <h1 class="my-4"><%= t('armories.compare.heading') %></h1>
 
             <%= render 'menu', current_page: :compare, name_a: params[:name_a], name_b: params[:name_b] %>
 
-            <div class="row justify-content-center mb-4">
-              <div class="col-12">
-                <%= form_with url: compare_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center' do |f| %>
-                  <div class="col-12 col-md-5">
-                    <%= f.label :name_a, t('armories.compare.form.character_a'), class: 'form-label' %>
-                    <%= f.text_field :name_a, value: params[:name_a], class: 'form-control' %>
-                  </div>
-                  <div class="col-12 col-md-5">
-                    <%= f.label :name_b, t('armories.compare.form.character_b'), class: 'form-label' %>
-                    <%= f.text_field :name_b, value: params[:name_b], class: 'form-control' %>
-                  </div>
-                  <div class="col-12 text-center">
-                    <%= f.submit t('armories.compare.form.compare'), class: 'btn btn-success w-50' %>
-                  </div>
-                <% end %>
-              </div>
-            </div>
+            <%= render 'compare_search_form' %>
 
             <% if @error.present? %>
               <div class="alert alert-danger" role="alert">
@@ -357,9 +329,7 @@
                 <%= t('armories.compare.hints.both_names_required') %>
               </div>
             <% end %>
-          </main>
-        </div>
-      </div>
+      </main>
     </div>
-  </body>
-</html>
+  </div>
+</div>

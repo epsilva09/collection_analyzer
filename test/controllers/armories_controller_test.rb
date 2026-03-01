@@ -68,6 +68,8 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       get progress_armory_path, params: { name: "X" }
       assert_response :success
       assert_includes response.body, I18n.t("armories.progress.labels.low")
+      assert_includes response.body, I18n.t("armories.progress.filters.status_label")
+      assert_includes response.body, I18n.t("armories.progress.filters.item_label")
       assert_includes response.body, "Low"
       assert_includes response.body, "Mid"
       assert_includes response.body, "Near"
