@@ -36,13 +36,16 @@ class CollectionSnapshotService
         progress = collection["progress"].to_i
         next unless progress >= 0 && progress < 100
 
+        materials = build_materials(collection)
+
         entry = {
           tier: tier["name"],
           name: collection["name"],
           progress: progress,
           missing: 100 - progress,
           rewards: build_rewards(collection, progress),
-          materials: build_materials(collection)
+          materials: materials,
+          aggregated_materials: aggregate_entry_materials(materials)
         }
         entry[:status] = entry[:rewards].map { |reward| reward[:description] }.join(", ")
 
@@ -161,5 +164,16 @@ class CollectionSnapshotService
         collections_count: materials.size
       }
     end.sort_by { |material| [ -material[:total_needed].to_i, -material[:collections_count].to_i, material[:name].to_s ] }
+  end
+
+  def aggregate_entry_materials(materials)
+    grouped = Array(materials).group_by { |material| material[:name] }
+
+    grouped.map do |material_name, grouped_materials|
+      {
+        name: material_name,
+        needed: grouped_materials.sum { |material| material[:needed].to_i }
+      }
+    end.sort_by { |material| -material[:needed].to_i }
   end
 end

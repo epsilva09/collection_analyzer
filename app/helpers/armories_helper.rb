@@ -1,4 +1,13 @@
 module ArmoriesHelper
+  PROGRESS_LABELS = {
+    near: "armories.progress.labels.near",
+    mid: "armories.progress.labels.mid",
+    low: "armories.progress.labels.low",
+    below_one: "armories.progress.labels.below_one"
+  }.freeze
+
+  REWARD_VALUE_REGEX = /[-+−]?\s*\d+(?:[.,]\d+)?\s*%?/u
+
   def aggregated_materials(materials)
     grouped_materials = Array(materials).group_by { |material| material[:name] }
 
@@ -33,16 +42,8 @@ module ArmoriesHelper
   end
 
   def progress_bucket_label(bucket)
-    case bucket&.to_sym
-    when :near
-      t("armories.progress.labels.near")
-    when :mid
-      t("armories.progress.labels.mid")
-    when :low
-      t("armories.progress.labels.low")
-    else
-      t("armories.progress.labels.below_one")
-    end
+    key = PROGRESS_LABELS[bucket&.to_sym] || PROGRESS_LABELS[:below_one]
+    t(key)
   end
 
   def progress_bucket_badge_class(bucket)
@@ -53,7 +54,7 @@ module ArmoriesHelper
     normalized = label.to_s.squish
     return "" if normalized.blank?
 
-    normalized = normalized.gsub(/[-+−]?\s*\d+(?:[.,]\d+)?\s*%?/u, "").squish
+    normalized = normalized.gsub(REWARD_VALUE_REGEX, "").squish
     normalized = normalized.gsub(/[()]/, "").squish
 
     normalized
@@ -84,7 +85,9 @@ module ArmoriesHelper
   end
 
   def progress_material_filter_values(entry)
-    aggregated_materials(entry[:materials]).map { |material| material[:name].to_s.strip }.reject(&:blank?)
+    precomputed = entry[:aggregated_materials]
+    materials = precomputed.present? ? precomputed : aggregated_materials(entry[:materials])
+    materials.map { |material| material[:name].to_s.strip }.reject(&:blank?)
   end
 
   def compare_section_groups(annotated_values)
@@ -131,18 +134,8 @@ module ArmoriesHelper
   end
 
   def materials_section_label(section)
-    case section&.to_sym
-    when :near
-      t("armories.progress.labels.near")
-    when :mid
-      t("armories.progress.labels.mid")
-    when :low
-      t("armories.progress.labels.low")
-    when :below_one
-      t("armories.progress.labels.below_one")
-    else
-      t("armories.materials.labels.general")
-    end
+    key = PROGRESS_LABELS[section&.to_sym]
+    key ? t(key) : t("armories.materials.labels.general")
   end
 
   def materials_sections(materials_by_bucket, top_materials)

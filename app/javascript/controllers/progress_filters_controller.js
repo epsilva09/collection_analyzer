@@ -11,6 +11,8 @@ export default class extends Controller {
   ]
 
   connect() {
+    this.entries = this.buildEntryCache()
+    this.buckets = this.buildBucketCache()
     this.statusAutocompleteOptions = this.datalistValues(this.statusDatalistTarget)
     this.itemAutocompleteOptions = this.datalistValues(this.itemDatalistTarget)
 
@@ -24,36 +26,38 @@ export default class extends Controller {
       ...this.parseCsvTokens(this.statusInputTarget.value),
       ...this.selectedOptions(this.statusMultiTarget)
     ])
+    const statusQuerySet = new Set(statusQueries)
+    const statusQueryList = Array.from(statusQuerySet)
 
     const itemQueries = this.unique([
       ...this.parseCsvTokens(this.itemInputTarget.value),
       ...this.selectedOptions(this.itemMultiTarget)
     ])
+    const itemQuerySet = new Set(itemQueries)
+    const itemQueryList = Array.from(itemQuerySet)
 
-    this.entryElements().forEach((entry) => {
-      const statusValues = this.parseEntryValues(entry.dataset.progressStatusValues)
-      const itemValues = this.parseEntryValues(entry.dataset.progressMaterialValues)
+    this.entries.forEach((entryData) => {
+      const { element, statusValues, itemValues } = entryData
 
       const statusMatches =
-        statusQueries.length === 0 ||
-        statusQueries.some((query) => statusValues.some((value) => value.includes(query)))
+        statusQuerySet.size === 0 ||
+        statusQueryList.some((query) => statusValues.some((value) => value.includes(query)))
 
       const itemMatches =
-        itemQueries.length === 0 ||
-        itemQueries.some((query) => itemValues.some((value) => value.includes(query)))
+        itemQuerySet.size === 0 ||
+        itemQueryList.some((query) => itemValues.some((value) => value.includes(query)))
 
-      entry.hidden = !(statusMatches && itemMatches)
+      element.hidden = !(statusMatches && itemMatches)
     })
 
-    this.bucketElements().forEach((bucket) => {
-      const visibleEntries = Array.from(bucket.querySelectorAll("[data-progress-entry='true']")).filter((entry) => !entry.hidden).length
-      const badge = bucket.querySelector("[data-progress-count-badge='true']")
+    this.buckets.forEach((bucketData) => {
+      const visibleEntries = bucketData.entries.filter((entry) => !entry.hidden).length
 
-      if (badge) {
-        badge.textContent = visibleEntries
+      if (bucketData.badge) {
+        bucketData.badge.textContent = visibleEntries
       }
 
-      bucket.hidden = visibleEntries === 0
+      bucketData.element.hidden = visibleEntries === 0
     })
 
     this.refreshStatusAutocomplete()
@@ -99,12 +103,13 @@ export default class extends Controller {
       .slice(0, -1)
       .map((token) => this.normalize(token))
       .filter(Boolean)
+    const selectedTokenSet = new Set(selectedTokens)
 
     const filteredOptions = sourceOptions
       .filter((option) => {
         const normalizedOption = this.normalize(option)
 
-        if (selectedTokens.includes(normalizedOption)) {
+        if (selectedTokenSet.has(normalizedOption)) {
           return false
         }
 
@@ -137,12 +142,20 @@ export default class extends Controller {
     return prefix ? `${prefix}, ${suggestion}` : suggestion
   }
 
-  entryElements() {
-    return this.element.querySelectorAll("[data-progress-entry='true']")
+  buildEntryCache() {
+    return Array.from(this.element.querySelectorAll("[data-progress-entry='true']")).map((entry) => ({
+      element: entry,
+      statusValues: this.parseEntryValues(entry.dataset.progressStatusValues),
+      itemValues: this.parseEntryValues(entry.dataset.progressMaterialValues)
+    }))
   }
 
-  bucketElements() {
-    return this.element.querySelectorAll("[data-progress-bucket]")
+  buildBucketCache() {
+    return Array.from(this.element.querySelectorAll("[data-progress-bucket]")).map((bucket) => ({
+      element: bucket,
+      badge: bucket.querySelector("[data-progress-count-badge='true']"),
+      entries: Array.from(bucket.querySelectorAll("[data-progress-entry='true']"))
+    }))
   }
 
   datalistValues(datalistElement) {

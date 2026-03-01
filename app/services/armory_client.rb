@@ -2,24 +2,30 @@ require "httparty"
 
 class ArmoryClient
   BASE_URL = ENV.fetch("ASC_API_BASE_URL", "https://asc-api-admin.atkz.dev")
+  DEFAULT_CACHE_TTL = 5.minutes
 
-  def initialize(http_client = HTTParty)
+  def initialize(http_client = HTTParty, cache: Rails.cache, cache_ttl: DEFAULT_CACHE_TTL)
     @http = http_client
+    @cache = cache
+    @cache_ttl = cache_ttl
   end
 
   # Returns integer characterIdx or nil
   def fetch_character_idx(name)
-    resp = @http.get("#{BASE_URL}/api/website/armory", query: { name: name }, headers: { "Accept" => "application/json" })
-    parsed = parse_response(resp)
-    parsed.dig("character", "characterIdx")
+    key = cache_key("character_idx", name.to_s.downcase)
+
+    fetch_cached(key) do
+      resp = @http.get("#{BASE_URL}/api/website/armory", query: { name: name }, headers: { "Accept" => "application/json" })
+      parsed = parse_response(resp)
+      parsed.dig("character", "characterIdx")
+    end
   end
 
   # Returns array of values or empty array
   # Basic collection endpoint. Returns just the array of string values.
   def fetch_collection(character_idx)
-    resp = @http.get("#{BASE_URL}/api/website/armory/collection/#{character_idx}", headers: { "Accept" => "application/json" })
-    parsed = parse_response(resp)
-    parsed["values"] || []
+    details = fetch_collection_details(character_idx)
+    details[:values] || []
   end
 
   # When the API returns extra metadata (progress, missions, etc.) we need
@@ -28,15 +34,31 @@ class ArmoryClient
   # structure.  It intentionally does not mutate the return value of
   # fetch_collection so existing callers remain untouched.
   def fetch_collection_details(character_idx)
-    resp = @http.get("#{BASE_URL}/api/website/armory/collection/#{character_idx}", headers: { "Accept" => "application/json" })
-    parsed = parse_response(resp)
-    {
-      values: parsed["values"] || [],
-      data: parsed["data"] || []
-    }
+    key = cache_key("collection_details", character_idx)
+
+    fetch_cached(key) do
+      resp = @http.get("#{BASE_URL}/api/website/armory/collection/#{character_idx}", headers: { "Accept" => "application/json" })
+      parsed = parse_response(resp)
+      {
+        values: parsed["values"] || [],
+        data: parsed["data"] || []
+      }
+    end
   end
 
   private
+
+  def cache_key(prefix, value)
+    "armory_client:#{prefix}:#{value}"
+  end
+
+  def fetch_cached(key)
+    return yield unless @cache
+
+    @cache.fetch(key, expires_in: @cache_ttl) do
+      yield
+    end
+  end
 
   def parse_response(resp)
     body = resp.respond_to?(:body) ? resp.body : resp

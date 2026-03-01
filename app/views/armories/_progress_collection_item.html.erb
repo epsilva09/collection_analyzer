@@ -1,5 +1,5 @@
 <% materials_id = "materials-#{bucket}-#{index}" %>
-<% materials = aggregated_materials(collection[:materials]) %>
+<% materials = collection[:aggregated_materials].presence || aggregated_materials(collection[:materials]) %>
 <% material_filter_values = progress_material_filter_values(collection).map(&:downcase).uniq %>
 <% status_filter_values = progress_status_filter_values(collection).map(&:downcase).uniq %>
 
