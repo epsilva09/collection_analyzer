@@ -26,6 +26,8 @@ traceability.
 - 2026-03 Cycle 14: `docs/engineering-cycles/2026-03-cycle-14.md`
 - 2026-03 Cycle 15: `docs/engineering-cycles/2026-03-cycle-15.md`
 - 2026-03 Cycle 16: `docs/engineering-cycles/2026-03-cycle-16.md`
+- 2026-03 Cycle 17: `docs/engineering-cycles/2026-03-cycle-17.md`
+- 2026-03 Cycle 18: `docs/engineering-cycles/2026-03-cycle-18.md`
 
 ## Point 1 — Performance
 
@@ -245,6 +247,23 @@ traceability.
 - Standardized table header sticky behavior to fixed CSS `top: 0.75rem`.
 - Eliminated offset oscillation/drift caused by runtime height-based
   calculations.
+
+## Cycle 17 — Unified Table Visual Identity
+
+- Removed compare-only table header color differentiation (`A/B` header
+  gradients) to align all table headers visually.
+- Added a `compare-data-table` sticky header rule with the same fixed top
+  and background semantics used by other table views.
+- Standardized table header appearance across compare, materials, and
+  material_collections screens.
+
+## Cycle 18 — Unified Table Density
+
+- Standardized cell spacing on shared `.armory-data-table` for both
+  headers and body cells.
+- Applied consistent `padding` and `line-height` to produce the same
+  visual density across compare, materials, and material_collections
+  tables.
 
 ---
 

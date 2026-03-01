@@ -231,17 +231,6 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
   font-weight: bold !important;
 }
 
-/* Header overrides for per-column A/B colors (higher specificity than .table-dark thead th) */
-.table-dark thead th.header-a {
-  background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%) !important;
-  color: #ffffff !important;
-}
-
-.table-dark thead th.header-b {
-  background: linear-gradient(135deg, #b71c1c 0%, #e53935 100%) !important;
-  color: #ffffff !important;
-}
-
 .table-dark tbody tr {
   background: rgba(33, 38, 45, 0.9) !important;
   border-bottom: 1px solid var(--cabal-border) !important;
@@ -386,6 +375,13 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
 }
 
 .progress-data-table thead th {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 10;
+  background: rgba(48, 54, 61, 0.95) !important;
+}
+
+.compare-data-table thead th {
   position: sticky;
   top: 0.75rem;
   z-index: 10;
@@ -873,6 +869,8 @@ textarea:focus-visible {
 .armory-data-table th,
 .armory-data-table td {
   vertical-align: middle;
+  padding: 0.7rem 0.85rem !important;
+  line-height: 1.25;
 }
 
 .armory-data-table a {
