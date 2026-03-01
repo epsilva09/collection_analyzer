@@ -153,3 +153,8 @@ docker pull ghcr.io/epsilva09/collection_analyzer:latest
 - It analyzes remote API data and local calculations.
 - If the external API is unavailable, pages return graceful error
   feedback in the UI.
+
+## Engineering Notes
+
+- Recent implementation summary and DoD checklist:
+  - [docs/engineering-changelog-2026-03.md](docs/engineering-changelog-2026-03.md)
