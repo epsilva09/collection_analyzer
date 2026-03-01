@@ -29,6 +29,7 @@ traceability.
 - 2026-03 Cycle 17: `docs/engineering-cycles/2026-03-cycle-17.md`
 - 2026-03 Cycle 18: `docs/engineering-cycles/2026-03-cycle-18.md`
 - 2026-03 Cycle 19: `docs/engineering-cycles/2026-03-cycle-19.md`
+- 2026-03 Cycle 20: `docs/engineering-cycles/2026-03-cycle-20.md`
 
 ## Point 1 — Performance
 
@@ -275,6 +276,13 @@ traceability.
 - Added targeted system test for materials filters URL restore behavior.
 - Standardized first-column width (`th` + `td`) and numeric alignment with
   tabular figures across table screens.
+
+## Cycle 20 — Compare Filter Autocomplete
+
+- Added `datalist` autocomplete to compare attribute filter input using
+  options derived from detailed comparison rows.
+- Kept compare filtering logic unchanged while improving input discoverability
+  and typing speed.
 
 ---
 

@@ -1,5 +1,7 @@
 <div class="row">
   <div class="col-12">
+    <% attribute_filter_options = result[:detailed_ordered].map { |row| row[:attribute].to_s.strip }.reject(&:blank?).uniq.sort_by(&:downcase) %>
+
     <section
       data-controller="compare-table-filters"
       data-compare-table-filters-total-count-value="<%= result[:detailed].size %>"
@@ -26,9 +28,15 @@
                 id="compare-attribute-filter"
                 type="text"
                 class="form-control"
+                list="compare-attribute-options"
                 placeholder="<%= t('armories.compare.filters.attribute_placeholder') %>"
                 data-compare-table-filters-target="attributeInput"
                 data-action="input->compare-table-filters#applyFilters">
+              <datalist id="compare-attribute-options">
+                <% attribute_filter_options.each do |attribute_option| %>
+                  <option value="<%= attribute_option %>"></option>
+                <% end %>
+              </datalist>
             </div>
 
             <div class="col-12 col-md-3">
