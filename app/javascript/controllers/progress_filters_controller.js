@@ -10,10 +10,13 @@ export default class extends Controller {
     "itemInput",
     "itemDatalist",
     "itemMulti",
-    "itemChips"
+    "itemChips",
+    "visibleCount",
+    "totalCount"
   ]
   static values = {
-    resultsTemplate: String
+    resultsTemplate: String,
+    totalCount: Number
   }
 
   static PARAM_KEYS = {
@@ -34,6 +37,7 @@ export default class extends Controller {
 
     this.refreshStatusAutocomplete()
     this.refreshItemAutocomplete()
+    this.renderCounter(this.entries.length)
     this.applyFilters()
   }
 
@@ -102,6 +106,7 @@ export default class extends Controller {
     this.persistFiltersToUrl()
     this.persistBucketStates()
     this.renderResultsSummary(visibleEntriesTotal)
+    this.renderCounter(visibleEntriesTotal)
 
     const nextTop = this.statusInputTarget.getBoundingClientRect().top
     window.scrollBy(0, nextTop - previousTop)
@@ -290,9 +295,23 @@ export default class extends Controller {
       chip.dataset.action = "click->progress-filters#removeChip"
       chip.dataset.chipType = chipType
       chip.dataset.chipValue = token
-      chip.textContent = `${token} ×`
+      const iconClass = chipType === "status" ? "fas fa-gem" : "fas fa-cube"
+      chip.ariaLabel = `Remove ${chipType} filter ${token}`
+      chip.innerHTML = `<i class="${iconClass} chip-icon" aria-hidden="true"></i><span class="chip-label">${this.escapeHtml(token)}</span><span class="chip-close" aria-hidden="true">×</span>`
       container.appendChild(chip)
     })
+  }
+
+  renderCounter(visibleEntriesTotal) {
+    const total = this.hasTotalCountValue ? this.totalCountValue : this.entries.length
+
+    if (this.hasVisibleCountTarget) {
+      this.visibleCountTarget.textContent = visibleEntriesTotal.toString()
+    }
+
+    if (this.hasTotalCountTarget) {
+      this.totalCountTarget.textContent = total.toString()
+    }
   }
 
   activeTokens(inputElement, selectElement) {
@@ -516,5 +535,15 @@ export default class extends Controller {
 
   normalize(value) {
     return (value || "").toString().trim().toLowerCase()
+  }
+
+  escapeHtml(value) {
+    return (value || "")
+      .toString()
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;")
   }
 }

@@ -357,6 +357,30 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
   color: var(--cabal-text-muted) !important;
 }
 
+.progress-filters-sticky {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 20;
+  box-shadow: var(--armory-shadow-md) !important;
+}
+
+.progress-filters-toolbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.5rem;
+}
+
+.progress-filters-toolbar h2 {
+  color: var(--armory-text-default);
+  text-shadow: none;
+  margin: 0;
+}
+
+.progress-filters-counter {
+  border: 1px solid var(--armory-border-default);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .progress-filter-chips .small {
   color: var(--cabal-text-muted) !important;
 }
@@ -370,11 +394,32 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
 .progress-filter-chip {
   border-color: var(--cabal-border) !important;
   color: var(--cabal-text) !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 255, 255, 0.04) !important;
 }
 
 .progress-filter-chip:hover {
   border-color: var(--cabal-primary) !important;
   color: var(--cabal-primary) !important;
+  background: rgba(0, 212, 255, 0.08) !important;
+}
+
+.progress-filter-chip .chip-icon {
+  font-size: 0.75rem;
+}
+
+.progress-filter-chip .chip-label {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progress-filter-chip .chip-close {
+  font-size: 0.95rem;
+  line-height: 1;
 }
 
 .progress-filters-actions .btn {
@@ -915,6 +960,10 @@ textarea:focus-visible {
   .progress-filters-actions {
     grid-template-columns: 1fr 1fr;
     display: grid;
+  }
+
+  .progress-filters-sticky {
+    top: 0.35rem;
   }
 
   .armory-page > * {

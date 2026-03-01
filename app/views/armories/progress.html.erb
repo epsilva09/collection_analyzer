@@ -34,12 +34,23 @@
               <% labels = { near: t('armories.progress.labels.near'), mid: t('armories.progress.labels.mid'), low: t('armories.progress.labels.low'), below_one: t('armories.progress.labels.below_one') } %>
               <% ordered_buckets = [:near, :mid, :low, :below_one] %>
               <% filter_options = progress_filter_options(@progress_data) %>
+              <% total_entries = ordered_buckets.sum { |bucket| (@progress_data[bucket] || []).size } %>
 
               <section
                 data-controller="progress-filters"
+                data-progress-filters-total-count-value="<%= total_entries %>"
                 data-progress-filters-results-template-value="<%= t('armories.progress.filters.results_summary').gsub('%{count}', 'COUNT') %>">
-                <div class="card mb-3 text-start progress-filters-card armory-section-card">
+                <div class="card mb-3 text-start progress-filters-card progress-filters-sticky armory-section-card">
                   <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 progress-filters-toolbar mb-2">
+                      <h2 class="h6 mb-0"><%= t('armories.progress.heading') %></h2>
+                      <span class="badge bg-secondary-subtle text-light-emphasis progress-filters-counter">
+                        <span data-progress-filters-target="visibleCount">0</span>
+                        /
+                        <span data-progress-filters-target="totalCount"><%= total_entries %></span>
+                      </span>
+                    </div>
+
                     <div class="row g-2 align-items-end">
                       <div class="col-12 col-md-5">
                         <label for="progress-status-filter" class="form-label mb-1"><%= t('armories.progress.filters.status_label') %></label>

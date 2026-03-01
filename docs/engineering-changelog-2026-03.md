@@ -15,6 +15,7 @@ traceability.
 - 2026-03 Cycle 03: `docs/engineering-cycles/2026-03-cycle-03.md`
 - 2026-03 Cycle 04: `docs/engineering-cycles/2026-03-cycle-04.md`
 - 2026-03 Cycle 05: `docs/engineering-cycles/2026-03-cycle-05.md`
+- 2026-03 Cycle 06: `docs/engineering-cycles/2026-03-cycle-06.md`
 
 ## Point 1 — Performance
 
@@ -126,6 +127,17 @@ traceability.
     with compare-specific quick actions disabled for congruence.
   - Primary menu now always shows `Pesquisa`, `Comparar`, `Progresso`,
     and `Materiais` (with contextual `name` routes when available).
+
+## Cycle 06 — Progress Filters UI Refinement
+
+- Added sticky progress filters container for long-page navigation.
+- Added visible/total collections counter in the filters toolbar.
+- Improved active-filter chip UI:
+  - icon by filter type
+  - better remove affordance
+  - truncation handling for long labels
+- Extended Stimulus controller with reusable counter rendering and safer
+  chip label escaping.
 
 ---
 
