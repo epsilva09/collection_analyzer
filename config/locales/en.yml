@@ -88,9 +88,16 @@ en:
         advanced_toggle: "Advanced filters"
         active_status: "Active attributes"
         active_items: "Active items"
+        presets_label: "Quick presets"
+        preset_all: "All"
+        preset_important: "Important attributes"
+        preset_with_items: "With missing items"
         results_summary: "Showing %{count} collections"
         shortcuts_hint: "Shortcuts: Ctrl/Cmd+A selects all, Esc clears selection, Delete/Backspace removes selected options."
         clear: "Clear filters"
+        empty_title: "No collections found"
+        empty_description: "Adjust filters or clear them to show results again."
+        clear_and_show_all: "Clear filters and show all"
       alerts:
         error: "Error"
       labels:

@@ -58,9 +58,16 @@ pt-BR:
         advanced_toggle: "Filtros avançados"
         active_status: "Atributos ativos"
         active_items: "Itens ativos"
+        presets_label: "Presets rápidos"
+        preset_all: "Todos"
+        preset_important: "Atributos importantes"
+        preset_with_items: "Com itens faltando"
         results_summary: "Exibindo %{count} coleções"
         shortcuts_hint: "Atalhos: Ctrl/Cmd+A seleciona todos, Esc limpa seleção, Delete/Backspace remove selecionados."
         clear: "Limpar filtros"
+        empty_title: "Nenhuma coleção encontrada"
+        empty_description: "Ajuste os filtros ou limpe para voltar a exibir resultados."
+        clear_and_show_all: "Limpar filtros e mostrar tudo"
       alerts:
         error: "Erro"
       labels:

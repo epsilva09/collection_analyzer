@@ -77,6 +77,13 @@ module ArmoriesHelper
     }
   end
 
+  def progress_important_attributes
+    CompareCollectionsService::SPECIAL_ATTRIBUTES
+      .map { |label| normalize_reward_attribute(label) }
+      .reject(&:blank?)
+      .uniq
+  end
+
   def progress_status_filter_values(entry)
     reward_descriptions = Array(entry[:rewards]).map { |reward| reward[:description].to_s.strip }.reject(&:blank?)
     reward_descriptions = entry[:status].to_s.split(",").map(&:strip).reject(&:blank?) if reward_descriptions.blank?

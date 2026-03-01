@@ -34,11 +34,13 @@
               <% labels = { near: t('armories.progress.labels.near'), mid: t('armories.progress.labels.mid'), low: t('armories.progress.labels.low'), below_one: t('armories.progress.labels.below_one') } %>
               <% ordered_buckets = [:near, :mid, :low, :below_one] %>
               <% filter_options = progress_filter_options(@progress_data) %>
+              <% important_attributes = progress_important_attributes %>
               <% total_entries = ordered_buckets.sum { |bucket| (@progress_data[bucket] || []).size } %>
 
               <section
                 data-controller="progress-filters"
                 data-progress-filters-total-count-value="<%= total_entries %>"
+                data-progress-filters-important-statuses-value="<%= important_attributes.join('|').downcase %>"
                 data-progress-filters-results-template-value="<%= t('armories.progress.filters.results_summary').gsub('%{count}', 'COUNT') %>">
                 <div class="card mb-3 text-start progress-filters-card progress-filters-sticky armory-section-card">
                   <div class="card-body">
@@ -104,6 +106,33 @@
 
                     <div class="form-text mt-2"><%= t('armories.progress.filters.multi_hint') %></div>
 
+                    <div class="progress-filter-presets mt-2">
+                      <div class="small mb-1"><%= t('armories.progress.filters.presets_label') %></div>
+                      <div class="d-flex flex-wrap gap-1">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary progress-preset-btn"
+                                data-progress-filters-target="presetButton"
+                                data-preset="all"
+                                data-action="click->progress-filters#applyPreset">
+                          <%= t('armories.progress.filters.preset_all') %>
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary progress-preset-btn"
+                                data-progress-filters-target="presetButton"
+                                data-preset="important"
+                                data-action="click->progress-filters#applyPreset">
+                          <%= t('armories.progress.filters.preset_important') %>
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary progress-preset-btn"
+                                data-progress-filters-target="presetButton"
+                                data-preset="with_items"
+                                data-action="click->progress-filters#applyPreset">
+                          <%= t('armories.progress.filters.preset_with_items') %>
+                        </button>
+                      </div>
+                    </div>
+
                     <div class="progress-filter-chips mt-2">
                       <div class="small mb-1"><%= t('armories.progress.filters.active_status') %></div>
                       <div class="d-flex flex-wrap gap-1" data-progress-filters-target="statusChips"></div>
@@ -160,6 +189,15 @@
                              items: items,
                              group_index: group_index %>
                 <% end %>
+                </div>
+
+                <div class="armory-empty-state text-center mt-3" data-progress-filters-target="emptyState" hidden>
+                  <i class="fas fa-filter fa-2x mb-2" aria-hidden="true"></i>
+                  <h3 class="h6 mb-1"><%= t('armories.progress.filters.empty_title') %></h3>
+                  <p class="mb-3"><%= t('armories.progress.filters.empty_description') %></p>
+                  <button type="button" class="btn btn-outline-light btn-sm" data-action="click->progress-filters#clearFilters">
+                    <%= t('armories.progress.filters.clear_and_show_all') %>
+                  </button>
                 </div>
               </section>
             <% end %>

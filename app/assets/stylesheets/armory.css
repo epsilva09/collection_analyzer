@@ -422,6 +422,31 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
   line-height: 1;
 }
 
+.progress-filter-presets .small {
+  color: var(--armory-text-muted) !important;
+}
+
+.progress-preset-btn {
+  border-color: var(--armory-border-default) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--armory-text-default) !important;
+}
+
+.progress-preset-btn:hover,
+.progress-preset-btn:focus-visible {
+  border-color: var(--cabal-primary) !important;
+  color: var(--cabal-primary) !important;
+  background: rgba(0, 212, 255, 0.08) !important;
+}
+
+.progress-preset-btn.btn-primary {
+  color: var(--cabal-dark) !important;
+}
+
+.armory-empty-state p {
+  color: var(--armory-text-muted);
+}
+
 .progress-filters-actions .btn {
   white-space: nowrap;
 }

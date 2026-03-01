@@ -16,6 +16,8 @@ traceability.
 - 2026-03 Cycle 04: `docs/engineering-cycles/2026-03-cycle-04.md`
 - 2026-03 Cycle 05: `docs/engineering-cycles/2026-03-cycle-05.md`
 - 2026-03 Cycle 06: `docs/engineering-cycles/2026-03-cycle-06.md`
+- 2026-03 Cycle 07: `docs/engineering-cycles/2026-03-cycle-07.md`
+- 2026-03 Cycle 08: `docs/engineering-cycles/2026-03-cycle-08.md`
 
 ## Point 1 — Performance
 
@@ -138,6 +140,27 @@ traceability.
   - truncation handling for long labels
 - Extended Stimulus controller with reusable counter rendering and safer
   chip label escaping.
+
+## Cycle 07 — Progress Filters Presets and Empty State
+
+- Added quick presets in progress filters:
+  - `Todos`
+  - `Quase concluídas`
+  - `Com itens faltando`
+  - `Sem itens faltando`
+- Added contextual empty-state with a direct action to clear filters and
+  restore results.
+- Extended filter URL persistence with `f_preset` and added preset
+  button active-state handling.
+
+## Cycle 08 — Presets by Important Attributes
+
+- Replaced near-completion preset semantics with important-attributes
+  semantics on progress filters.
+- Reused the project source of truth for important attributes:
+  `CompareCollectionsService::SPECIAL_ATTRIBUTES`.
+- Added compatibility mapping so legacy preset URL values (`near`) are
+  automatically interpreted as `important`.
 
 ---
 

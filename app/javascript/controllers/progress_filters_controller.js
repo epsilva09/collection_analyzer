@@ -12,21 +12,26 @@ export default class extends Controller {
     "itemMulti",
     "itemChips",
     "visibleCount",
-    "totalCount"
+    "totalCount",
+    "emptyState",
+    "presetButton"
   ]
   static values = {
     resultsTemplate: String,
-    totalCount: Number
+    totalCount: Number,
+    importantStatuses: String
   }
 
   static PARAM_KEYS = {
     status: "f_status",
     item: "f_item",
     statusMulti: "f_status_multi",
-    itemMulti: "f_item_multi"
+    itemMulti: "f_item_multi",
+    preset: "f_preset"
   }
 
   connect() {
+    this.currentPreset = "all"
     this.loadFiltersFromUrl()
     this.savedBucketStateMap = this.readBucketStateMap()
     this.entries = this.buildEntryCache()
@@ -34,10 +39,12 @@ export default class extends Controller {
     this.registerBucketStateListeners()
     this.statusAutocompleteOptions = this.datalistValues(this.statusDatalistTarget)
     this.itemAutocompleteOptions = this.datalistValues(this.itemDatalistTarget)
+    this.importantStatusFilters = this.parseImportantStatuses()
 
     this.refreshStatusAutocomplete()
     this.refreshItemAutocomplete()
     this.renderCounter(this.entries.length)
+    this.updatePresetButtons()
     this.applyFilters()
   }
 
@@ -76,7 +83,9 @@ export default class extends Controller {
         itemQuerySet.size === 0 ||
         itemQueryList.some((query) => itemValues.some((value) => value.includes(query)))
 
-      element.hidden = !(statusMatches && itemMatches)
+      const presetMatches = this.matchesPreset(entryData)
+
+      element.hidden = !(statusMatches && itemMatches && presetMatches)
     })
 
     let visibleEntriesTotal = 0
@@ -107,12 +116,21 @@ export default class extends Controller {
     this.persistBucketStates()
     this.renderResultsSummary(visibleEntriesTotal)
     this.renderCounter(visibleEntriesTotal)
+    this.toggleEmptyState(visibleEntriesTotal)
 
     const nextTop = this.statusInputTarget.getBoundingClientRect().top
     window.scrollBy(0, nextTop - previousTop)
   }
 
+  applyPreset(event) {
+    const preset = event.currentTarget?.dataset?.preset || "all"
+    this.currentPreset = this.validPresets().includes(preset) ? preset : "all"
+    this.updatePresetButtons()
+    this.applyFilters()
+  }
+
   clearFilters() {
+    this.currentPreset = "all"
     this.statusInputTarget.value = ""
     this.itemInputTarget.value = ""
 
@@ -124,6 +142,7 @@ export default class extends Controller {
       option.selected = false
     })
 
+    this.updatePresetButtons()
     this.applyFilters()
   }
 
@@ -252,6 +271,7 @@ export default class extends Controller {
   buildEntryCache() {
     return Array.from(this.element.querySelectorAll("[data-progress-entry='true']")).map((entry) => ({
       element: entry,
+      bucketKey: entry.closest("[data-progress-bucket]")?.dataset?.progressBucket || "",
       statusValues: this.parseEntryValues(entry.dataset.progressStatusValues),
       itemValues: this.parseEntryValues(entry.dataset.progressMaterialValues)
     }))
@@ -314,6 +334,51 @@ export default class extends Controller {
     }
   }
 
+  updatePresetButtons() {
+    if (!this.hasPresetButtonTarget) {
+      return
+    }
+
+    this.presetButtonTargets.forEach((button) => {
+      const preset = button.dataset.preset || "all"
+      const isActive = preset === this.currentPreset
+
+      button.classList.toggle("btn-primary", isActive)
+      button.classList.toggle("btn-outline-secondary", !isActive)
+      button.setAttribute("aria-pressed", isActive ? "true" : "false")
+    })
+  }
+
+  toggleEmptyState(visibleEntriesTotal) {
+    if (!this.hasEmptyStateTarget) {
+      return
+    }
+
+    this.emptyStateTarget.hidden = visibleEntriesTotal !== 0
+  }
+
+  matchesPreset(entryData) {
+    switch (this.currentPreset) {
+      case "important":
+        return this.importantStatusFilters.some((importantStatus) =>
+          entryData.statusValues.some((value) => value.includes(importantStatus))
+        )
+      case "with_items":
+        return entryData.itemValues.length > 0
+      default:
+        return true
+    }
+  }
+
+  readPresetFromParam(rawPreset) {
+    const normalized = this.normalize(rawPreset)
+    if (normalized === "near") {
+      return "important"
+    }
+
+    return this.validPresets().includes(normalized) ? normalized : "all"
+  }
+
   activeTokens(inputElement, selectElement) {
     const inputTokens = this.parseRawCsvTokens(inputElement.value)
     const selectedTokens = Array.from(selectElement.selectedOptions).map((option) => option.textContent.trim())
@@ -370,6 +435,7 @@ export default class extends Controller {
 
     this.statusInputTarget.value = params.get(this.constructor.PARAM_KEYS.status) || ""
     this.itemInputTarget.value = params.get(this.constructor.PARAM_KEYS.item) || ""
+    this.currentPreset = this.readPresetFromParam(params.get(this.constructor.PARAM_KEYS.preset))
 
     this.applyMultiSelection(this.statusMultiTarget, params.get(this.constructor.PARAM_KEYS.statusMulti))
     this.applyMultiSelection(this.itemMultiTarget, params.get(this.constructor.PARAM_KEYS.itemMulti))
@@ -391,6 +457,7 @@ export default class extends Controller {
     this.persistParam(params, this.constructor.PARAM_KEYS.item, this.itemInputTarget.value)
     this.persistParam(params, this.constructor.PARAM_KEYS.statusMulti, this.selectedOptions(this.statusMultiTarget).join(","))
     this.persistParam(params, this.constructor.PARAM_KEYS.itemMulti, this.selectedOptions(this.itemMultiTarget).join(","))
+    this.persistParam(params, this.constructor.PARAM_KEYS.preset, this.currentPreset === "all" ? "" : this.currentPreset)
 
     const search = params.toString()
     const nextUrl = `${window.location.pathname}${search ? `?${search}` : ""}${window.location.hash}`
@@ -535,6 +602,19 @@ export default class extends Controller {
 
   normalize(value) {
     return (value || "").toString().trim().toLowerCase()
+  }
+
+  validPresets() {
+    return ["all", "important", "with_items"]
+  }
+
+  parseImportantStatuses() {
+    return this.unique(
+      this.normalize(this.importantStatusesValue)
+        .split("|")
+        .map((value) => value.trim())
+        .filter(Boolean)
+    )
   }
 
   escapeHtml(value) {
