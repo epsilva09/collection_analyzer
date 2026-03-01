@@ -129,4 +129,34 @@ module ArmoriesHelper
       unit_suffix: row[:unit] == :percent ? "%" : ""
     )
   end
+
+  def materials_section_label(section)
+    case section&.to_sym
+    when :near
+      t("armories.progress.labels.near")
+    when :mid
+      t("armories.progress.labels.mid")
+    when :low
+      t("armories.progress.labels.low")
+    when :below_one
+      t("armories.progress.labels.below_one")
+    else
+      t("armories.materials.labels.general")
+    end
+  end
+
+  def materials_sections(materials_by_bucket, top_materials)
+    ordered_sections = %i[near mid low below_one general]
+
+    ordered_sections.filter_map do |section|
+      items = section == :general ? Array(top_materials) : Array(materials_by_bucket.to_h[section])
+      next if items.blank?
+
+      {
+        key: section,
+        label: materials_section_label(section),
+        items: items
+      }
+    end
+  end
 end
