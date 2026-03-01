@@ -7,7 +7,11 @@
             <%= render 'locale_switcher' %>
             <h1 class="my-4"><%= t('armories.compare.heading') %></h1>
 
-            <%= render 'menu', current_page: :compare, name_a: params[:name_a], name_b: params[:name_b] %>
+            <%= render 'menu',
+                       current_page: :compare,
+                       name: nil,
+                       name_a: params[:name_a],
+                       name_b: params[:name_b] %>
 
             <%= render 'compare_search_form' %>
 
