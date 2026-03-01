@@ -21,6 +21,7 @@ traceability.
 - 2026-03 Cycle 09: `docs/engineering-cycles/2026-03-cycle-09.md`
 - 2026-03 Cycle 10: `docs/engineering-cycles/2026-03-cycle-10.md`
 - 2026-03 Cycle 11: `docs/engineering-cycles/2026-03-cycle-11.md`
+- 2026-03 Cycle 12: `docs/engineering-cycles/2026-03-cycle-12.md`
 
 ## Point 1 — Performance
 
@@ -197,6 +198,15 @@ traceability.
 - Added sticky table header on materials tables.
 - Added dynamic sticky offset in materials filters Stimulus controller to
   keep table header below the sticky filters card.
+
+## Cycle 12 — Sticky Scroll Parity (Progress)
+
+- Added sticky filters offset handling in Progress with the same dynamic
+  pattern used in Materials.
+- Added `filtersCard` target in Progress filters container for robust
+  offset calculation on connect/apply/resize.
+- Added scoped `progress-data-table` sticky-header CSS hook for parity
+  with table-based pages.
 
 ---
 

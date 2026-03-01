@@ -11,6 +11,7 @@ export default class extends Controller {
     "itemDatalist",
     "itemMulti",
     "itemChips",
+    "filtersCard",
     "visibleCount",
     "totalCount",
     "emptyState",
@@ -31,6 +32,9 @@ export default class extends Controller {
   }
 
   connect() {
+    this.handleResize = this.updateStickyOffset.bind(this)
+    window.addEventListener("resize", this.handleResize)
+
     this.currentPreset = "all"
     this.loadFiltersFromUrl()
     this.savedBucketStateMap = this.readBucketStateMap()
@@ -46,9 +50,14 @@ export default class extends Controller {
     this.renderCounter(this.entries.length)
     this.updatePresetButtons()
     this.applyFilters()
+    this.updateStickyOffset()
   }
 
   disconnect() {
+    if (this.handleResize) {
+      window.removeEventListener("resize", this.handleResize)
+    }
+
     this.unregisterBucketStateListeners()
   }
 
@@ -117,9 +126,23 @@ export default class extends Controller {
     this.renderResultsSummary(visibleEntriesTotal)
     this.renderCounter(visibleEntriesTotal)
     this.toggleEmptyState(visibleEntriesTotal)
+    this.updateStickyOffset()
 
     const nextTop = this.statusInputTarget.getBoundingClientRect().top
     window.scrollBy(0, nextTop - previousTop)
+  }
+
+  updateStickyOffset() {
+    if (!this.hasFiltersCardTarget) {
+      return
+    }
+
+    const cardRect = this.filtersCardTarget.getBoundingClientRect()
+    const cardStyles = window.getComputedStyle(this.filtersCardTarget)
+    const stickyTop = parseFloat(cardStyles.top || "0")
+    const stickyOffset = Math.ceil(cardRect.height + stickyTop + 8)
+
+    this.element.style.setProperty("--progress-sticky-offset", `${stickyOffset}px`)
   }
 
   applyPreset(event) {

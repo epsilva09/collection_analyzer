@@ -42,7 +42,7 @@
                 data-progress-filters-total-count-value="<%= total_entries %>"
                 data-progress-filters-important-statuses-value="<%= important_attributes.join('|').downcase %>"
                 data-progress-filters-results-template-value="<%= t('armories.progress.filters.results_summary').gsub('%{count}', 'COUNT') %>">
-                <div class="card mb-3 text-start progress-filters-card progress-filters-sticky armory-section-card">
+                <div class="card mb-3 text-start progress-filters-card progress-filters-sticky armory-section-card" data-progress-filters-target="filtersCard">
                   <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 progress-filters-toolbar mb-2">
                       <h2 class="h6 mb-0"><%= t('armories.progress.heading') %></h2>
