@@ -33,7 +33,7 @@
               <% filter_options = progress_filter_options(@progress_data) %>
 
               <section data-controller="progress-filters">
-                <div class="card mb-3 text-start">
+                <div class="card mb-3 text-start progress-filters-card">
                   <div class="card-body">
                     <div class="row g-2 align-items-end">
                       <div class="col-12 col-md-5">
@@ -46,24 +46,11 @@
                           placeholder="<%= t('armories.progress.filters.status_placeholder') %>"
                           data-progress-filters-target="statusInput"
                           data-action="input->progress-filters#applyFilters focus->progress-filters#refreshStatusAutocomplete">
-                        <div class="form-text"><%= t('armories.progress.filters.multi_hint') %></div>
                         <datalist id="progress-status-options" data-progress-filters-target="statusDatalist">
                           <% filter_options[:status].each do |status_option| %>
                             <option value="<%= status_option %>"></option>
                           <% end %>
                         </datalist>
-                        <select
-                          id="progress-status-filter-multi"
-                          class="form-select mt-2"
-                          multiple
-                          size="5"
-                          aria-label="<%= t('armories.progress.filters.status_multi_label') %>"
-                          data-progress-filters-target="statusMulti"
-                          data-action="change->progress-filters#applyFilters">
-                          <% filter_options[:status].each do |status_option| %>
-                            <option value="<%= status_option.downcase %>"><%= status_option %></option>
-                          <% end %>
-                        </select>
                       </div>
 
                       <div class="col-12 col-md-5">
@@ -76,32 +63,63 @@
                           placeholder="<%= t('armories.progress.filters.item_placeholder') %>"
                           data-progress-filters-target="itemInput"
                           data-action="input->progress-filters#applyFilters focus->progress-filters#refreshItemAutocomplete">
-                        <div class="form-text"><%= t('armories.progress.filters.multi_hint') %></div>
                         <datalist id="progress-item-options" data-progress-filters-target="itemDatalist">
                           <% filter_options[:items].each do |item_option| %>
                             <option value="<%= item_option %>"></option>
                           <% end %>
                         </datalist>
-                        <select
-                          id="progress-item-filter-multi"
-                          class="form-select mt-2"
-                          multiple
-                          size="5"
-                          aria-label="<%= t('armories.progress.filters.item_multi_label') %>"
-                          data-progress-filters-target="itemMulti"
-                          data-action="change->progress-filters#applyFilters">
-                          <% filter_options[:items].each do |item_option| %>
-                            <option value="<%= item_option.downcase %>"><%= item_option %></option>
-                          <% end %>
-                        </select>
                       </div>
 
-                      <div class="col-12 col-md-2 d-grid">
+                      <div class="col-12 col-md-2 d-grid gap-2 progress-filters-actions">
+                        <button type="button" id="progress-clear-filters" class="btn btn-outline-light" data-action="click->progress-filters#clearFilters">
+                          <%= t('armories.progress.filters.clear') %>
+                        </button>
                         <button
                           type="button"
-                          id="progress-clear-filters"
-                          class="btn btn-outline-light"
-                          data-action="click->progress-filters#clearFilters"><%= t('armories.progress.filters.clear') %></button>
+                          class="btn btn-outline-secondary"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#progress-advanced-filters"
+                          aria-expanded="false"
+                          aria-controls="progress-advanced-filters">
+                          <%= t('armories.progress.filters.advanced_toggle') %>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="form-text mt-2"><%= t('armories.progress.filters.multi_hint') %></div>
+
+                    <div class="collapse mt-3" id="progress-advanced-filters">
+                      <div class="row g-2">
+                        <div class="col-12 col-md-6">
+                          <label for="progress-status-filter-multi" class="form-label mb-1 small"><%= t('armories.progress.filters.status_multi_label') %></label>
+                          <select
+                            id="progress-status-filter-multi"
+                            class="form-select"
+                            multiple
+                            size="5"
+                            aria-label="<%= t('armories.progress.filters.status_multi_label') %>"
+                            data-progress-filters-target="statusMulti"
+                            data-action="change->progress-filters#applyFilters">
+                            <% filter_options[:status].each do |status_option| %>
+                              <option value="<%= status_option.downcase %>"><%= status_option %></option>
+                            <% end %>
+                          </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                          <label for="progress-item-filter-multi" class="form-label mb-1 small"><%= t('armories.progress.filters.item_multi_label') %></label>
+                          <select
+                            id="progress-item-filter-multi"
+                            class="form-select"
+                            multiple
+                            size="5"
+                            aria-label="<%= t('armories.progress.filters.item_multi_label') %>"
+                            data-progress-filters-target="itemMulti"
+                            data-action="change->progress-filters#applyFilters">
+                            <% filter_options[:items].each do |item_option| %>
+                              <option value="<%= item_option.downcase %>"><%= item_option %></option>
+                            <% end %>
+                          </select>
+                        </div>
                       </div>
                     </div>
                   </div>

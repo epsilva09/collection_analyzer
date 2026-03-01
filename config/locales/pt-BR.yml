@@ -51,7 +51,8 @@ pt-BR:
         item_label: "Item necessário"
         item_placeholder: "Digite para buscar item..."
         item_multi_label: "Selecionar múltiplos itens"
-        multi_hint: "Você pode separar por vírgula ou selecionar múltiplos na lista abaixo."
+        multi_hint: "Separe por vírgula ou use a seleção múltipla em filtros avançados."
+        advanced_toggle: "Filtros avançados"
         clear: "Limpar filtros"
       alerts:
         error: "Erro"

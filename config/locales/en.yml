@@ -81,7 +81,8 @@ en:
         item_label: "Required item"
         item_placeholder: "Type to search item..."
         item_multi_label: "Select multiple items"
-        multi_hint: "You can separate values with commas or select multiple options below."
+        multi_hint: "Separate values with commas or use multiple selection in advanced filters."
+        advanced_toggle: "Advanced filters"
         clear: "Clear filters"
       alerts:
         error: "Error"

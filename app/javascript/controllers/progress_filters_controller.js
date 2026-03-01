@@ -22,6 +22,8 @@ export default class extends Controller {
   }
 
   applyFilters() {
+    const previousTop = this.statusInputTarget.getBoundingClientRect().top
+
     const statusQueries = this.unique([
       ...this.parseCsvTokens(this.statusInputTarget.value),
       ...this.selectedOptions(this.statusMultiTarget)
@@ -35,6 +37,7 @@ export default class extends Controller {
     ])
     const itemQuerySet = new Set(itemQueries)
     const itemQueryList = Array.from(itemQuerySet)
+    const hasActiveFilters = statusQuerySet.size > 0 || itemQuerySet.size > 0
 
     this.entries.forEach((entryData) => {
       const { element, statusValues, itemValues } = entryData
@@ -60,8 +63,14 @@ export default class extends Controller {
       bucketData.element.hidden = visibleEntries === 0
     })
 
+    this.closeMaterialDetailCollapses()
+    this.syncBucketCollapseStates(hasActiveFilters)
+
     this.refreshStatusAutocomplete()
     this.refreshItemAutocomplete()
+
+    const nextTop = this.statusInputTarget.getBoundingClientRect().top
+    window.scrollBy(0, nextTop - previousTop)
   }
 
   clearFilters() {
@@ -154,8 +163,55 @@ export default class extends Controller {
     return Array.from(this.element.querySelectorAll("[data-progress-bucket]")).map((bucket) => ({
       element: bucket,
       badge: bucket.querySelector("[data-progress-count-badge='true']"),
-      entries: Array.from(bucket.querySelectorAll("[data-progress-entry='true']"))
+      entries: Array.from(bucket.querySelectorAll("[data-progress-entry='true']")),
+      collapseElement: bucket.querySelector(".accordion-collapse"),
+      toggleButton: bucket.querySelector(".accordion-button"),
+      initialExpanded: bucket.querySelector(".accordion-collapse")?.classList.contains("show") || false
     }))
+  }
+
+  closeMaterialDetailCollapses() {
+    this.element.querySelectorAll(".collapse.show[id^='materials-']").forEach((collapseElement) => {
+      collapseElement.classList.remove("show")
+      collapseElement.classList.remove("collapsing")
+      collapseElement.classList.add("collapse")
+
+      const targetId = collapseElement.id
+      const trigger = this.element.querySelector(`[href='#${targetId}']`)
+
+      if (trigger) {
+        trigger.classList.add("collapsed")
+        trigger.setAttribute("aria-expanded", "false")
+      }
+    })
+  }
+
+  syncBucketCollapseStates(hasActiveFilters) {
+    this.buckets.forEach((bucketData) => {
+      if (bucketData.element.hidden) {
+        this.setBucketExpanded(bucketData, false)
+        return
+      }
+
+      if (hasActiveFilters) {
+        this.setBucketExpanded(bucketData, true)
+      } else {
+        this.setBucketExpanded(bucketData, bucketData.initialExpanded)
+      }
+    })
+  }
+
+  setBucketExpanded(bucketData, expanded) {
+    if (!bucketData.collapseElement || !bucketData.toggleButton) {
+      return
+    }
+
+    bucketData.collapseElement.classList.remove("collapsing")
+    bucketData.collapseElement.classList.add("collapse")
+    bucketData.collapseElement.classList.toggle("show", expanded)
+
+    bucketData.toggleButton.classList.toggle("collapsed", !expanded)
+    bucketData.toggleButton.setAttribute("aria-expanded", expanded ? "true" : "false")
   }
 
   datalistValues(datalistElement) {
