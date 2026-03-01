@@ -31,6 +31,7 @@ traceability.
 - 2026-03 Cycle 19: `docs/engineering-cycles/2026-03-cycle-19.md`
 - 2026-03 Cycle 20: `docs/engineering-cycles/2026-03-cycle-20.md`
 - 2026-03 Cycle 21: `docs/engineering-cycles/2026-03-cycle-21.md`
+- 2026-03 Cycle 22: `docs/engineering-cycles/2026-03-cycle-22.md`
 
 ## Point 1 — Performance
 
@@ -293,6 +294,14 @@ traceability.
   materials controllers to reuse the same parsing/autocomplete/matching
   logic.
 - Added localized multi-token hint text to compare filter toolbar.
+
+## Cycle 22 — Compare Filter Runtime Fix
+
+- Fixed shared CSV utility import path to explicit importmap alias for
+  compare/materials controllers.
+- Added defensive target guards in compare controller to avoid runtime
+  initialization failures when optional datalist targets are missing.
+- Restored compare filter behavior after refactor.
 
 ---
 

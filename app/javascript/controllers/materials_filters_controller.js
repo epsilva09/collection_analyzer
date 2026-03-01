@@ -6,7 +6,7 @@ import {
   parseRawCsvTokens,
   refreshCsvAutocompleteOptions,
   uniqueDisplayTokens
-} from "./utils/csv_filter_utils"
+} from "controllers/utils/csv_filter_utils"
 
 export default class extends Controller {
   static targets = [

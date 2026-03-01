@@ -4,7 +4,7 @@ import {
   normalizeToken,
   parseCsvTokens,
   refreshCsvAutocompleteOptions
-} from "./utils/csv_filter_utils"
+} from "controllers/utils/csv_filter_utils"
 
 export default class extends Controller {
   static targets = [
@@ -24,8 +24,12 @@ export default class extends Controller {
 
   connect() {
     this.rows = Array.from(this.element.querySelectorAll("[data-compare-row='true']"))
-    this.attributeAutocompleteOptions = this.datalistValues(this.attributeDatalistTarget)
-    this.winnerAutocompleteOptions = this.datalistValues(this.winnerDatalistTarget)
+    this.attributeAutocompleteOptions = this.hasAttributeDatalistTarget
+      ? this.datalistValues(this.attributeDatalistTarget)
+      : []
+    this.winnerAutocompleteOptions = this.hasWinnerDatalistTarget
+      ? this.datalistValues(this.winnerDatalistTarget)
+      : []
 
     this.refreshAttributeAutocomplete()
     this.refreshWinnerAutocomplete()
@@ -71,6 +75,10 @@ export default class extends Controller {
   }
 
   refreshAttributeAutocomplete() {
+    if (!this.hasAttributeDatalistTarget) {
+      return
+    }
+
     refreshCsvAutocompleteOptions({
       inputElement: this.attributeInputTarget,
       datalistElement: this.attributeDatalistTarget,
@@ -79,6 +87,10 @@ export default class extends Controller {
   }
 
   refreshWinnerAutocomplete() {
+    if (!this.hasWinnerDatalistTarget) {
+      return
+    }
+
     refreshCsvAutocompleteOptions({
       inputElement: this.winnerInputTarget,
       datalistElement: this.winnerDatalistTarget,
