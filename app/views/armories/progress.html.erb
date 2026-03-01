@@ -33,7 +33,9 @@
               <% ordered_buckets = [:near, :mid, :low, :below_one] %>
               <% filter_options = progress_filter_options(@progress_data) %>
 
-              <section data-controller="progress-filters">
+              <section
+                data-controller="progress-filters"
+                data-progress-filters-results-template-value="<%= t('armories.progress.filters.results_summary').gsub('%{count}', 'COUNT') %>">
                 <div class="card mb-3 text-start progress-filters-card">
                   <div class="card-body">
                     <div class="row g-2 align-items-end">
@@ -94,6 +96,7 @@
                       <div class="d-flex flex-wrap gap-1" data-progress-filters-target="statusChips"></div>
                       <div class="small mb-1 mt-2"><%= t('armories.progress.filters.active_items') %></div>
                       <div class="d-flex flex-wrap gap-1" data-progress-filters-target="itemChips"></div>
+                      <p class="small mt-2 mb-0" data-progress-filters-target="resultsSummary" aria-live="polite"></p>
                     </div>
 
                     <div class="collapse mt-3" id="progress-advanced-filters">

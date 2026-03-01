@@ -6,13 +6,25 @@ export default class extends Controller {
     "statusDatalist",
     "statusMulti",
     "statusChips",
+    "resultsSummary",
     "itemInput",
     "itemDatalist",
     "itemMulti",
     "itemChips"
   ]
+  static values = {
+    resultsTemplate: String
+  }
+
+  static PARAM_KEYS = {
+    status: "f_status",
+    item: "f_item",
+    statusMulti: "f_status_multi",
+    itemMulti: "f_item_multi"
+  }
 
   connect() {
+    this.loadFiltersFromUrl()
     this.entries = this.buildEntryCache()
     this.buckets = this.buildBucketCache()
     this.statusAutocompleteOptions = this.datalistValues(this.statusDatalistTarget)
@@ -25,6 +37,10 @@ export default class extends Controller {
 
   applyFilters() {
     const previousTop = this.statusInputTarget.getBoundingClientRect().top
+
+    this.buckets.forEach((bucketData) => {
+      bucketData.lastExpanded = this.isBucketExpanded(bucketData)
+    })
 
     const statusQueries = this.unique([
       ...this.parseCsvTokens(this.statusInputTarget.value),
@@ -53,8 +69,11 @@ export default class extends Controller {
       element.hidden = !(statusMatches && itemMatches)
     })
 
+    let visibleEntriesTotal = 0
+
     this.buckets.forEach((bucketData) => {
       const visibleEntries = bucketData.entries.filter((entry) => !entry.hidden).length
+      visibleEntriesTotal += visibleEntries
 
       if (bucketData.badge) {
         bucketData.badge.textContent = visibleEntries
@@ -74,6 +93,8 @@ export default class extends Controller {
     this.refreshStatusAutocomplete()
     this.refreshItemAutocomplete()
     this.renderChips()
+    this.persistFiltersToUrl()
+    this.renderResultsSummary(visibleEntriesTotal)
 
     const nextTop = this.statusInputTarget.getBoundingClientRect().top
     window.scrollBy(0, nextTop - previousTop)
@@ -203,6 +224,14 @@ export default class extends Controller {
     this.renderChipGroup(this.itemChipsTarget, this.activeTokens(this.itemInputTarget, this.itemMultiTarget), "item")
   }
 
+  renderResultsSummary(visibleEntriesTotal) {
+    if (!this.hasResultsTemplateValue || !this.hasResultsSummaryTarget) {
+      return
+    }
+
+    this.resultsSummaryTarget.textContent = this.resultsTemplateValue.replace("COUNT", visibleEntriesTotal.toString())
+  }
+
   renderChipGroup(container, tokens, chipType) {
     container.innerHTML = ""
 
@@ -267,6 +296,48 @@ export default class extends Controller {
 
   isBucketExpanded(bucketData) {
     return bucketData.collapseElement?.classList.contains("show") || false
+  }
+
+  loadFiltersFromUrl() {
+    const params = new URLSearchParams(window.location.search)
+
+    this.statusInputTarget.value = params.get(this.constructor.PARAM_KEYS.status) || ""
+    this.itemInputTarget.value = params.get(this.constructor.PARAM_KEYS.item) || ""
+
+    this.applyMultiSelection(this.statusMultiTarget, params.get(this.constructor.PARAM_KEYS.statusMulti))
+    this.applyMultiSelection(this.itemMultiTarget, params.get(this.constructor.PARAM_KEYS.itemMulti))
+  }
+
+  applyMultiSelection(selectElement, rawValue) {
+    const selectedValues = this.parseCsvTokens(rawValue)
+    const selectedSet = new Set(selectedValues)
+
+    Array.from(selectElement.options).forEach((option) => {
+      option.selected = selectedSet.has(this.normalize(option.value))
+    })
+  }
+
+  persistFiltersToUrl() {
+    const params = new URLSearchParams(window.location.search)
+
+    this.persistParam(params, this.constructor.PARAM_KEYS.status, this.statusInputTarget.value)
+    this.persistParam(params, this.constructor.PARAM_KEYS.item, this.itemInputTarget.value)
+    this.persistParam(params, this.constructor.PARAM_KEYS.statusMulti, this.selectedOptions(this.statusMultiTarget).join(","))
+    this.persistParam(params, this.constructor.PARAM_KEYS.itemMulti, this.selectedOptions(this.itemMultiTarget).join(","))
+
+    const search = params.toString()
+    const nextUrl = `${window.location.pathname}${search ? `?${search}` : ""}${window.location.hash}`
+    window.history.replaceState({}, "", nextUrl)
+  }
+
+  persistParam(params, key, value) {
+    const normalizedValue = (value || "").toString().trim()
+
+    if (normalizedValue) {
+      params.set(key, normalizedValue)
+    } else {
+      params.delete(key)
+    }
   }
 
   setBucketExpanded(bucketData, expanded) {

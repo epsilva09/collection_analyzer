@@ -58,6 +58,7 @@ pt-BR:
         advanced_toggle: "Filtros avançados"
         active_status: "Atributos ativos"
         active_items: "Itens ativos"
+        results_summary: "Exibindo %{count} coleções"
         clear: "Limpar filtros"
       alerts:
         error: "Erro"
