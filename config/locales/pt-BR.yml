@@ -94,6 +94,20 @@ pt-BR:
       heading: "Itens que faltam para completar coleções"
       labels:
         general: "Geral (todas as coleções)"
+      filters:
+        heading: "Filtros de materiais"
+        material_label: "Material"
+        material_placeholder: "Digite para filtrar material..."
+        bucket_label: "Faixa de progresso"
+        bucket_placeholder: "Digite para filtrar faixa..."
+        active_materials: "Materiais ativos"
+        active_buckets: "Faixas ativas"
+        results_summary: "Exibindo %{count} materiais"
+        multi_hint: "Separe por vírgula para aplicar múltiplos filtros."
+        clear: "Limpar filtros"
+        empty_title: "Nenhum material encontrado"
+        empty_description: "Ajuste os filtros ou limpe para voltar a exibir resultados."
+        clear_and_show_all: "Limpar filtros e mostrar tudo"
     material_collections:
       page_title: "Coleções que precisam de %{material}"
       heading: "Coleções que ainda precisam de %{material}"

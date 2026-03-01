@@ -33,15 +33,96 @@
 
             <% if @materials_by_bucket.present? || @top_materials.present? %>
               <% sections = materials_sections(@materials_by_bucket, @top_materials) %>
+              <% filter_options = materials_filter_options(sections) %>
+              <% total_material_rows = sections.sum { |section| section[:items].size } %>
 
-              <div class="accordion" id="materials-groups">
-                <% sections.each_with_index do |section_data, index| %>
-                  <%= render 'materials_section',
-                             section_data: section_data,
-                             index: index,
-                             character_name: @name %>
-                <% end %>
-              </div>
+              <section
+                data-controller="materials-filters"
+                data-materials-filters-total-count-value="<%= total_material_rows %>"
+                data-materials-filters-results-template-value="<%= t('armories.materials.filters.results_summary').gsub('%{count}', 'COUNT') %>">
+                <div class="card mb-3 text-start materials-filters-card armory-section-card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                      <h2 class="h6 mb-0"><%= t('armories.materials.filters.heading') %></h2>
+                      <span class="badge bg-secondary-subtle text-light-emphasis progress-filters-counter">
+                        <span data-materials-filters-target="visibleCount">0</span>
+                        /
+                        <span data-materials-filters-target="totalCount"><%= total_material_rows %></span>
+                      </span>
+                    </div>
+
+                    <div class="row g-2 align-items-end">
+                      <div class="col-12 col-md-5">
+                        <label for="materials-name-filter" class="form-label mb-1"><%= t('armories.materials.filters.material_label') %></label>
+                        <input
+                          id="materials-name-filter"
+                          type="text"
+                          class="form-control"
+                          list="materials-name-options"
+                          placeholder="<%= t('armories.materials.filters.material_placeholder') %>"
+                          data-materials-filters-target="materialInput"
+                          data-action="input->materials-filters#applyFilters focus->materials-filters#refreshMaterialAutocomplete">
+                        <datalist id="materials-name-options" data-materials-filters-target="materialDatalist">
+                          <% filter_options[:materials].each do |material_option| %>
+                            <option value="<%= material_option %>"></option>
+                          <% end %>
+                        </datalist>
+                      </div>
+
+                      <div class="col-12 col-md-5">
+                        <label for="materials-bucket-filter" class="form-label mb-1"><%= t('armories.materials.filters.bucket_label') %></label>
+                        <input
+                          id="materials-bucket-filter"
+                          type="text"
+                          class="form-control"
+                          list="materials-bucket-options"
+                          placeholder="<%= t('armories.materials.filters.bucket_placeholder') %>"
+                          data-materials-filters-target="bucketInput"
+                          data-action="input->materials-filters#applyFilters focus->materials-filters#refreshBucketAutocomplete">
+                        <datalist id="materials-bucket-options" data-materials-filters-target="bucketDatalist">
+                          <% filter_options[:buckets].each do |bucket_option| %>
+                            <option value="<%= bucket_option %>"></option>
+                          <% end %>
+                        </datalist>
+                      </div>
+
+                      <div class="col-12 col-md-2 d-grid gap-2">
+                        <button type="button" class="btn btn-outline-light" data-action="click->materials-filters#clearFilters">
+                          <%= t('armories.materials.filters.clear') %>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="form-text mt-2"><%= t('armories.materials.filters.multi_hint') %></div>
+
+                    <div class="progress-filter-chips mt-2">
+                      <div class="small mb-1"><%= t('armories.materials.filters.active_materials') %></div>
+                      <div class="d-flex flex-wrap gap-1" data-materials-filters-target="materialChips"></div>
+                      <div class="small mb-1 mt-2"><%= t('armories.materials.filters.active_buckets') %></div>
+                      <div class="d-flex flex-wrap gap-1" data-materials-filters-target="bucketChips"></div>
+                      <p class="small mt-2 mb-0" data-materials-filters-target="resultsSummary" aria-live="polite"></p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion" id="materials-groups">
+                  <% sections.each_with_index do |section_data, index| %>
+                    <%= render 'materials_section',
+                               section_data: section_data,
+                               index: index,
+                               character_name: @name %>
+                  <% end %>
+                </div>
+
+                <div class="armory-empty-state text-center mt-3" data-materials-filters-target="emptyState" hidden>
+                  <i class="fas fa-filter fa-2x mb-2" aria-hidden="true"></i>
+                  <h3 class="h6 mb-1"><%= t('armories.materials.filters.empty_title') %></h3>
+                  <p class="mb-3"><%= t('armories.materials.filters.empty_description') %></p>
+                  <button type="button" class="btn btn-outline-light btn-sm" data-action="click->materials-filters#clearFilters">
+                    <%= t('armories.materials.filters.clear_and_show_all') %>
+                  </button>
+                </div>
+              </section>
             <% end %>
       </main>
     </div>

@@ -18,6 +18,7 @@ traceability.
 - 2026-03 Cycle 06: `docs/engineering-cycles/2026-03-cycle-06.md`
 - 2026-03 Cycle 07: `docs/engineering-cycles/2026-03-cycle-07.md`
 - 2026-03 Cycle 08: `docs/engineering-cycles/2026-03-cycle-08.md`
+- 2026-03 Cycle 09: `docs/engineering-cycles/2026-03-cycle-09.md`
 
 ## Point 1 — Performance
 
@@ -163,6 +164,20 @@ traceability.
   automatically interpreted as `important`.
 - Added tooltip context in the preset button listing included important
   attributes.
+
+## Cycle 09 — Materials Filters UI
+
+- Added materials-page filters reusing progress filter UX pattern:
+  - autocomplete inputs
+  - chips with remove action
+  - clear filters action
+  - visible/total counters
+  - `aria-live` summary
+  - contextual empty-state
+- Added dedicated Stimulus controller:
+  - `app/javascript/controllers/materials_filters_controller.js`
+- Added helper support for filter options:
+  - `materials_filter_options` in `app/helpers/armories_helper.rb`
 
 ---
 

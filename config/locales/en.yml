@@ -124,6 +124,20 @@ en:
       heading: "Items missing to complete collections"
       labels:
         general: "General (all collections)"
+      filters:
+        heading: "Material filters"
+        material_label: "Material"
+        material_placeholder: "Type to filter material..."
+        bucket_label: "Progress range"
+        bucket_placeholder: "Type to filter range..."
+        active_materials: "Active materials"
+        active_buckets: "Active ranges"
+        results_summary: "Showing %{count} materials"
+        multi_hint: "Separate values with commas to apply multiple filters."
+        clear: "Clear filters"
+        empty_title: "No materials found"
+        empty_description: "Adjust filters or clear them to show results again."
+        clear_and_show_all: "Clear filters and show all"
     material_collections:
       page_title: "Collections that need %{material}"
       heading: "Collections still needing %{material}"

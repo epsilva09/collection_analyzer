@@ -159,4 +159,22 @@ module ArmoriesHelper
       }
     end
   end
+
+  def materials_filter_options(sections)
+    section_list = Array(sections)
+
+    material_names = section_list.flat_map do |section|
+      Array(section[:items]).map { |item| item[:name].to_s.strip }
+    end.reject(&:blank?).uniq.sort_by(&:downcase)
+
+    bucket_labels = section_list.map { |section| section[:label].to_s.strip }
+      .reject(&:blank?)
+      .uniq
+      .sort_by(&:downcase)
+
+    {
+      materials: material_names,
+      buckets: bucket_labels
+    }
+  end
 end

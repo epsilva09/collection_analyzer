@@ -3,7 +3,7 @@
 <% collapse_id = "materials-#{section_key}" %>
 <% heading_id = "heading-materials-#{section_key}" %>
 
-<div class="accordion-item mb-3 border-0 bg-transparent">
+<div class="accordion-item mb-3 border-0 bg-transparent" data-materials-bucket="<%= section_key %>" data-materials-bucket-label="<%= section_data[:label].to_s.downcase %>">
   <h2 class="accordion-header" id="<%= heading_id %>">
     <button
       class="accordion-button materials-title-btn <%= index.zero? ? '' : 'collapsed' %>"
@@ -13,7 +13,7 @@
       aria-expanded="<%= index.zero? ? 'true' : 'false' %>"
       aria-controls="<%= collapse_id %>">
       <span class="me-2"><%= section_data[:label] %></span>
-      <span class="badge <%= section_key == :near ? 'bg-warning text-dark' : 'bg-secondary' %>"><%= items.size %></span>
+      <span class="badge <%= section_key == :near ? 'bg-warning text-dark' : 'bg-secondary' %>" data-materials-count-badge="true"><%= items.size %></span>
     </button>
   </h2>
 
@@ -34,7 +34,7 @@
           <tbody>
             <% items.each do |item| %>
               <% material_link = material_collections_armory_path(name: character_name, material: item[:name], bucket: (section_key == :general ? nil : section_key)) %>
-              <tr>
+              <tr data-materials-entry="true" data-material-name-values="<%= item[:name].to_s.downcase %>" data-material-bucket-values="<%= section_data[:label].to_s.downcase %>">
                 <td>
                   <%= link_to item[:name], material_link, class: 'fw-semibold text-decoration-none' %>
                 </td>
