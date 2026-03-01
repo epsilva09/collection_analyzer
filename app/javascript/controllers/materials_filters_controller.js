@@ -19,7 +19,13 @@ export default class extends Controller {
     totalCount: Number
   }
 
+  static PARAM_KEYS = {
+    material: "f_material",
+    bucket: "f_bucket"
+  }
+
   connect() {
+    this.loadFiltersFromUrl()
     this.entries = this.buildEntryCache()
     this.buckets = this.buildBucketCache()
     this.materialAutocompleteOptions = this.datalistValues(this.materialDatalistTarget)
@@ -73,12 +79,41 @@ export default class extends Controller {
     this.renderResultsSummary(visibleEntriesTotal)
     this.renderCounter(visibleEntriesTotal)
     this.toggleEmptyState(visibleEntriesTotal)
+    this.persistFiltersToUrl()
   }
 
   clearFilters() {
     this.materialInputTarget.value = ""
     this.bucketInputTarget.value = ""
     this.applyFilters()
+  }
+
+  loadFiltersFromUrl() {
+    const params = new URLSearchParams(window.location.search)
+
+    this.materialInputTarget.value = params.get(this.constructor.PARAM_KEYS.material) || ""
+    this.bucketInputTarget.value = params.get(this.constructor.PARAM_KEYS.bucket) || ""
+  }
+
+  persistFiltersToUrl() {
+    const params = new URLSearchParams(window.location.search)
+
+    this.persistParam(params, this.constructor.PARAM_KEYS.material, this.materialInputTarget.value)
+    this.persistParam(params, this.constructor.PARAM_KEYS.bucket, this.bucketInputTarget.value)
+
+    const search = params.toString()
+    const nextUrl = `${window.location.pathname}${search ? `?${search}` : ""}${window.location.hash}`
+    window.history.replaceState({}, "", nextUrl)
+  }
+
+  persistParam(params, key, value) {
+    const normalizedValue = (value || "").toString().trim()
+
+    if (normalizedValue) {
+      params.set(key, normalizedValue)
+    } else {
+      params.delete(key)
+    }
   }
 
   removeChip(event) {

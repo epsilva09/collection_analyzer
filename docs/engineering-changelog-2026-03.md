@@ -19,6 +19,7 @@ traceability.
 - 2026-03 Cycle 07: `docs/engineering-cycles/2026-03-cycle-07.md`
 - 2026-03 Cycle 08: `docs/engineering-cycles/2026-03-cycle-08.md`
 - 2026-03 Cycle 09: `docs/engineering-cycles/2026-03-cycle-09.md`
+- 2026-03 Cycle 10: `docs/engineering-cycles/2026-03-cycle-10.md`
 
 ## Point 1 — Performance
 
@@ -178,6 +179,16 @@ traceability.
   - `app/javascript/controllers/materials_filters_controller.js`
 - Added helper support for filter options:
   - `materials_filter_options` in `app/helpers/armories_helper.rb`
+
+## Cycle 10 — Materials Filters URL Persistence
+
+- Extended materials filters controller to persist filter state in URL:
+  - `f_material`
+  - `f_bucket`
+- Added URL-to-form restoration on page load, keeping filter fields and
+  chips in sync with query params.
+- Kept parity with progress filters behavior while avoiding history
+  pollution via `history.replaceState`.
 
 ---
 
