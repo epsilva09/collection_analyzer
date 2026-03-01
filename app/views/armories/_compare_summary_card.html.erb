@@ -1,0 +1,56 @@
+<div class="col-md-4 mb-3">
+  <div class="card <%= border_class %> h-100 summary-card shadow">
+    <div class="card-header <%= header_class %> d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <i class="<%= header_icon_class %> me-2"></i><%= title %>
+      </h5>
+      <span class="badge <%= badge_class %>"><%= total_count %></span>
+    </div>
+    <div class="card-body">
+      <% if total_count.positive? %>
+        <% if special_items.any? %>
+          <div class="mb-3">
+            <h6 class="text-warning fw-bold mb-2">
+              <i class="fas fa-star me-1"></i><%= special_title %>
+            </h6>
+            <% special_items.first(3).each do |item| %>
+              <div class="d-flex justify-content-between align-items-center px-0 py-2 border-bottom border-warning">
+                <span class="text-truncate fw-bold text-warning fs-6"><%= item[:parsed_key] %></span>
+                <i class="fas fa-crown text-warning"></i>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if regular_items.any? %>
+          <div class="list-group list-group-flush">
+            <% regular_items.first(5).each do |item| %>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span class="text-truncate"><%= item[:parsed_key] %></span>
+                <i class="<%= regular_icon_class %>"></i>
+              </div>
+            <% end %>
+
+            <% if regular_items.size > 5 %>
+              <div class="list-group-item text-center">
+                <a class="text-decoration-none" data-bs-toggle="collapse" href="#<%= collapse_id %>" role="button" aria-expanded="false" aria-controls="<%= collapse_id %>">
+                  <%= t('armories.compare.more_items', count: regular_items.size - 5) %>
+                </a>
+              </div>
+              <div class="collapse" id="<%= collapse_id %>">
+                <% regular_items.drop(5).each do |item| %>
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span class="text-truncate"><%= item[:parsed_key] %></span>
+                    <i class="<%= regular_icon_class %>"></i>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-muted mb-0"><%= empty_text %></p>
+      <% end %>
+    </div>
+  </div>
+</div>
