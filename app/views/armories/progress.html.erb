@@ -7,14 +7,19 @@
             <%= render 'locale_switcher' %>
             <h1 class="my-4"><%= t('armories.progress.heading') %></h1>
 
-            <%= render 'menu', current_page: :progress, name: @name %>
+            <%= render 'menu',
+                       current_page: :progress,
+                       name: @name,
+                       name_a: nil,
+                       name_b: nil %>
 
             <%= render 'character_search_form',
                        url: progress_armory_path,
                        value: params[:name],
                        label: t('armories.progress.form.character'),
                        placeholder: t('armories.progress.form.placeholder'),
-                       submit_text: t('armories.progress.form.search') %>
+                       submit_text: t('armories.progress.form.search'),
+                       turbo_disabled: true %>
 
             <% if @error.present? %>
               <div class="alert alert-danger" role="alert">
@@ -106,94 +111,11 @@
                 <% ordered_buckets.each_with_index do |bucket, group_index| %>
                   <% items = @progress_data[bucket] || [] %>
                   <% next if items.blank? %>
-                  <% collapse_id = "progress-#{bucket}" %>
-                  <% heading_id = "heading-#{bucket}" %>
-
-                  <div class="accordion-item mb-3 border-0 bg-transparent" data-progress-bucket="<%= bucket %>">
-                    <h2 class="accordion-header" id="<%= heading_id %>">
-                      <button
-                        class="accordion-button progress-title-btn <%= group_index.zero? ? '' : 'collapsed' %>"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#<%= collapse_id %>"
-                        aria-expanded="<%= group_index.zero? ? 'true' : 'false' %>"
-                        aria-controls="<%= collapse_id %>">
-                        <span class="me-2"><%= labels[bucket] %></span>
-                        <span
-                          class="badge <%= bucket == :near ? 'bg-warning text-dark' : 'bg-secondary' %>"
-                          data-progress-count-badge="true"
-                          data-original-count="<%= items.size %>"><%= items.size %></span>
-                      </button>
-                    </h2>
-
-                    <div
-                      id="<%= collapse_id %>"
-                      class="accordion-collapse collapse <%= group_index.zero? ? 'show' : '' %>"
-                      aria-labelledby="<%= heading_id %>">
-                      <div class="accordion-body p-0">
-                        <ul class="list-group list-group-flush">
-                          <% items.each_with_index do |col, idx| %>
-                            <% mat_id = "materials-#{bucket}-#{idx}" %>
-                            <% materials = aggregated_materials(col[:materials]) %>
-                            <% material_filter_values = progress_material_filter_values(col).map(&:downcase).uniq %>
-                            <% status_filter_values = progress_status_filter_values(col).map(&:downcase).uniq %>
-
-                            <li
-                              class="list-group-item"
-                              data-progress-entry="true"
-                              data-progress-status-values="<%= status_filter_values.join('|') %>"
-                              data-progress-material-values="<%= material_filter_values.join('|') %>">
-                              <div class="d-flex w-100 justify-content-between align-items-start">
-                                <div class="text-start me-3 flex-grow-1">
-                                  <div class="d-flex align-items-baseline justify-content-between">
-                                    <strong class="me-2"><%= col[:tier] %> – <%= col[:name] %></strong>
-                                    <div class="text-end ms-2">
-                                      <span class="badge bg-secondary me-1"><%= t('armories.progress.badges.progress') %>: <%= col[:progress] %>%</span>
-                                      <span class="badge bg-info"><%= t('armories.progress.badges.missing') %>: <%= col[:missing] %>%</span>
-                                    </div>
-                                  </div>
-
-                                  <% badges_html = reward_badges(rewards: col[:rewards], status: col[:status]) %>
-                                  <% if badges_html.present? %>
-                                    <div class="mt-1">
-                                      <%= badges_html %>
-                                    </div>
-                                  <% end %>
-                                  <% if col[:materials].present? %>
-                                    <div class="mt-2">
-                                      <% visible = materials.first(10) %>
-                                      <% visible.each do |m| %>
-                                        <span class="badge bg-warning text-dark me-1 mb-1 small">
-                                          <%= m[:name] %> (+<%= m[:needed] %>)
-                                        </span>
-                                      <% end %>
-
-                                      <% if materials.size > visible.size %>
-                                        <a class="small text-decoration-none ms-1" data-bs-toggle="collapse" href="#<%= mat_id %>" role="button" aria-expanded="false" aria-controls="<%= mat_id %>">
-                                          <%= t('armories.progress.actions.show_all', count: materials.size) %>
-                                        </a>
-                                        <div class="collapse mt-2" id="<%= mat_id %>">
-                                          <div class="d-flex flex-wrap">
-                                            <% materials.drop(visible.size).each do |m| %>
-                                              <div class="me-2 mb-2">
-                                                <span class="badge bg-warning text-dark small">
-                                                  <%= m[:name] %> (+<%= m[:needed] %>)
-                                                </span>
-                                              </div>
-                                            <% end %>
-                                          </div>
-                                        </div>
-                                      <% end %>
-                                    </div>
-                                  <% end %>
-                                </div>
-                              </div>
-                            </li>
-                          <% end %>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
+                  <%= render 'progress_bucket',
+                             bucket: bucket,
+                             label: labels[bucket],
+                             items: items,
+                             group_index: group_index %>
                 <% end %>
                 </div>
               </section>

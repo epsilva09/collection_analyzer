@@ -1,0 +1,36 @@
+<% collapse_id = "progress-#{bucket}" %>
+<% heading_id = "heading-#{bucket}" %>
+
+<div class="accordion-item mb-3 border-0 bg-transparent" data-progress-bucket="<%= bucket %>">
+  <h2 class="accordion-header" id="<%= heading_id %>">
+    <button
+      class="accordion-button progress-title-btn <%= group_index.zero? ? '' : 'collapsed' %>"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#<%= collapse_id %>"
+      aria-expanded="<%= group_index.zero? ? 'true' : 'false' %>"
+      aria-controls="<%= collapse_id %>">
+      <span class="me-2"><%= label %></span>
+      <span
+        class="badge <%= bucket == :near ? 'bg-warning text-dark' : 'bg-secondary' %>"
+        data-progress-count-badge="true"
+        data-original-count="<%= items.size %>"><%= items.size %></span>
+    </button>
+  </h2>
+
+  <div
+    id="<%= collapse_id %>"
+    class="accordion-collapse collapse <%= group_index.zero? ? 'show' : '' %>"
+    aria-labelledby="<%= heading_id %>">
+    <div class="accordion-body p-0">
+      <ul class="list-group list-group-flush">
+        <% items.each_with_index do |collection, idx| %>
+          <%= render 'progress_collection_item',
+                     bucket: bucket,
+                     index: idx,
+                     collection: collection %>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</div>
