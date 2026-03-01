@@ -68,9 +68,10 @@
                             </thead>
                             <tbody>
                               <% items.each do |m| %>
-                                <tr class="cursor-pointer" onclick="window.location='<%= material_collections_armory_path(name: @name, material: m[:name], bucket: (section == :general ? nil : section)) %>'">
+                                <% material_link = material_collections_armory_path(name: @name, material: m[:name], bucket: (section == :general ? nil : section)) %>
+                                <tr>
                                   <td>
-                                    <span class="fw-semibold"><%= m[:name] %></span>
+                                    <%= link_to m[:name], material_link, class: 'fw-semibold text-decoration-none' %>
                                   </td>
                                   <td class="text-center fw-bold text-warning">
                                     <%= m[:total_needed] %>

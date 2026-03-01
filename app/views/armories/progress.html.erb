@@ -25,69 +25,84 @@
             <% if @progress_data.present? %>
               <% labels = { near: t('armories.progress.labels.near'), mid: t('armories.progress.labels.mid'), low: t('armories.progress.labels.low'), below_one: t('armories.progress.labels.below_one') } %>
               <% ordered_buckets = [:near, :mid, :low, :below_one] %>
-              <% all_entries = @progress_data.values.flatten %>
-                  <% status_filter_options = all_entries.flat_map do |entry|
-                    reward_descriptions = Array(entry[:rewards]).map { |reward| reward[:description].to_s.strip }.reject(&:blank?)
-                    reward_descriptions = entry[:status].to_s.split(',').map(&:strip).reject(&:blank?) if reward_descriptions.blank?
-                    reward_descriptions.map { |label| normalize_reward_attribute(label) }.reject(&:blank?)
-                 end.uniq.sort_by(&:downcase) %>
-              <% item_filter_options = all_entries.flat_map do |entry|
-                   aggregated_materials(entry[:materials]).map { |material| material[:name].to_s.strip }
-                 end.reject(&:blank?).uniq.sort_by(&:downcase) %>
+              <% filter_options = progress_filter_options(@progress_data) %>
 
-              <div class="card mb-3 text-start">
-                <div class="card-body">
-                  <div class="row g-2 align-items-end">
-                    <div class="col-12 col-md-5">
-                      <label for="progress-status-filter" class="form-label mb-1"><%= t('armories.progress.filters.status_label') %></label>
-                      <input
-                        id="progress-status-filter"
-                        type="text"
-                        class="form-control"
-                        list="progress-status-options"
-                        placeholder="<%= t('armories.progress.filters.status_placeholder') %>">
-                      <div class="form-text"><%= t('armories.progress.filters.multi_hint') %></div>
-                      <datalist id="progress-status-options">
-                        <% status_filter_options.each do |status_option| %>
-                          <option value="<%= status_option %>"></option>
-                        <% end %>
-                      </datalist>
-                      <select id="progress-status-filter-multi" class="form-select mt-2" multiple size="5" aria-label="<%= t('armories.progress.filters.status_multi_label') %>">
-                        <% status_filter_options.each do |status_option| %>
-                          <option value="<%= status_option.downcase %>"><%= status_option %></option>
-                        <% end %>
-                      </select>
-                    </div>
+              <section data-controller="progress-filters">
+                <div class="card mb-3 text-start">
+                  <div class="card-body">
+                    <div class="row g-2 align-items-end">
+                      <div class="col-12 col-md-5">
+                        <label for="progress-status-filter" class="form-label mb-1"><%= t('armories.progress.filters.status_label') %></label>
+                        <input
+                          id="progress-status-filter"
+                          type="text"
+                          class="form-control"
+                          list="progress-status-options"
+                          placeholder="<%= t('armories.progress.filters.status_placeholder') %>"
+                          data-progress-filters-target="statusInput"
+                          data-action="input->progress-filters#applyFilters focus->progress-filters#refreshStatusAutocomplete">
+                        <div class="form-text"><%= t('armories.progress.filters.multi_hint') %></div>
+                        <datalist id="progress-status-options" data-progress-filters-target="statusDatalist">
+                          <% filter_options[:status].each do |status_option| %>
+                            <option value="<%= status_option %>"></option>
+                          <% end %>
+                        </datalist>
+                        <select
+                          id="progress-status-filter-multi"
+                          class="form-select mt-2"
+                          multiple
+                          size="5"
+                          aria-label="<%= t('armories.progress.filters.status_multi_label') %>"
+                          data-progress-filters-target="statusMulti"
+                          data-action="change->progress-filters#applyFilters">
+                          <% filter_options[:status].each do |status_option| %>
+                            <option value="<%= status_option.downcase %>"><%= status_option %></option>
+                          <% end %>
+                        </select>
+                      </div>
 
-                    <div class="col-12 col-md-5">
-                      <label for="progress-item-filter" class="form-label mb-1"><%= t('armories.progress.filters.item_label') %></label>
-                      <input
-                        id="progress-item-filter"
-                        type="text"
-                        class="form-control"
-                        list="progress-item-options"
-                        placeholder="<%= t('armories.progress.filters.item_placeholder') %>">
-                      <div class="form-text"><%= t('armories.progress.filters.multi_hint') %></div>
-                      <datalist id="progress-item-options">
-                        <% item_filter_options.each do |item_option| %>
-                          <option value="<%= item_option %>"></option>
-                        <% end %>
-                      </datalist>
-                      <select id="progress-item-filter-multi" class="form-select mt-2" multiple size="5" aria-label="<%= t('armories.progress.filters.item_multi_label') %>">
-                        <% item_filter_options.each do |item_option| %>
-                          <option value="<%= item_option.downcase %>"><%= item_option %></option>
-                        <% end %>
-                      </select>
-                    </div>
+                      <div class="col-12 col-md-5">
+                        <label for="progress-item-filter" class="form-label mb-1"><%= t('armories.progress.filters.item_label') %></label>
+                        <input
+                          id="progress-item-filter"
+                          type="text"
+                          class="form-control"
+                          list="progress-item-options"
+                          placeholder="<%= t('armories.progress.filters.item_placeholder') %>"
+                          data-progress-filters-target="itemInput"
+                          data-action="input->progress-filters#applyFilters focus->progress-filters#refreshItemAutocomplete">
+                        <div class="form-text"><%= t('armories.progress.filters.multi_hint') %></div>
+                        <datalist id="progress-item-options" data-progress-filters-target="itemDatalist">
+                          <% filter_options[:items].each do |item_option| %>
+                            <option value="<%= item_option %>"></option>
+                          <% end %>
+                        </datalist>
+                        <select
+                          id="progress-item-filter-multi"
+                          class="form-select mt-2"
+                          multiple
+                          size="5"
+                          aria-label="<%= t('armories.progress.filters.item_multi_label') %>"
+                          data-progress-filters-target="itemMulti"
+                          data-action="change->progress-filters#applyFilters">
+                          <% filter_options[:items].each do |item_option| %>
+                            <option value="<%= item_option.downcase %>"><%= item_option %></option>
+                          <% end %>
+                        </select>
+                      </div>
 
-                    <div class="col-12 col-md-2 d-grid">
-                      <button type="button" id="progress-clear-filters" class="btn btn-outline-light"><%= t('armories.progress.filters.clear') %></button>
+                      <div class="col-12 col-md-2 d-grid">
+                        <button
+                          type="button"
+                          id="progress-clear-filters"
+                          class="btn btn-outline-light"
+                          data-action="click->progress-filters#clearFilters"><%= t('armories.progress.filters.clear') %></button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div class="accordion" id="progress-groups">
+                <div class="accordion" id="progress-groups">
                 <% ordered_buckets.each_with_index do |bucket, group_index| %>
                   <% items = @progress_data[bucket] || [] %>
                   <% next if items.blank? %>
@@ -120,9 +135,8 @@
                           <% items.each_with_index do |col, idx| %>
                             <% mat_id = "materials-#{bucket}-#{idx}" %>
                             <% materials = aggregated_materials(col[:materials]) %>
-                            <% material_filter_values = materials.map { |m| m[:name].to_s.downcase.strip }.uniq %>
-                            <% status_filter_values = Array(col[:rewards]).map { |reward| normalize_reward_attribute(reward[:description]).downcase.strip }.reject(&:blank?) %>
-                            <% status_filter_values = col[:status].to_s.split(',').map { |status| normalize_reward_attribute(status).downcase.strip }.reject(&:blank?) if status_filter_values.blank? %>
+                            <% material_filter_values = progress_material_filter_values(col).map(&:downcase).uniq %>
+                            <% status_filter_values = progress_status_filter_values(col).map(&:downcase).uniq %>
 
                             <li
                               class="list-group-item"
@@ -181,117 +195,8 @@
                     </div>
                   </div>
                 <% end %>
-              </div>
-
-              <script>
-                document.addEventListener("turbo:load", function() {
-                  const statusFilter = document.getElementById("progress-status-filter");
-                  const statusFilterMulti = document.getElementById("progress-status-filter-multi");
-                  const statusOptionsDatalist = document.getElementById("progress-status-options");
-                  const itemFilter = document.getElementById("progress-item-filter");
-                  const itemFilterMulti = document.getElementById("progress-item-filter-multi");
-                  const itemOptionsDatalist = document.getElementById("progress-item-options");
-                  const clearFiltersButton = document.getElementById("progress-clear-filters");
-
-                  if (!statusFilter || !statusFilterMulti || !statusOptionsDatalist || !itemFilter || !itemFilterMulti || !itemOptionsDatalist || !clearFiltersButton) {
-                    return;
-                  }
-
-                  const normalize = (value) => (value || "").toString().trim().toLowerCase();
-                  const unique = (values) => Array.from(new Set(values.filter(Boolean)));
-
-                  const parseValues = (rawValue) => normalize(rawValue).split("|").map((value) => value.trim()).filter(Boolean);
-                  const parseCsvTokens = (rawValue) => normalize(rawValue).split(",").map((value) => value.trim()).filter(Boolean);
-                  const selectedOptions = (selectElement) => Array.from(selectElement.selectedOptions).map((option) => normalize(option.value));
-                  const statusAutocompleteOptions = Array.from(statusOptionsDatalist.options).map((option) => option.value).filter(Boolean);
-                  const itemAutocompleteOptions = Array.from(itemOptionsDatalist.options).map((option) => option.value).filter(Boolean);
-
-                  const buildCsvSuggestion = (rawValue, suggestion) => {
-                    const parts = (rawValue || "").split(",");
-                    if (parts.length <= 1) {
-                      return suggestion;
-                    }
-
-                    const prefix = parts.slice(0, -1).map((part) => part.trim()).filter(Boolean).join(", ");
-                    return prefix ? `${prefix}, ${suggestion}` : suggestion;
-                  };
-
-                  const refreshAutocompleteOptions = (inputElement, datalistElement, sourceOptions) => {
-                    const rawValue = inputElement.value || "";
-                    const tokens = rawValue.split(",").map((token) => token.trim());
-                    const currentToken = normalize(tokens[tokens.length - 1]);
-                    const selectedTokens = tokens.slice(0, -1).map((token) => normalize(token)).filter(Boolean);
-
-                    const filteredOptions = sourceOptions.filter((option) => {
-                      const normalizedOption = normalize(option);
-                      if (selectedTokens.includes(normalizedOption)) {
-                        return false;
-                      }
-
-                      return !currentToken || normalizedOption.includes(currentToken);
-                    }).slice(0, 100);
-
-                    datalistElement.innerHTML = "";
-                    filteredOptions.forEach((option) => {
-                      const suggestion = document.createElement("option");
-                      suggestion.value = buildCsvSuggestion(rawValue, option);
-                      datalistElement.appendChild(suggestion);
-                    });
-                  };
-
-                  const applyFilters = () => {
-                    const statusQueries = unique([ ...parseCsvTokens(statusFilter.value), ...selectedOptions(statusFilterMulti) ]);
-                    const materialQueries = unique([ ...parseCsvTokens(itemFilter.value), ...selectedOptions(itemFilterMulti) ]);
-
-                    document.querySelectorAll("[data-progress-entry='true']").forEach((entry) => {
-                      const statusValues = parseValues(entry.dataset.progressStatusValues);
-                      const materialValues = parseValues(entry.dataset.progressMaterialValues);
-
-                      const statusMatches = statusQueries.length === 0 || statusQueries.some((query) => statusValues.some((value) => value.includes(query)));
-                      const materialMatches = materialQueries.length === 0 || materialQueries.some((query) => materialValues.some((value) => value.includes(query)));
-                      const visible = statusMatches && materialMatches;
-
-                      entry.hidden = !visible;
-                    });
-
-                    document.querySelectorAll("[data-progress-bucket]").forEach((bucket) => {
-                      const visibleEntries = Array.from(bucket.querySelectorAll("[data-progress-entry='true']")).filter((entry) => !entry.hidden).length;
-                      const badge = bucket.querySelector("[data-progress-count-badge='true']");
-
-                      if (badge) {
-                        badge.textContent = visibleEntries;
-                      }
-
-                      bucket.hidden = visibleEntries === 0;
-                    });
-
-                    refreshAutocompleteOptions(statusFilter, statusOptionsDatalist, statusAutocompleteOptions);
-                    refreshAutocompleteOptions(itemFilter, itemOptionsDatalist, itemAutocompleteOptions);
-                  };
-
-                  statusFilter.addEventListener("input", applyFilters);
-                  statusFilterMulti.addEventListener("change", applyFilters);
-                  itemFilter.addEventListener("input", applyFilters);
-                  itemFilterMulti.addEventListener("change", applyFilters);
-                  statusFilter.addEventListener("focus", () => refreshAutocompleteOptions(statusFilter, statusOptionsDatalist, statusAutocompleteOptions));
-                  itemFilter.addEventListener("focus", () => refreshAutocompleteOptions(itemFilter, itemOptionsDatalist, itemAutocompleteOptions));
-
-                  clearFiltersButton.addEventListener("click", () => {
-                    statusFilter.value = "";
-                    itemFilter.value = "";
-                    Array.from(statusFilterMulti.options).forEach((option) => {
-                      option.selected = false;
-                    });
-                    Array.from(itemFilterMulti.options).forEach((option) => {
-                      option.selected = false;
-                    });
-                    applyFilters();
-                  });
-
-                  refreshAutocompleteOptions(statusFilter, statusOptionsDatalist, statusAutocompleteOptions);
-                  refreshAutocompleteOptions(itemFilter, itemOptionsDatalist, itemAutocompleteOptions);
-                });
-              </script>
+                </div>
+              </section>
             <% end %>
       </main>
     </div>
