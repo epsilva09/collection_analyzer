@@ -142,9 +142,12 @@ bin/brakeman
 ## CI and CD
 
 - **CI**: `.github/workflows/ci.yml`
-    - Runs on `push` and `pull_request`.
-    - Includes security checks (`brakeman`, `importmap audit`), lint,
-      and test suite.
+        - Runs on `push` and `pull_request`.
+        - Includes security checks (`brakeman`, `importmap audit`), lint,
+            and test suite.
+        - Lint runs in separate jobs:
+                - `lint_ruby` (`bin/rubocop -f github`)
+                - `lint_markdown` (`bundle exec rake lint:md`)
 - **CD**: `.github/workflows/cd.yml`
     - Runs on pushes to `main` and `workflow_dispatch`.
     - Builds and publishes a Docker image to GHCR.
