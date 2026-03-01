@@ -373,21 +373,21 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
 
 .materials-data-table thead th {
   position: sticky;
-  top: var(--materials-sticky-offset, 4.5rem);
+  top: 0.75rem;
   z-index: 10;
   background: rgba(48, 54, 61, 0.95) !important;
 }
 
 .material-collections-data-table thead th {
   position: sticky;
-  top: var(--material-collections-sticky-offset, 4.5rem);
+  top: 0.75rem;
   z-index: 10;
   background: rgba(48, 54, 61, 0.95) !important;
 }
 
 .progress-data-table thead th {
   position: sticky;
-  top: var(--progress-sticky-offset, 4.5rem);
+  top: 0.75rem;
   z-index: 10;
   background: rgba(48, 54, 61, 0.95) !important;
 }
@@ -398,6 +398,17 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
 }
 
 .progress-filters-toolbar h2 {
+  color: var(--armory-text-default);
+  text-shadow: none;
+  margin: 0;
+}
+
+.materials-filters-toolbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.5rem;
+}
+
+.materials-filters-toolbar h2 {
   color: var(--armory-text-default);
   text-shadow: none;
   margin: 0;

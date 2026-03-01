@@ -23,6 +23,9 @@ traceability.
 - 2026-03 Cycle 11: `docs/engineering-cycles/2026-03-cycle-11.md`
 - 2026-03 Cycle 12: `docs/engineering-cycles/2026-03-cycle-12.md`
 - 2026-03 Cycle 13: `docs/engineering-cycles/2026-03-cycle-13.md`
+- 2026-03 Cycle 14: `docs/engineering-cycles/2026-03-cycle-14.md`
+- 2026-03 Cycle 15: `docs/engineering-cycles/2026-03-cycle-15.md`
+- 2026-03 Cycle 16: `docs/engineering-cycles/2026-03-cycle-16.md`
 
 ## Point 1 — Performance
 
@@ -217,6 +220,31 @@ traceability.
   `material_collections` filtering.
 - Fixed materials table sticky header offset by capping computed sticky
   offset to avoid header rendering too far below filters.
+
+## Cycle 14 — Materials Sticky Header Positioning Fix
+
+- Fixed materials filters toolbar spacing by applying dedicated toolbar
+  class and heading margin reset.
+- Recalibrated materials sticky offset computation to use stable
+  `offsetHeight` and tuned max cap (`156px`) to prevent over-displacement.
+- Resolved the visual issue where materials table header was rendered too
+  far below expected position during scroll.
+
+## Cycle 15 — Materials Sticky Header Final Alignment
+
+- Refined materials sticky offset logic to react to real sticky state of
+  the filters card (sticky vs non-sticky).
+- Added passive scroll-based recalculation and disconnect cleanup to keep
+  offset synchronized during page movement.
+- Lowered CSS fallback sticky top to avoid pre-initialization displacement.
+
+## Cycle 16 — Fixed Table Headers (No Dynamic Offset)
+
+- Removed dynamic sticky offset computation from materials and material
+  collections filters controllers.
+- Standardized table header sticky behavior to fixed CSS `top: 0.75rem`.
+- Eliminated offset oscillation/drift caused by runtime height-based
+  calculations.
 
 ---
 
