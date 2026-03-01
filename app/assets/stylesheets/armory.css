@@ -279,6 +279,12 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
   color: var(--cabal-text-muted) !important;
 }
 
+.text-muted,
+.small,
+.form-text {
+  color: var(--cabal-text-muted) !important;
+}
+
 .progress-filter-chip {
   border-color: var(--cabal-border) !important;
   color: var(--cabal-text) !important;
@@ -676,6 +682,35 @@ textarea:focus-visible {
 .armory-data-table th,
 .armory-data-table td {
   vertical-align: middle;
+}
+
+.armory-data-table a {
+  color: var(--cabal-primary) !important;
+  text-decoration: underline;
+  text-decoration-color: rgba(0, 212, 255, 0.35);
+  text-underline-offset: 2px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.armory-data-table a:hover,
+.armory-data-table a:focus-visible {
+  color: #76e7ff !important;
+  text-decoration-color: rgba(118, 231, 255, 0.9);
+}
+
+.armory-data-table .badge.bg-secondary,
+.armory-data-table .badge.bg-info,
+.armory-data-table .badge.bg-warning {
+  font-weight: 700 !important;
+}
+
+.alert-info {
+  color: #e8f8ff !important;
+  border-color: rgba(0, 188, 212, 0.45) !important;
+}
+
+.alert-danger {
+  color: #ffe6ea !important;
 }
 
 .armory-data-table td:first-child {
