@@ -717,6 +717,19 @@ textarea:focus-visible {
   min-width: 220px;
 }
 
+.armory-page > * {
+  margin-bottom: 1rem;
+}
+
+.armory-page > *:last-child {
+  margin-bottom: 0;
+}
+
+.armory-page > h1,
+.armory-page > h2 {
+  margin-bottom: 0.75rem;
+}
+
 @media (max-width: 768px) {
   main {
     padding: 14px;
@@ -772,6 +785,10 @@ textarea:focus-visible {
   .progress-filters-actions {
     grid-template-columns: 1fr 1fr;
     display: grid;
+  }
+
+  .armory-page > * {
+    margin-bottom: 0.8rem;
   }
 }
 
