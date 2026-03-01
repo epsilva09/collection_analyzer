@@ -14,6 +14,7 @@ traceability.
 - 2026-03 Cycle 02: `docs/engineering-cycles/2026-03-cycle-02.md`
 - 2026-03 Cycle 03: `docs/engineering-cycles/2026-03-cycle-03.md`
 - 2026-03 Cycle 04: `docs/engineering-cycles/2026-03-cycle-04.md`
+- 2026-03 Cycle 05: `docs/engineering-cycles/2026-03-cycle-05.md`
 
 ## Point 1 — Performance
 
@@ -110,6 +111,21 @@ traceability.
   - `app/views/armories/material_collections.html.erb`
 - Parameterized title/icon/count and style overrides to preserve page
   behavior while improving consistency and maintainability.
+
+## Cycle 05 — Compare Menu Congruence and Info Alerts
+
+- Added reusable informational alert partial:
+  - `app/views/armories/_info_alert.html.erb`
+- Replaced inline `alert-info` blocks in:
+  - `app/views/armories/compare.html.erb`
+  - `app/views/armories/material_collections.html.erb`
+- Updated shared menu behavior:
+  - Added `show_compare_actions` toggle in
+    `app/views/armories/_menu.html.erb`
+  - Compare page now uses the same standard menu pattern as other pages,
+    with compare-specific quick actions disabled for congruence.
+  - Primary menu now always shows `Pesquisa`, `Comparar`, `Progresso`,
+    and `Materiais` (with contextual `name` routes when available).
 
 ---
 

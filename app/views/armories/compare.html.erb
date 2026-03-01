@@ -9,9 +9,10 @@
 
             <%= render 'menu',
                        current_page: :compare,
-                       name: nil,
+                       name: (params[:name_a].presence || params[:name_b].presence),
                        name_a: params[:name_a],
-                       name_b: params[:name_b] %>
+                       name_b: params[:name_b],
+                       show_compare_actions: false %>
 
             <%= render 'compare_search_form' %>
 
@@ -84,10 +85,10 @@
               <!-- Detailed Comparison Table -->
               <%= render 'compare_detailed_table', result: @result %>
             <% elsif (params[:name_a].present? ^ params[:name_b].present?) %>
-              <div class="alert alert-info" role="alert">
-                <i class="fas fa-info-circle me-2"></i>
-                <%= t('armories.compare.hints.both_names_required') %>
-              </div>
+              <%= render 'info_alert',
+                         message: t('armories.compare.hints.both_names_required'),
+                         icon_class: 'fas fa-info-circle',
+                         alert_classes: '' %>
             <% end %>
       </main>
     </div>

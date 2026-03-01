@@ -1,3 +1,7 @@
+<% show_compare_actions = local_assigns.fetch(:show_compare_actions, true) %>
+<% progress_path = name.present? ? progress_armory_path(name: name) : progress_armory_path %>
+<% materials_path = name.present? ? materials_armory_path(name: name) : materials_armory_path %>
+
 <div class="row justify-content-center mb-4">
   <div class="col-12">
     <div class="d-flex flex-wrap justify-content-center gap-2">
@@ -7,15 +11,13 @@
       <%= link_to t('armories_shared.menu.compare'), compare_armory_path,
                   class: "btn btn-sm #{current_page == :compare ? 'btn-primary' : 'btn-outline-secondary'}" %>
 
-      <% if name.present? %>
-        <%= link_to t('armories_shared.menu.progress'), progress_armory_path(name: name),
-                    class: "btn btn-sm #{current_page == :progress ? 'btn-primary' : 'btn-outline-secondary'}" %>
+      <%= link_to t('armories_shared.menu.progress'), progress_path,
+                  class: "btn btn-sm #{current_page == :progress ? 'btn-primary' : 'btn-outline-secondary'}" %>
 
-        <%= link_to t('armories_shared.menu.materials'), materials_armory_path(name: name),
-                    class: "btn btn-sm #{current_page == :materials ? 'btn-primary' : 'btn-outline-secondary'}" %>
-      <% end %>
+      <%= link_to t('armories_shared.menu.materials'), materials_path,
+                  class: "btn btn-sm #{current_page == :materials ? 'btn-primary' : 'btn-outline-secondary'}" %>
 
-      <% if name_a.present? %>
+      <% if show_compare_actions && name_a.present? %>
         <%= link_to t('armories.compare.actions.view_progress', name: name_a),
                     progress_armory_path(name: name_a),
                     class: 'btn btn-outline-success btn-sm' %>
@@ -24,7 +26,7 @@
                     class: 'btn btn-outline-warning btn-sm' %>
       <% end %>
 
-      <% if name_b.present? %>
+      <% if show_compare_actions && name_b.present? %>
         <%= link_to t('armories.compare.actions.view_progress', name: name_b),
                     progress_armory_path(name: name_b),
                     class: 'btn btn-outline-success btn-sm' %>

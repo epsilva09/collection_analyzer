@@ -1,0 +1,8 @@
+<% alert_classes = local_assigns.fetch(:alert_classes, '') %>
+
+<div class="alert alert-info <%= alert_classes %>" role="alert">
+  <% if icon_class.present? %>
+    <i class="<%= icon_class %> me-2"></i>
+  <% end %>
+  <%= message %>
+</div>
