@@ -9,6 +9,9 @@ pt-BR:
       progress: "Progresso"
       materials: "Materiais"
   armories:
+    shared:
+      loading_search: "Pesquisando..."
+      loading_compare: "Comparando..."
     errors:
       character_idx_not_found: "characterIdx não encontrado para %{name}"
       invalid_json_response: "Resposta JSON inválida: %{detail}"
@@ -53,6 +56,8 @@ pt-BR:
         item_multi_label: "Selecionar múltiplos itens"
         multi_hint: "Separe por vírgula ou use a seleção múltipla em filtros avançados."
         advanced_toggle: "Filtros avançados"
+        active_status: "Atributos ativos"
+        active_items: "Itens ativos"
         clear: "Limpar filtros"
       alerts:
         error: "Erro"

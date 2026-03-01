@@ -1,8 +1,8 @@
 <div class="row justify-content-center mb-4">
   <div class="col-12 col-md-6">
-    <div class="card shadow-sm">
+    <div class="card shadow-sm" data-controller="submit-loading" data-submit-loading-loading-text-value="<%= loading_text %>">
       <div class="card-body">
-        <%= form_with url: url, method: :get, local: true, data: { turbo: !turbo_disabled } do |f| %>
+        <%= form_with url: url, method: :get, local: true, data: { turbo: !turbo_disabled, action: 'submit->submit-loading#handleSubmit' } do |f| %>
           <div class="mb-3">
             <%= f.label :name, label, class: 'form-label fw-bold' %>
             <%= f.text_field :name,
@@ -10,7 +10,11 @@
                              class: 'form-control form-control-lg',
                              placeholder: placeholder %>
           </div>
-          <%= f.submit submit_text, class: 'btn btn-success btn-lg w-100' %>
+          <%= f.button type: :submit,
+                       class: 'btn btn-success btn-lg w-100',
+                       data: { submit_loading_target: 'button' } do %>
+            <span data-submit-loading-target="text"><%= submit_text %></span>
+          <% end %>
         <% end %>
       </div>
     </div>

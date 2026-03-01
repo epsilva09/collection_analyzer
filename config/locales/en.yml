@@ -39,6 +39,9 @@ en:
       progress: "Progress"
       materials: "Materials"
   armories:
+    shared:
+      loading_search: "Searching..."
+      loading_compare: "Comparing..."
     errors:
       character_idx_not_found: "characterIdx not found for %{name}"
       invalid_json_response: "Invalid JSON response: %{detail}"
@@ -83,6 +86,8 @@ en:
         item_multi_label: "Select multiple items"
         multi_hint: "Separate values with commas or use multiple selection in advanced filters."
         advanced_toggle: "Advanced filters"
+        active_status: "Active attributes"
+        active_items: "Active items"
         clear: "Clear filters"
       alerts:
         error: "Error"

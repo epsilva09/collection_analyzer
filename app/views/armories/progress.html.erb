@@ -19,6 +19,7 @@
                        label: t('armories.progress.form.character'),
                        placeholder: t('armories.progress.form.placeholder'),
                        submit_text: t('armories.progress.form.search'),
+                       loading_text: t('armories.shared.loading_search'),
                        turbo_disabled: true %>
 
             <% if @error.present? %>
@@ -87,6 +88,13 @@
                     </div>
 
                     <div class="form-text mt-2"><%= t('armories.progress.filters.multi_hint') %></div>
+
+                    <div class="progress-filter-chips mt-2">
+                      <div class="small mb-1"><%= t('armories.progress.filters.active_status') %></div>
+                      <div class="d-flex flex-wrap gap-1" data-progress-filters-target="statusChips"></div>
+                      <div class="small mb-1 mt-2"><%= t('armories.progress.filters.active_items') %></div>
+                      <div class="d-flex flex-wrap gap-1" data-progress-filters-target="itemChips"></div>
+                    </div>
 
                     <div class="collapse mt-3" id="progress-advanced-filters">
                       <div class="row g-2">

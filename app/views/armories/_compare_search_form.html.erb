@@ -1,8 +1,8 @@
 <div class="row justify-content-center mb-4">
   <div class="col-12 col-md-10 col-lg-8">
-    <div class="card shadow-sm">
+    <div class="card shadow-sm" data-controller="submit-loading" data-submit-loading-loading-text-value="<%= t('armories.shared.loading_compare') %>">
       <div class="card-body">
-        <%= form_with url: compare_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center' do |f| %>
+        <%= form_with url: compare_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center', data: { action: 'submit->submit-loading#handleSubmit' } do |f| %>
           <div class="col-12 col-md-5">
             <%= f.label :name_a, t('armories.compare.form.character_a'), class: 'form-label fw-bold' %>
             <%= f.text_field :name_a,
@@ -16,7 +16,11 @@
                              class: 'form-control form-control-lg' %>
           </div>
           <div class="col-12 text-center">
-            <%= f.submit t('armories.compare.form.compare'), class: 'btn btn-success btn-lg w-100' %>
+            <%= f.button type: :submit,
+                         class: 'btn btn-success btn-lg w-100',
+                         data: { submit_loading_target: 'button' } do %>
+              <span data-submit-loading-target="text"><%= t('armories.compare.form.compare') %></span>
+            <% end %>
           </div>
         <% end %>
       </div>

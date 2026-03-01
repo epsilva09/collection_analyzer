@@ -272,6 +272,20 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
   color: var(--cabal-text-muted) !important;
 }
 
+.progress-filter-chips .small {
+  color: var(--cabal-text-muted) !important;
+}
+
+.progress-filter-chip {
+  border-color: var(--cabal-border) !important;
+  color: var(--cabal-text) !important;
+}
+
+.progress-filter-chip:hover {
+  border-color: var(--cabal-primary) !important;
+  color: var(--cabal-primary) !important;
+}
+
 .progress-filters-actions .btn {
   white-space: nowrap;
 }

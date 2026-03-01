@@ -5,9 +5,11 @@ export default class extends Controller {
     "statusInput",
     "statusDatalist",
     "statusMulti",
+    "statusChips",
     "itemInput",
     "itemDatalist",
-    "itemMulti"
+    "itemMulti",
+    "itemChips"
   ]
 
   connect() {
@@ -37,8 +39,6 @@ export default class extends Controller {
     ])
     const itemQuerySet = new Set(itemQueries)
     const itemQueryList = Array.from(itemQuerySet)
-    const hasActiveFilters = statusQuerySet.size > 0 || itemQuerySet.size > 0
-
     this.entries.forEach((entryData) => {
       const { element, statusValues, itemValues } = entryData
 
@@ -60,14 +60,20 @@ export default class extends Controller {
         bucketData.badge.textContent = visibleEntries
       }
 
-      bucketData.element.hidden = visibleEntries === 0
+      if (visibleEntries === 0) {
+        bucketData.lastExpanded = this.isBucketExpanded(bucketData)
+        bucketData.element.hidden = true
+        this.setBucketExpanded(bucketData, false)
+      } else {
+        bucketData.element.hidden = false
+        const shouldExpand = bucketData.lastExpanded !== undefined ? bucketData.lastExpanded : bucketData.initialExpanded
+        this.setBucketExpanded(bucketData, shouldExpand)
+      }
     })
-
-    this.closeMaterialDetailCollapses()
-    this.syncBucketCollapseStates(hasActiveFilters)
 
     this.refreshStatusAutocomplete()
     this.refreshItemAutocomplete()
+    this.renderChips()
 
     const nextTop = this.statusInputTarget.getBoundingClientRect().top
     window.scrollBy(0, nextTop - previousTop)
@@ -84,6 +90,27 @@ export default class extends Controller {
     Array.from(this.itemMultiTarget.options).forEach((option) => {
       option.selected = false
     })
+
+    this.applyFilters()
+  }
+
+  removeChip(event) {
+    const chipType = event.currentTarget.dataset.chipType
+    const chipValue = this.normalize(event.currentTarget.dataset.chipValue)
+
+    if (!chipType || !chipValue) {
+      return
+    }
+
+    if (chipType === "status") {
+      this.removeToken(this.statusInputTarget, chipValue)
+      this.deselectToken(this.statusMultiTarget, chipValue)
+    }
+
+    if (chipType === "item") {
+      this.removeToken(this.itemInputTarget, chipValue)
+      this.deselectToken(this.itemMultiTarget, chipValue)
+    }
 
     this.applyFilters()
   }
@@ -166,39 +193,80 @@ export default class extends Controller {
       entries: Array.from(bucket.querySelectorAll("[data-progress-entry='true']")),
       collapseElement: bucket.querySelector(".accordion-collapse"),
       toggleButton: bucket.querySelector(".accordion-button"),
-      initialExpanded: bucket.querySelector(".accordion-collapse")?.classList.contains("show") || false
+      initialExpanded: bucket.querySelector(".accordion-collapse")?.classList.contains("show") || false,
+      lastExpanded: undefined
     }))
   }
 
-  closeMaterialDetailCollapses() {
-    this.element.querySelectorAll(".collapse.show[id^='materials-']").forEach((collapseElement) => {
-      collapseElement.classList.remove("show")
-      collapseElement.classList.remove("collapsing")
-      collapseElement.classList.add("collapse")
+  renderChips() {
+    this.renderChipGroup(this.statusChipsTarget, this.activeTokens(this.statusInputTarget, this.statusMultiTarget), "status")
+    this.renderChipGroup(this.itemChipsTarget, this.activeTokens(this.itemInputTarget, this.itemMultiTarget), "item")
+  }
 
-      const targetId = collapseElement.id
-      const trigger = this.element.querySelector(`[href='#${targetId}']`)
+  renderChipGroup(container, tokens, chipType) {
+    container.innerHTML = ""
 
-      if (trigger) {
-        trigger.classList.add("collapsed")
-        trigger.setAttribute("aria-expanded", "false")
+    tokens.forEach((token) => {
+      const chip = document.createElement("button")
+      chip.type = "button"
+      chip.className = "btn btn-sm btn-outline-secondary progress-filter-chip"
+      chip.dataset.action = "click->progress-filters#removeChip"
+      chip.dataset.chipType = chipType
+      chip.dataset.chipValue = token
+      chip.textContent = `${token} ×`
+      container.appendChild(chip)
+    })
+  }
+
+  activeTokens(inputElement, selectElement) {
+    const inputTokens = this.parseRawCsvTokens(inputElement.value)
+    const selectedTokens = Array.from(selectElement.selectedOptions).map((option) => option.textContent.trim())
+    return this.uniqueDisplayTokens([ ...inputTokens, ...selectedTokens ])
+  }
+
+  parseRawCsvTokens(rawValue) {
+    return (rawValue || "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean)
+  }
+
+  uniqueDisplayTokens(values) {
+    const seen = new Set()
+    const result = []
+
+    values.forEach((value) => {
+      const normalized = this.normalize(value)
+      if (!normalized || seen.has(normalized)) {
+        return
+      }
+
+      seen.add(normalized)
+      result.push(value)
+    })
+
+    return result
+  }
+
+  removeToken(inputElement, tokenToRemove) {
+    const remaining = this.parseRawCsvTokens(inputElement.value)
+      .filter((token) => this.normalize(token) !== tokenToRemove)
+    inputElement.value = remaining.join(", ")
+  }
+
+  deselectToken(selectElement, tokenToRemove) {
+    Array.from(selectElement.options).forEach((option) => {
+      const optionValue = this.normalize(option.value)
+      const optionText = this.normalize(option.textContent)
+
+      if (optionValue === tokenToRemove || optionText === tokenToRemove) {
+        option.selected = false
       }
     })
   }
 
-  syncBucketCollapseStates(hasActiveFilters) {
-    this.buckets.forEach((bucketData) => {
-      if (bucketData.element.hidden) {
-        this.setBucketExpanded(bucketData, false)
-        return
-      }
-
-      if (hasActiveFilters) {
-        this.setBucketExpanded(bucketData, true)
-      } else {
-        this.setBucketExpanded(bucketData, bucketData.initialExpanded)
-      }
-    })
+  isBucketExpanded(bucketData) {
+    return bucketData.collapseElement?.classList.contains("show") || false
   }
 
   setBucketExpanded(bucketData, expanded) {
