@@ -112,6 +112,12 @@ Open:
 bin/rails test
 ```
 
+### Tests (JavaScript)
+
+```bash
+npm run test:js
+```
+
 ### Lint (RuboCop)
 
 ```bash
