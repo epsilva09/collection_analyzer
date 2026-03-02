@@ -163,14 +163,13 @@ module ArmoriesHelper
   def materials_filter_options(sections)
     section_list = Array(sections)
 
-    material_names = section_list.flat_map do |section|
-      Array(section[:items]).map { |item| item[:name].to_s.strip }
-    end.reject(&:blank?).uniq.sort_by(&:downcase)
+    material_names = normalized_unique_labels(
+      section_list.flat_map do |section|
+        Array(section[:items]).map { |item| item[:name] }
+      end
+    )
 
-    bucket_labels = section_list.map { |section| section[:label].to_s.strip }
-      .reject(&:blank?)
-      .uniq
-      .sort_by(&:downcase)
+    bucket_labels = normalized_unique_labels(section_list.map { |section| section[:label] })
 
     {
       materials: material_names,
@@ -181,17 +180,35 @@ module ArmoriesHelper
   def material_collections_filter_options(collections)
     collection_list = Array(collections)
 
-    collection_names = collection_list.map do |entry|
-      [ entry[:tier], entry[:collection_name] ].compact.join(" ").strip
-    end.reject(&:blank?).uniq.sort_by(&:downcase)
+    collection_names = normalized_unique_labels(
+      collection_list.map do |entry|
+        [ entry[:tier], entry[:collection_name] ].compact.join(" ")
+      end
+    )
 
-    bucket_labels = collection_list.map do |entry|
-      progress_bucket_label(entry[:bucket]).to_s.strip
-    end.reject(&:blank?).uniq.sort_by(&:downcase)
+    bucket_labels = normalized_unique_labels(
+      collection_list.map do |entry|
+        progress_bucket_label(entry[:bucket])
+      end
+    )
 
     {
       collections: collection_names,
       buckets: bucket_labels
     }
+  end
+
+  def normalized_unique_labels(values)
+    labels = Array(values)
+
+    grouped = labels.each_with_object({}) do |raw_value, acc|
+      normalized_value = raw_value.to_s.squish
+      next if normalized_value.blank?
+
+      key = normalized_value.downcase
+      acc[key] ||= normalized_value
+    end
+
+    grouped.values.sort_by(&:downcase)
   end
 end

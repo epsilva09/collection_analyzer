@@ -35,6 +35,7 @@ traceability.
 - 2026-03 Cycle 23: `docs/engineering-cycles/2026-03-cycle-23.md`
 - 2026-03 Cycle 24: `docs/engineering-cycles/2026-03-cycle-24.md`
 - 2026-03 Cycle 25: `docs/engineering-cycles/2026-03-cycle-25.md`
+- 2026-03 Cycle 26: `docs/engineering-cycles/2026-03-cycle-26.md`
 
 ## Point 1 — Performance
 
@@ -332,6 +333,15 @@ traceability.
   restore flow.
 - Added controller locale scenario validating compare filter labels/hints in
   `pt-BR` and `en`.
+
+## Cycle 26 — Matrix Scenarios Execution (Phase 2)
+
+- Added helper edge-case tests for whitespace normalization,
+  case-insensitive dedupe, and blank-label removal in filter options.
+- Added regression coverage ensuring `progress_important_attributes`
+  remains mapped from `CompareCollectionsService::SPECIAL_ATTRIBUTES`.
+- Refactored helper option builders to use shared normalized label
+  dedupe path for cleaner filter lists.
 
 ---
 

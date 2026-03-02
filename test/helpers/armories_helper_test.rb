@@ -27,6 +27,34 @@ class ArmoriesHelperTest < ActionView::TestCase
     assert_equal [ "Low", "Near" ], options[:buckets]
   end
 
+  test "materials_filter_options normalizes whitespace and dedupes case-insensitively" do
+    sections = [
+      {
+        key: :near,
+        label: "  Near  ",
+        items: [
+          { name: "  Core Alpha  " },
+          { name: "core alpha" },
+          { name: "CORE BETA" }
+        ]
+      },
+      {
+        key: :low,
+        label: "near",
+        items: [
+          { name: " core beta " },
+          { name: "   " },
+          { name: nil }
+        ]
+      }
+    ]
+
+    options = materials_filter_options(sections)
+
+    assert_equal [ "Core Alpha", "CORE BETA" ], options[:materials]
+    assert_equal [ "Near" ], options[:buckets]
+  end
+
   test "material_collections_filter_options returns unique sorted names and bucket labels" do
     collections = [
       { tier: "Tier 1", collection_name: "Lago", bucket: :low },
@@ -40,12 +68,36 @@ class ArmoriesHelperTest < ActionView::TestCase
     assert_equal [ t("armories.progress.labels.low"), t("armories.progress.labels.near") ].sort_by(&:downcase), options[:buckets]
   end
 
+  test "material_collections_filter_options normalizes names and removes blanks" do
+    low_label = t("armories.progress.labels.low")
+
+    collections = [
+      { tier: " Tier 1 ", collection_name: "  Lago  ", bucket: :low },
+      { tier: "tier 1", collection_name: "lago", bucket: :low },
+      { tier: "", collection_name: "", bucket: :low }
+    ]
+
+    options = material_collections_filter_options(collections)
+
+    assert_equal [ "Tier 1 Lago" ], options[:collections]
+    assert_equal [ low_label ], options[:buckets]
+  end
+
   test "progress_important_attributes is unique and normalized" do
     values = progress_important_attributes
 
     assert values.present?
     assert_equal values.uniq, values
     assert values.none?(&:blank?)
+  end
+
+  test "progress_important_attributes maps to SPECIAL_ATTRIBUTES normalization" do
+    expected_values = CompareCollectionsService::SPECIAL_ATTRIBUTES
+      .map { |label| normalize_reward_attribute(label) }
+      .reject(&:blank?)
+      .uniq
+
+    assert_equal expected_values, progress_important_attributes
   end
 
   test "progress_material_filter_values uses precomputed aggregated materials when available" do
