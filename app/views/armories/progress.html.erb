@@ -31,11 +31,28 @@
             <% end %>
 
             <% if @progress_history.present? %>
+              <% history_section_id = 'progress-history-content' %>
+              <% history_extra_rows_id = 'progress-history-extra-rows' %>
+              <% history_rows_limit = 2 %>
+              <% visible_history_rows = @progress_history.first(history_rows_limit) %>
+              <% extra_history_rows = @progress_history.drop(history_rows_limit) %>
               <section class="card mb-3 text-start armory-section-card" aria-label="<%= t('armories.progress.history.heading') %>">
                 <div class="card-body">
-                  <h2 class="h6 mb-1"><%= t('armories.progress.history.heading') %></h2>
+                  <div class="d-flex justify-content-between align-items-center gap-2 mb-1">
+                    <h2 class="h6 mb-0"><%= t('armories.progress.history.heading') %></h2>
+                    <button
+                      class="btn btn-outline-secondary btn-sm"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#<%= history_section_id %>"
+                      aria-expanded="true"
+                      aria-controls="<%= history_section_id %>">
+                      <%= t('armories.progress.history.toggle_section') %>
+                    </button>
+                  </div>
                   <p class="small text-body-secondary mb-3"><%= t('armories.progress.history.description') %></p>
 
+                  <div class="collapse show" id="<%= history_section_id %>">
                   <%= form_with url: progress_armory_path, method: :get, local: true, class: 'row g-2 align-items-end mb-3' do %>
                     <%= hidden_field_tag :name, @name %>
                     <div class="col-12 col-md-4">
@@ -78,37 +95,33 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <% @progress_history.each do |row| %>
-                          <% snapshot = row[:snapshot] %>
-                          <% delta_rate = row[:delta_completion_rate] %>
-                          <% delta_completed = row[:delta_completed_collections] %>
-                          <% snapshot_time = snapshot.respond_to?(:captured_at) && snapshot.captured_at.present? ? snapshot.captured_at : snapshot.captured_on.in_time_zone %>
-                          <% snapshot_changed = snapshot.respond_to?(:has_changes) ? snapshot.has_changes : true %>
-                          <% snapshot_changes_count = snapshot.respond_to?(:changes_count) ? snapshot.changes_count.to_i : nil %>
-                          <tr>
-                            <td><%= snapshot_time.strftime('%Y-%m-%d %H:%M') %></td>
-                            <td class="text-end"><%= "#{snapshot.completed_collections}/#{snapshot.total_collections}" %></td>
-                            <td class="text-end"><%= number_to_percentage(snapshot.completion_rate, precision: 2) %></td>
-                            <td class="text-end <%= delta_rate.to_f.positive? ? 'text-success' : (delta_rate.to_f.negative? ? 'text-danger' : 'text-body-secondary') %>">
-                              <%= delta_rate.nil? ? t('armories.progress.history.no_delta') : format('%+.2f%%', delta_rate) %>
-                            </td>
-                            <td class="text-end <%= delta_completed.to_i.positive? ? 'text-success' : (delta_completed.to_i.negative? ? 'text-danger' : 'text-body-secondary') %>">
-                              <%= delta_completed.nil? ? t('armories.progress.history.no_delta') : format('%+d', delta_completed) %>
-                            </td>
-                            <td class="text-end">
-                              <% if snapshot_changed %>
-                                <span class="badge bg-success me-1"><%= t('armories.progress.history.changed_badge', count: snapshot_changes_count || 0) %></span>
-                              <% else %>
-                                <span class="badge bg-secondary me-1"><%= t('armories.progress.history.unchanged_badge') %></span>
-                              <% end %>
-                              <%= link_to t('armories.progress.history.view_changes'),
-                                          progress_changes_armory_path(name: @name, character_idx: snapshot.character_idx, snapshot_id: snapshot.id),
-                                          class: 'btn btn-outline-secondary btn-sm' %>
-                            </td>
-                          </tr>
+                        <% visible_history_rows.each do |row| %>
+                          <%= render 'progress_history_row', row: row, name: @name %>
                         <% end %>
                       </tbody>
+                      <% if extra_history_rows.present? %>
+                        <tbody class="collapse" id="<%= history_extra_rows_id %>">
+                          <% extra_history_rows.each do |row| %>
+                            <%= render 'progress_history_row', row: row, name: @name %>
+                          <% end %>
+                        </tbody>
+                      <% end %>
                     </table>
+                  </div>
+
+                  <% if extra_history_rows.present? %>
+                    <div class="mt-2 text-end">
+                      <button
+                        class="btn btn-outline-secondary btn-sm"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#<%= history_extra_rows_id %>"
+                        aria-expanded="false"
+                        aria-controls="<%= history_extra_rows_id %>">
+                        <%= t('armories.progress.history.toggle_extra_snapshots', count: extra_history_rows.size) %>
+                      </button>
+                    </div>
+                  <% end %>
                   </div>
                 </div>
               </section>

@@ -109,6 +109,8 @@ pt-BR:
         view_changes: "Ver alterações"
         changed_badge: "%{count} mudanças"
         unchanged_badge: "Sem mudanças"
+        toggle_section: "Recolher/Expandir"
+        toggle_extra_snapshots: "Mais %{count} snapshots"
         no_delta: "—"
       changes:
         page_title: "Alterações de progresso"

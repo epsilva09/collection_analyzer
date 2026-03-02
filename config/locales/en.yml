@@ -139,6 +139,8 @@ en:
         view_changes: "View changes"
         changed_badge: "%{count} changes"
         unchanged_badge: "Unchanged"
+        toggle_section: "Collapse/Expand"
+        toggle_extra_snapshots: "%{count} more snapshots"
         no_delta: "—"
       changes:
         page_title: "Progress changes"
