@@ -12,6 +12,7 @@ class ArmoriesController < ApplicationController
     begin
       @character_idx = client.fetch_character_idx(@name)
       if @character_idx
+        register_tracked_character!(name: @name, character_idx: @character_idx)
         details = client.fetch_collection_details(@character_idx)
         @collection_data = details[:data] || []
         @values = (details[:values] || []).map(&:to_s).map(&:strip)
@@ -72,14 +73,25 @@ class ArmoriesController < ApplicationController
       @collection_data = snapshot[:collection_data]
 
       if @character_idx
+        register_tracked_character!(name: @name, character_idx: @character_idx)
         progress_tracking_service = CollectionProgressTrackingService.new
         progress_tracking_service.record!(
           name: @name,
           locale: I18n.locale,
-          snapshot: snapshot
+          snapshot: snapshot,
+          captured_at: Time.current
         )
+
+        @history_day = parse_history_day(params[:history_day])
+        @history_hour = parse_history_hour(params[:history_hour])
         @progress_history = build_progress_history_rows(
-          progress_tracking_service.history_for(character_idx: @character_idx, locale: I18n.locale, limit: 14)
+          progress_tracking_service.history_for(
+            character_idx: @character_idx,
+            locale: I18n.locale,
+            limit: 30,
+            day: @history_day,
+            hour: @history_hour
+          )
         )
       else
         @error = t("armories.errors.character_idx_not_found", name: @name)
@@ -108,6 +120,7 @@ class ArmoriesController < ApplicationController
         near_completion_threshold: NEAR_COMPLETION_THRESHOLD
       ).call(@name)
       @character_idx = snapshot[:character_idx]
+      register_tracked_character!(name: @name, character_idx: @character_idx) if @character_idx
       @progress_data = snapshot[:progress_data]
       @top_materials = snapshot[:top_materials]
       @materials_by_bucket = snapshot[:materials_by_bucket]
@@ -130,14 +143,15 @@ class ArmoriesController < ApplicationController
   def progress_changes
     @name = params[:name].presence || "Cadamantis"
     @character_idx = params[:character_idx].to_i
-    @captured_on = Date.iso8601(params[:captured_on].to_s)
+    @snapshot_id = params[:snapshot_id].to_i
+    @change_type = normalize_change_type_filter(params[:change_type])
     @error = nil
 
     tracking_service = CollectionProgressTrackingService.new
     @current_snapshot = tracking_service.snapshot_for(
+      snapshot_id: @snapshot_id,
       character_idx: @character_idx,
-      locale: I18n.locale,
-      captured_on: @captured_on
+      locale: I18n.locale
     )
 
     if @current_snapshot.blank?
@@ -149,13 +163,11 @@ class ArmoriesController < ApplicationController
     @previous_snapshot = tracking_service.previous_snapshot_for(
       character_idx: @character_idx,
       locale: I18n.locale,
-      before: @captured_on
+      before: @current_snapshot.captured_at
     )
 
-    @changes = build_collection_changes(@current_snapshot, @previous_snapshot)
-  rescue ArgumentError
-    @error = t("armories.progress.changes.invalid_date")
-    @changes = []
+    changes = build_collection_changes(@current_snapshot, @previous_snapshot)
+    @changes = filter_collection_changes(changes, change_type: @change_type)
   end
 
   def material_collections
@@ -170,6 +182,7 @@ class ArmoriesController < ApplicationController
         near_completion_threshold: NEAR_COMPLETION_THRESHOLD
       ).call(@name)
       @character_idx = snapshot[:character_idx]
+      register_tracked_character!(name: @name, character_idx: @character_idx) if @character_idx
       @progress_data = snapshot[:progress_data]
 
       @error = t("armories.errors.character_idx_not_found", name: @name) unless @character_idx
@@ -315,7 +328,7 @@ class ArmoriesController < ApplicationController
   end
 
   def build_progress_history_rows(history)
-    rows = history.to_a.sort_by(&:captured_on).reverse
+    rows = history.to_a.sort_by(&:captured_at).reverse
 
     rows.each_with_index.map do |snapshot, index|
       previous_snapshot = rows[index + 1]
@@ -326,6 +339,48 @@ class ArmoriesController < ApplicationController
         delta_completed_collections: previous_snapshot ? snapshot.completed_collections.to_i - previous_snapshot.completed_collections.to_i : nil
       }
     end
+  end
+
+  def filter_collection_changes(changes, change_type: nil)
+    return changes if change_type.blank?
+
+    changes.select { |change| change[:change_type].to_s == change_type }
+  end
+
+  def normalize_change_type_filter(value)
+    normalized = value.to_s
+    return nil if normalized.blank?
+
+    return normalized if %w[added updated removed].include?(normalized)
+
+    nil
+  end
+
+  def parse_history_day(value)
+    return nil if value.blank?
+
+    Date.iso8601(value.to_s)
+  rescue ArgumentError
+    nil
+  end
+
+  def parse_history_hour(value)
+    return nil if value.blank?
+
+    hour = value.to_i
+    return hour if hour.between?(0, 23)
+
+    nil
+  end
+
+  def register_tracked_character!(name:, character_idx:)
+    TrackedCharactersRegistryService.new.track!(
+      name: name,
+      character_idx: character_idx,
+      locale: I18n.locale
+    )
+  rescue StandardError => e
+    Rails.logger.warn("Failed to track character idx=#{character_idx}: #{e.message}")
   end
 
   def build_collection_changes(current_snapshot, previous_snapshot)

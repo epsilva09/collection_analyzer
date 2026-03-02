@@ -8,15 +8,16 @@ class CollectionSnapshotService
     @cache_ttl = cache_ttl
   end
 
-  def call(name, locale: I18n.locale)
+  def call(name, locale: I18n.locale, character_idx: nil)
     normalized_name = name.to_s.strip
-    cache_key = snapshot_cache_key(name: normalized_name, locale: locale)
+    cache_identity = character_idx.to_i.positive? ? "idx:#{character_idx.to_i}" : normalized_name
+    cache_key = snapshot_cache_key(name: cache_identity, locale: locale)
 
     cached_snapshot = read_cached_snapshot(cache_key)
     return cached_snapshot if cached_snapshot
 
     started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    snapshot = build_snapshot(normalized_name)
+    snapshot = build_snapshot(normalized_name, character_idx: character_idx)
     duration_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1000.0).round(2)
 
     ActiveSupport::Notifications.instrument(
@@ -33,19 +34,19 @@ class CollectionSnapshotService
 
   private
 
-  def build_snapshot(name)
-    character_idx = @client.fetch_character_idx(name)
+  def build_snapshot(name, character_idx: nil)
+    resolved_character_idx = character_idx.to_i.positive? ? character_idx.to_i : @client.fetch_character_idx(name)
     collection_data = []
     progress_data = ArmoryDefaults.empty_progress_data
 
-    if character_idx
-      details = @client.fetch_collection_details(character_idx)
+    if resolved_character_idx
+      details = @client.fetch_collection_details(resolved_character_idx)
       collection_data = details[:data] || []
       progress_data = build_progress_data(collection_data)
     end
 
     {
-      character_idx: character_idx,
+      character_idx: resolved_character_idx,
       progress_data: progress_data,
       top_materials: aggregate_materials(progress_data.values.flatten),
       collection_data: collection_data,

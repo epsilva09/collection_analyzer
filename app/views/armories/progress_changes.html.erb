@@ -5,7 +5,7 @@
     <div class="col-12 col-md-10 col-lg-8">
       <main class="text-center armory-page">
         <%= render 'locale_switcher' %>
-        <%= render 'page_header', heading: t('armories.progress.changes.heading', date: @captured_on.to_s), icon_class: nil %>
+        <%= render 'page_header', heading: t('armories.progress.changes.heading', date: (@current_snapshot&.captured_at&.strftime('%Y-%m-%d %H:%M') || '-')), icon_class: nil %>
 
         <%= render 'menu',
                    current_page: :progress,
@@ -29,8 +29,8 @@
               <h2 class="h6 mb-2"><%= t('armories.progress.changes.summary') %></h2>
               <p class="mb-0 small text-body-secondary">
                 <%= t('armories.progress.changes.comparing_with',
-                      current_date: @current_snapshot.captured_on.to_s,
-                      previous_date: (@previous_snapshot&.captured_on&.to_s || t('armories.progress.changes.first_snapshot'))) %>
+                      current_date: @current_snapshot.captured_at.strftime('%Y-%m-%d %H:%M'),
+                      previous_date: (@previous_snapshot&.captured_at&.strftime('%Y-%m-%d %H:%M') || t('armories.progress.changes.first_snapshot'))) %>
               </p>
             </div>
           </section>
@@ -38,6 +38,32 @@
           <section class="card text-start armory-section-card">
             <div class="card-body">
               <h2 class="h6 mb-3"><%= t('armories.progress.changes.table_heading') %></h2>
+
+              <%= form_with url: progress_changes_armory_path, method: :get, local: true, class: 'row g-2 align-items-end mb-3' do %>
+                <%= hidden_field_tag :name, @name %>
+                <%= hidden_field_tag :character_idx, @character_idx %>
+                <%= hidden_field_tag :snapshot_id, @current_snapshot.id %>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label mb-1" for="change-type-filter"><%= t('armories.progress.changes.filter_type') %></label>
+                  <%= select_tag :change_type,
+                                 options_for_select([
+                                   [t('armories.progress.changes.filter_all_types'), ''],
+                                   [t('armories.progress.changes.types.added'), 'added'],
+                                   [t('armories.progress.changes.types.updated'), 'updated'],
+                                   [t('armories.progress.changes.types.removed'), 'removed']
+                                 ], @change_type),
+                                 id: 'change-type-filter',
+                                 class: 'form-select form-select-sm' %>
+                </div>
+
+                <div class="col-12 col-md-6 d-grid gap-2">
+                  <%= submit_tag t('armories.progress.changes.apply_filters'), class: 'btn btn-outline-secondary btn-sm' %>
+                  <%= link_to t('armories.progress.changes.clear_filters'),
+                              progress_changes_armory_path(name: @name, character_idx: @character_idx, snapshot_id: @current_snapshot.id),
+                              class: 'btn btn-outline-light btn-sm' %>
+                </div>
+              <% end %>
 
               <% if @changes.blank? %>
                 <p class="mb-0"><%= t('armories.progress.changes.no_changes') %></p>

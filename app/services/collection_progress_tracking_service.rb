@@ -3,7 +3,7 @@ class CollectionProgressTrackingService
     @scope = scope
   end
 
-  def record!(name:, locale:, snapshot:, captured_on: Time.zone.today)
+  def record!(name:, locale:, snapshot:, captured_at: Time.current)
     return nil if snapshot.blank?
 
     character_idx = snapshot[:character_idx].to_i
@@ -28,15 +28,20 @@ class CollectionProgressTrackingService
       0.0
     end
 
+    rounded_captured_at = captured_at.change(sec: 0)
+    captured_on = rounded_captured_at.to_date
+
     record = @scope.find_or_initialize_by(
       character_idx: character_idx,
       locale: locale.to_s,
-      captured_on: captured_on
+      captured_at: rounded_captured_at
     )
 
     record.assign_attributes(
       character_name: name.to_s.strip,
       character_idx: character_idx,
+      captured_on: captured_on,
+      captured_at: rounded_captured_at,
       total_collections: total_collections,
       completed_collections: completed_collections,
       near_count: near_count,
@@ -51,26 +56,30 @@ class CollectionProgressTrackingService
     record
   end
 
-  def history_for(character_idx:, locale:, limit: 14)
-    @scope
+  def history_for(character_idx:, locale:, limit: 14, day: nil, hour: nil)
+    relation = @scope
       .for_character(character_idx, locale)
-      .order(captured_on: :desc)
-      .limit(limit)
+      .order(captured_at: :desc)
+
+    relation = relation.for_day(day) if day.present?
+    relation = relation.for_hour(hour) if hour.present?
+
+    relation.limit(limit)
   end
 
-  def snapshot_for(character_idx:, locale:, captured_on:)
+  def snapshot_for(snapshot_id:, character_idx:, locale:)
     @scope.find_by(
+      id: snapshot_id.to_i,
       character_idx: character_idx.to_i,
-      locale: locale.to_s,
-      captured_on: captured_on
+      locale: locale.to_s
     )
   end
 
   def previous_snapshot_for(character_idx:, locale:, before:)
     @scope
       .for_character(character_idx, locale)
-      .where("captured_on < ?", before)
-      .order(captured_on: :desc)
+      .where("captured_at < ?", before)
+      .order(captured_at: :desc)
       .first
   end
 

@@ -75,6 +75,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       assert_includes response.body, "Low"
       assert_includes response.body, "Mid"
       assert_includes response.body, "Near"
+      assert TrackedCharacter.exists?(character_idx: 222)
     end
   end
 
@@ -217,6 +218,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       character_idx: 222,
       locale: locale,
       captured_on: Date.new(2026, 3, 1),
+      captured_at: Time.zone.parse("2026-03-01 09:00"),
       total_collections: 3,
       completed_collections: 0,
       near_count: 1,
@@ -237,11 +239,12 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       ]
     )
 
-    CollectionProgressSnapshot.create!(
+    current_snapshot = CollectionProgressSnapshot.create!(
       character_name: "X",
       character_idx: 222,
       locale: locale,
       captured_on: Date.new(2026, 3, 2),
+      captured_at: Time.zone.parse("2026-03-02 14:00"),
       total_collections: 3,
       completed_collections: 1,
       near_count: 0,
@@ -263,7 +266,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     )
 
     get progress_changes_armory_path,
-      params: { name: "X", character_idx: 222, captured_on: "2026-03-02", locale: locale }
+      params: { name: "X", character_idx: 222, snapshot_id: current_snapshot.id, locale: locale, change_type: "updated" }
 
     assert_response :success
     assert_includes response.body, "Tier1 / Low"

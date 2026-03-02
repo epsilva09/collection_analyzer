@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_01_130000) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_01_141000) do
   create_table "collection_progress_snapshots", force: :cascade do |t|
     t.string "character_name", null: false
     t.string "locale", null: false
@@ -26,7 +26,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_01_130000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.json "collections_payload", default: [], null: false
-    t.index ["character_idx", "locale", "captured_on"], name: "index_collection_progress_snapshots_unique_per_day", unique: true
+    t.datetime "captured_at", null: false
+    t.index ["character_idx", "locale", "captured_at"], name: "index_collection_progress_snapshots_by_time"
     t.index ["character_idx", "locale", "created_at"], name: "index_collection_progress_snapshots_history_lookup"
+  end
+
+  create_table "tracked_characters", force: :cascade do |t|
+    t.integer "character_idx", null: false
+    t.string "character_name", null: false
+    t.string "locale", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "last_seen_at", null: false
+    t.datetime "last_snapshot_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_tracked_characters_on_active"
+    t.index ["character_idx"], name: "index_tracked_characters_on_character_idx", unique: true
   end
 end

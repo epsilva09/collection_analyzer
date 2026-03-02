@@ -50,6 +50,9 @@ traceability.
   percentage and daily delta indicators.
 - Added a new progress changes screen linked from each timeline row,
   showing per-collection diff versus the previous snapshot.
+- Added day/hour filters on progress history and type filter on changes view.
+- Added tracked-character registry and recurring snapshot collection job for
+  scheduled progression monitoring.
 - Added dedicated service/model tests for snapshot recording, upsert, and
   timeline ordering.
 

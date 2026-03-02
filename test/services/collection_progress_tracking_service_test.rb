@@ -22,7 +22,7 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
       name: "Cadamantis",
       locale: :"pt-BR",
       snapshot: snapshot,
-      captured_on: Date.new(2026, 3, 1)
+      captured_at: Time.zone.parse("2026-03-01 10:00")
     )
 
     assert_equal 75008, record.character_idx
@@ -39,9 +39,9 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
     assert record.collections_payload.all? { |entry| entry["key"].present? }
   end
 
-  test "upserts record for same character locale and date" do
+  test "upserts record for same character locale and timestamp minute" do
     service = CollectionProgressTrackingService.new
-    date = Date.new(2026, 3, 1)
+    captured_at = Time.zone.parse("2026-03-01 10:15")
 
     service.record!(
       name: "Cadamantis",
@@ -51,7 +51,7 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
         collection_data: [{ "collections" => [{ "name" => "A" }] }],
         progress_data: { near: [{ name: "A" }], mid: [], low: [], below_one: [] }
       },
-      captured_on: date
+      captured_at: captured_at
     )
 
     service.record!(
@@ -62,7 +62,7 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
         collection_data: [{ "collections" => [{ "name" => "A" }, { "name" => "B" }] }],
         progress_data: { near: [], mid: [{ name: "B" }], low: [], below_one: [] }
       },
-      captured_on: date
+      captured_at: captured_at
     )
 
     records = CollectionProgressSnapshot.for_character(1, :en)
@@ -71,7 +71,7 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
     assert_equal 1, records.first.completed_collections
   end
 
-  test "returns limited history ordered by captured date descending" do
+  test "returns limited history ordered by captured time descending" do
     service = CollectionProgressTrackingService.new
 
     3.times do |index|
@@ -83,20 +83,20 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
           collection_data: [{ "collections" => [{ "name" => "A" }] }],
           progress_data: { near: [ { name: "N#{index}" } ], mid: [], low: [], below_one: [] }
         },
-        captured_on: Date.new(2026, 3, 1) + index.days
+        captured_at: Time.zone.parse("2026-03-0#{index + 1} 0#{index}:00")
       )
     end
 
-    history = service.history_for(character_idx: 1, locale: :en, limit: 2)
+    history = service.history_for(character_idx: 1, locale: :en, limit: 2, hour: 2)
 
-    assert_equal 2, history.size
-    assert_operator history.first.captured_on, :>, history.last.captured_on
+    assert_equal 1, history.size
+    assert_equal 2, history.first.captured_at.hour
 
-    snapshot = service.snapshot_for(character_idx: 1, locale: :en, captured_on: Date.new(2026, 3, 3))
-    previous = service.previous_snapshot_for(character_idx: 1, locale: :en, before: Date.new(2026, 3, 3))
+    snapshot = service.snapshot_for(snapshot_id: CollectionProgressSnapshot.for_character(1, :en).order(captured_at: :desc).first.id, character_idx: 1, locale: :en)
+    previous = service.previous_snapshot_for(character_idx: 1, locale: :en, before: snapshot.captured_at)
 
     assert_not_nil snapshot
     assert_not_nil previous
-    assert_equal Date.new(2026, 3, 2), previous.captured_on
+    assert_operator previous.captured_at, :<, snapshot.captured_at
   end
 end
