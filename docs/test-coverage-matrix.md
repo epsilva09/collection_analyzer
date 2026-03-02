@@ -29,13 +29,13 @@ Status legend:
 | Controllers (main flows and filter contracts) | ✅ Strong | `test/controllers/armories_controller_test.rb` |
 | Helpers (filter option shaping, normalization, derived labels) | ✅ Good | `test/helpers/armories_helper_test.rb` |
 | System tests / browser behavior | 🟡 Limited | `test/system/materials_filters_persistence_test.rb` |
-| JS/controller utility tests | 🟡 Initial | `csv_filter_utils` covered with Vitest |
+| JS/controller utility tests | 🟡 Growing | `csv_filter_utils` and filter controllers covered with Vitest |
 
 ## Risk Hotspots (Current)
 
 - **Stimulus interaction regressions** (chips, CSV parsing, autocomplete,
-  sticky behavior) are partially covered; shared CSV utilities have JS tests,
-  but controller-level JS interaction tests remain limited.
+  sticky behavior) are partially covered; core filter controllers now have
+  basic JS tests, but deeper edge-case coverage is still limited.
 - **Browser-level E2E confidence** is constrained by local Selenium
   compatibility; one system test currently skips in this environment.
 - **Visual/sticky regressions** are only indirectly validated
@@ -62,8 +62,8 @@ Status legend:
 
 ### P3 — Medium value
 
-- Expand Vitest coverage from `csv_filter_utils` to critical Stimulus
-   controllers (`materials`, `compare`, `material_collections`).
+- Deepen Vitest scenarios for Stimulus controllers (`materials`, `compare`,
+   `material_collections`) with edge cases and URL-state branches.
 - Add visual regression snapshots for sticky headers and filter cards.
 
 ## Quality Gates (Suggested)

@@ -37,6 +37,7 @@ traceability.
 - 2026-03 Cycle 25: `docs/engineering-cycles/2026-03-cycle-25.md`
 - 2026-03 Cycle 26: `docs/engineering-cycles/2026-03-cycle-26.md`
 - 2026-03 Cycle 27: `docs/engineering-cycles/2026-03-cycle-27.md`
+- 2026-03 Cycle 28: `docs/engineering-cycles/2026-03-cycle-28.md`
 
 ## Point 1 — Performance
 
@@ -349,6 +350,15 @@ traceability.
 - Introduced JS unit test harness with Vitest + jsdom.
 - Added first JS test suite covering `csv_filter_utils` shared behavior.
 - Documented JS test command and updated coverage matrix status for JS layer.
+
+## Cycle 28 — Matrix Scenarios Execution (Phase 3 Expansion)
+
+- Added Vitest controller-level coverage for compare, materials, and
+  material_collections filter controllers.
+- Added importmap-compatible Vitest aliasing and lightweight Stimulus mock
+  for controller unit-test execution.
+- Extended JS layer confidence from utility-only to utility + controller
+  behavior validation.
 
 ---
 
