@@ -36,6 +36,7 @@ traceability.
 - 2026-03 Cycle 24: `docs/engineering-cycles/2026-03-cycle-24.md`
 - 2026-03 Cycle 25: `docs/engineering-cycles/2026-03-cycle-25.md`
 - 2026-03 Cycle 26: `docs/engineering-cycles/2026-03-cycle-26.md`
+- 2026-03 Cycle 27: `docs/engineering-cycles/2026-03-cycle-27.md`
 
 ## Point 1 — Performance
 
@@ -342,6 +343,12 @@ traceability.
   remains mapped from `CompareCollectionsService::SPECIAL_ATTRIBUTES`.
 - Refactored helper option builders to use shared normalized label
   dedupe path for cleaner filter lists.
+
+## Cycle 27 — Matrix Scenarios Execution (Phase 3 Kickoff)
+
+- Introduced JS unit test harness with Vitest + jsdom.
+- Added first JS test suite covering `csv_filter_utils` shared behavior.
+- Documented JS test command and updated coverage matrix status for JS layer.
 
 ---
 
