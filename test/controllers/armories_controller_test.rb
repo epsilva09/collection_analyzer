@@ -137,6 +137,26 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "compare renders localized filter labels and hints" do
+    details_a = { values: [ "HP +1250", "Defesa +647" ], data: [] }
+    details_b = { values: [ "HP +1250", "INT +5" ], data: [] }
+
+    with_stubbed_client(
+      fetch_character_idx: ->(name) { name == "A" ? 1 : (name == "B" ? 2 : nil) },
+      fetch_collection_details: ->(idx) { idx == 1 ? details_a : (idx == 2 ? details_b : { values: [], data: [] }) }
+    ) do
+      get compare_armory_path, params: { name_a: "A", name_b: "B", locale: "pt-BR" }
+      assert_response :success
+      assert_includes response.body, I18n.t("armories.compare.filters.heading", locale: :"pt-BR")
+      assert_includes response.body, I18n.t("armories.compare.filters.multi_hint", locale: :"pt-BR")
+
+      get compare_armory_path, params: { name_a: "A", name_b: "B", locale: "en" }
+      assert_response :success
+      assert_includes response.body, I18n.t("armories.compare.filters.heading", locale: :en)
+      assert_includes response.body, I18n.t("armories.compare.filters.multi_hint", locale: :en)
+    end
+  end
+
   test "material collections renders filter controls and row filter metadata" do
     details = {
       values: [],

@@ -34,6 +34,7 @@ traceability.
 - 2026-03 Cycle 22: `docs/engineering-cycles/2026-03-cycle-22.md`
 - 2026-03 Cycle 23: `docs/engineering-cycles/2026-03-cycle-23.md`
 - 2026-03 Cycle 24: `docs/engineering-cycles/2026-03-cycle-24.md`
+- 2026-03 Cycle 25: `docs/engineering-cycles/2026-03-cycle-25.md`
 
 ## Point 1 — Performance
 
@@ -322,6 +323,15 @@ traceability.
   runtime constraints, visual/sticky regressions).
 - Added prioritized roadmap (`P1`/`P2`/`P3`) and recommended quality gates
   for continued suite hardening.
+
+## Cycle 25 — Matrix Scenarios Execution (Phase 1)
+
+- Added compare filters system scenario covering attribute/winner
+  interactions and clear action.
+- Added material_collections system scenario covering URL persistence and
+  restore flow.
+- Added controller locale scenario validating compare filter labels/hints in
+  `pt-BR` and `en`.
 
 ---
 
