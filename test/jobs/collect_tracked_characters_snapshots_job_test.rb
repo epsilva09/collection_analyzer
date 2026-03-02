@@ -14,8 +14,8 @@ class CollectTrackedCharactersSnapshotsJobTest < ActiveJob::TestCase
     snapshot_service.define_singleton_method(:call) do |_name, locale:, character_idx:|
       {
         character_idx: character_idx,
-        collection_data: [{ "collections" => [{ "name" => "A" }] }],
-        progress_data: { near: [{ name: "A", tier: "Tier", progress: 90, missing: 10, aggregated_materials: [] }], mid: [], low: [], below_one: [] },
+        collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
+        progress_data: { near: [ { name: "A", tier: "Tier", progress: 90, missing: 10, aggregated_materials: [] } ], mid: [], low: [], below_one: [] },
         top_materials: [],
         materials_by_bucket: {}
       }

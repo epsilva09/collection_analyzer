@@ -51,8 +51,8 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
       locale: :en,
       snapshot: {
         character_idx: 1,
-        collection_data: [{ "collections" => [{ "name" => "A" }] }],
-        progress_data: { near: [{ name: "A" }], mid: [], low: [], below_one: [] }
+        collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
+        progress_data: { near: [ { name: "A" } ], mid: [], low: [], below_one: [] }
       },
       captured_at: first_captured_at
     )
@@ -62,8 +62,8 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
       locale: :en,
       snapshot: {
         character_idx: 1,
-        collection_data: [{ "collections" => [{ "name" => "A" }] }],
-        progress_data: { near: [{ name: "A" }], mid: [], low: [], below_one: [] }
+        collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
+        progress_data: { near: [ { name: "A" } ], mid: [], low: [], below_one: [] }
       },
       captured_at: second_captured_at
     )
@@ -85,7 +85,7 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
         locale: :en,
         snapshot: {
           character_idx: 1,
-          collection_data: [{ "collections" => [{ "name" => "A" }] }],
+          collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
           progress_data: { near: [ { name: "N#{index}" } ], mid: [], low: [], below_one: [] }
         },
         captured_at: Time.zone.parse("2026-03-0#{index + 1} 0#{index}:00")

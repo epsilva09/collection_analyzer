@@ -19,8 +19,8 @@ class CollectionProgressTrackingService
     in_progress_count = near_count + mid_count + low_count + below_one_count
 
     total_collections_from_payload = extract_total_collections(snapshot[:collection_data])
-    total_collections = [total_collections_from_payload, in_progress_count].max
-    completed_collections = [total_collections - in_progress_count, 0].max
+    total_collections = [ total_collections_from_payload, in_progress_count ].max
+    completed_collections = [ total_collections - in_progress_count, 0 ].max
 
     completion_rate = if total_collections.positive?
       ((completed_collections.to_f / total_collections) * 100.0).round(2)
