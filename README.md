@@ -72,7 +72,37 @@ bin/rails db:create db:migrate
 ### Run locally
 
 ```bash
+bin/dev
+```
+
+When `foreman` is available, `bin/dev` starts both web and jobs processes
+from `Procfile.dev`.
+
+If `foreman` is not installed, `bin/dev` starts only the web server and
+prints guidance to run jobs separately.
+
+Install foreman (optional, recommended):
+
+```bash
+gem install foreman
+```
+
+Or via package manager:
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install foreman
+
+# macOS (Homebrew)
+brew install foreman
+```
+
+Alternative (without foreman):
+
+```bash
 bin/rails server -b 0.0.0.0 -p 3000
+# in another terminal
+bin/jobs
 ```
 
 Open:

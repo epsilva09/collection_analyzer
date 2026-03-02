@@ -47,3 +47,15 @@ Configured for:
 
 - `development`
 - `production`
+
+## Development process model
+
+This repository includes `Procfile.dev` with:
+
+- `web: bin/rails server -b 0.0.0.0 -p 3000`
+- `jobs: bin/jobs`
+
+`bin/dev` now prefers `foreman` and starts both processes automatically.
+
+When `foreman` is unavailable, `bin/dev` falls back to web-only mode and
+you should run `bin/jobs` in a second terminal.
