@@ -113,13 +113,20 @@ pt-BR:
         toggle_extra_snapshots: "Mais %{count} snapshots"
         no_delta: "—"
       changes:
-        page_title: "Alterações de progresso"
+        page_title: "Alterações"
         heading: "Alterações em %{date}"
-        back_to_progress: "Voltar para progresso"
+        back_to_progress: "Voltar"
         summary: "Resumo da comparação"
         comparing_with: "Comparando %{current_date} com %{previous_date}"
         first_snapshot: "primeiro snapshot"
+        completed_target: "Concluída (100%)"
         table_heading: "Coleções alteradas"
+        results_count:
+          one: "%{count} coleção alterada"
+          other: "%{count} coleções alteradas"
+        materials_more:
+          one: "+%{count} material"
+          other: "+%{count} materiais"
         filter_type: "Filtrar por tipo"
         filter_all_types: "Todos os tipos"
         apply_filters: "Aplicar filtros"
@@ -135,6 +142,7 @@ pt-BR:
         types:
           added: "Adicionada"
           updated: "Atualizada"
+          completed: "Concluída"
           removed: "Removida"
     materials:
       page_title: "Itens de Coleção Necessários"

@@ -1,11 +1,15 @@
 <% content_for :title, t('armories.progress.changes.page_title') %>
 <% current_time = @current_snapshot&.respond_to?(:captured_at) && @current_snapshot&.captured_at.present? ? @current_snapshot.captured_at : @current_snapshot&.captured_on&.in_time_zone %>
 <% previous_time = @previous_snapshot&.respond_to?(:captured_at) && @previous_snapshot&.captured_at.present? ? @previous_snapshot.captured_at : @previous_snapshot&.captured_on&.in_time_zone %>
+<% changes_count = @changes&.size.to_i %>
+<% added_count = @changes&.count { |change| change[:change_type] == :added }.to_i %>
+<% updated_count = @changes&.count { |change| change[:change_type] == :updated }.to_i %>
+<% completed_count = @changes&.count { |change| change[:change_type] == :completed }.to_i %>
 
 <div class="container-fluid">
   <div class="row justify-content-center">
     <div class="col-12 col-md-10 col-lg-8">
-      <main class="text-center armory-page">
+      <main class="text-center armory-page progress-changes-page">
         <%= render 'locale_switcher' %>
         <%= render 'page_header', heading: t('armories.progress.changes.heading', date: (current_time&.strftime('%Y-%m-%d %H:%M') || '-')), icon_class: nil %>
 
@@ -34,6 +38,20 @@
                       current_date: current_time.strftime('%Y-%m-%d %H:%M'),
                       previous_date: (previous_time&.strftime('%Y-%m-%d %H:%M') || t('armories.progress.changes.first_snapshot'))) %>
               </p>
+              <div class="progress-changes-metrics mt-3" role="list" aria-label="<%= t('armories.progress.changes.table_heading') %>">
+                <span class="badge text-bg-secondary" role="listitem">
+                  <%= t('armories.progress.changes.results_count', count: changes_count) %>
+                </span>
+                <span class="badge text-bg-success progress-change-type progress-change-type--added" role="listitem">
+                  <%= t('armories.progress.changes.types.added') %>: <%= added_count %>
+                </span>
+                <span class="badge text-bg-info progress-change-type progress-change-type--updated" role="listitem">
+                  <%= t('armories.progress.changes.types.updated') %>: <%= updated_count %>
+                </span>
+                <span class="badge text-bg-primary progress-change-type progress-change-type--completed" role="listitem">
+                  <%= t('armories.progress.changes.types.completed') %>: <%= completed_count %>
+                </span>
+              </div>
             </div>
           </section>
 
@@ -41,7 +59,7 @@
             <div class="card-body">
               <h2 class="h6 mb-3"><%= t('armories.progress.changes.table_heading') %></h2>
 
-              <%= form_with url: progress_changes_armory_path, method: :get, local: true, class: 'row g-2 align-items-end mb-3' do %>
+              <%= form_with url: progress_changes_armory_path, method: :get, local: true, class: 'row g-2 align-items-end mb-3 progress-changes-filters' do %>
                 <%= hidden_field_tag :name, @name %>
                 <%= hidden_field_tag :character_idx, @character_idx %>
                 <%= hidden_field_tag :snapshot_id, @current_snapshot.id %>
@@ -53,67 +71,103 @@
                                    [t('armories.progress.changes.filter_all_types'), ''],
                                    [t('armories.progress.changes.types.added'), 'added'],
                                    [t('armories.progress.changes.types.updated'), 'updated'],
-                                   [t('armories.progress.changes.types.removed'), 'removed']
+                                   [t('armories.progress.changes.types.completed'), 'completed']
                                  ], @change_type),
                                  id: 'change-type-filter',
                                  class: 'form-select form-select-sm' %>
                 </div>
 
-                <div class="col-12 col-md-6 d-grid gap-2">
-                  <%= submit_tag t('armories.progress.changes.apply_filters'), class: 'btn btn-outline-secondary btn-sm' %>
+                <div class="col-12 col-md-6 d-grid gap-2 d-md-flex justify-content-md-end progress-changes-filters-actions">
+                  <%= submit_tag t('armories.progress.changes.apply_filters'), class: 'btn btn-outline-secondary btn-sm flex-md-fill' %>
                   <%= link_to t('armories.progress.changes.clear_filters'),
                               progress_changes_armory_path(name: @name, character_idx: @character_idx, snapshot_id: @current_snapshot.id),
-                              class: 'btn btn-outline-light btn-sm' %>
+                              class: 'btn btn-outline-light btn-sm flex-md-fill' %>
                 </div>
               <% end %>
 
               <% if @changes.blank? %>
                 <p class="mb-0"><%= t('armories.progress.changes.no_changes') %></p>
               <% else %>
-                <div class="table-responsive">
-                  <table class="table table-sm table-dark align-middle mb-0">
+                <div class="progress-changes-table-wrap">
+                  <table class="table table-sm table-dark align-middle mb-0 armory-data-table progress-changes-table">
+                    <colgroup>
+                      <col class="progress-col-collection">
+                      <col class="progress-col-type">
+                      <col class="progress-col-progress">
+                      <col class="progress-col-bucket">
+                      <col class="progress-col-materials">
+                    </colgroup>
                     <thead>
                       <tr>
                         <th scope="col"><%= t('armories.progress.changes.table.collection') %></th>
                         <th scope="col" class="text-center"><%= t('armories.progress.changes.table.type') %></th>
                         <th scope="col" class="text-end"><%= t('armories.progress.changes.table.progress') %></th>
-                        <th scope="col" class="text-end"><%= t('armories.progress.changes.table.bucket') %></th>
+                        <th scope="col" class="text-center"><%= t('armories.progress.changes.table.bucket') %></th>
                         <th scope="col"><%= t('armories.progress.changes.table.materials') %></th>
                       </tr>
                     </thead>
                     <tbody>
                       <% @changes.each do |change| %>
+                        <% type_class = case change[:change_type]
+                                       when :updated then 'text-bg-info progress-change-type--updated'
+                                       when :added then 'text-bg-success progress-change-type--added'
+                                       when :completed then 'text-bg-primary progress-change-type--completed'
+                                       else 'text-bg-danger progress-change-type--removed'
+                                       end %>
                         <tr>
                           <td><%= [change[:tier], change[:name]].compact.join(' / ') %></td>
                           <td class="text-center">
-                            <span class="badge <%= change[:change_type] == :updated ? 'bg-info' : (change[:change_type] == :added ? 'bg-success' : 'bg-danger') %>">
+                            <span class="badge progress-change-type <%= type_class %>">
                               <%= t("armories.progress.changes.types.#{change[:change_type]}") %>
                             </span>
                           </td>
-                          <td class="text-end">
+                          <td class="text-end progress-delta-cell">
                             <% from_progress = change[:from_progress] %>
                             <% to_progress = change[:to_progress] %>
-                            <%= from_progress.nil? ? '—' : "#{from_progress}%" %>
-                            →
-                            <%= to_progress.nil? ? '—' : "#{to_progress}%" %>
+                            <% to_progress_label = change[:change_type] == :completed ? '100%' : (to_progress.nil? ? '—' : "#{to_progress}%") %>
+                            <span class="progress-delta-from"><%= from_progress.nil? ? '—' : "#{from_progress}%" %></span>
+                            <span class="progress-delta-arrow" aria-hidden="true">→</span>
+                            <span class="progress-delta-to"><%= to_progress_label %></span>
                           </td>
-                          <td class="text-end">
+                          <td class="text-end progress-delta-cell">
                             <% from_bucket = change[:from_bucket].presence %>
                             <% to_bucket = change[:to_bucket].presence %>
-                            <%= from_bucket.present? ? progress_bucket_label(from_bucket) : '—' %>
-                            →
-                            <%= to_bucket.present? ? progress_bucket_label(to_bucket) : '—' %>
+                            <% to_bucket_label = change[:change_type] == :completed ? '100%' : (to_bucket.present? ? compact_progress_bucket_label(to_bucket) : '—') %>
+                            <span class="progress-delta-from"><%= from_bucket.present? ? compact_progress_bucket_label(from_bucket) : '—' %></span>
+                            <span class="progress-delta-arrow" aria-hidden="true">→</span>
+                            <span class="progress-delta-to"><%= to_bucket_label %></span>
                           </td>
                           <td>
                             <% if change[:materials_delta].present? %>
-                              <div class="d-flex flex-wrap gap-1">
-                                <% change[:materials_delta].each do |delta| %>
-                                  <% badge_class = delta[:delta].positive? ? 'bg-danger' : 'bg-success' %>
-                                  <span class="badge <%= badge_class %>">
-                                    <%= "#{delta[:name]}: #{delta[:from]}→#{delta[:to]} (#{format('%+d', delta[:delta])})" %>
+                              <% deltas = change[:materials_delta] %>
+                              <% collapsed = deltas.size > 3 %>
+                              <% initial_deltas = collapsed ? deltas.first(3) : deltas %>
+                              <div class="progress-materials-list">
+                                <% initial_deltas.each do |delta| %>
+                                  <% item_class = delta[:delta].positive? ? 'text-bg-danger progress-material-delta--up' : 'text-bg-success progress-material-delta--down' %>
+                                  <span class="badge progress-material-delta <%= item_class %>">
+                                    <span class="progress-material-name"><%= delta[:name] %></span>
+                                    <span class="progress-material-values"><%= "#{delta[:from]}→#{delta[:to]}" %></span>
+                                    <span class="progress-material-shift"><%= format('%+d', delta[:delta]) %></span>
                                   </span>
                                 <% end %>
                               </div>
+
+                              <% if collapsed %>
+                                <details class="progress-materials-details mt-1">
+                                  <summary><%= t('armories.progress.changes.materials_more', count: deltas.size - 3) %></summary>
+                                  <div class="progress-materials-list mt-1">
+                                    <% deltas.drop(3).each do |delta| %>
+                                      <% item_class = delta[:delta].positive? ? 'text-bg-danger progress-material-delta--up' : 'text-bg-success progress-material-delta--down' %>
+                                      <span class="badge progress-material-delta <%= item_class %>">
+                                        <span class="progress-material-name"><%= delta[:name] %></span>
+                                        <span class="progress-material-values"><%= "#{delta[:from]}→#{delta[:to]}" %></span>
+                                        <span class="progress-material-shift"><%= format('%+d', delta[:delta]) %></span>
+                                      </span>
+                                    <% end %>
+                                  </div>
+                                </details>
+                              <% end %>
                             <% else %>
                               <span class="text-body-secondary">—</span>
                             <% end %>

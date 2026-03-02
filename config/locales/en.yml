@@ -143,13 +143,20 @@ en:
         toggle_extra_snapshots: "%{count} more snapshots"
         no_delta: "—"
       changes:
-        page_title: "Progress changes"
+        page_title: "Changes"
         heading: "Changes on %{date}"
-        back_to_progress: "Back to progress"
+        back_to_progress: "Back"
         summary: "Comparison summary"
         comparing_with: "Comparing %{current_date} with %{previous_date}"
         first_snapshot: "first snapshot"
+        completed_target: "Completed (100%)"
         table_heading: "Changed collections"
+        results_count:
+          one: "%{count} changed collection"
+          other: "%{count} changed collections"
+        materials_more:
+          one: "+%{count} material"
+          other: "+%{count} materials"
         filter_type: "Filter by type"
         filter_all_types: "All types"
         apply_filters: "Apply filters"
@@ -165,6 +172,7 @@ en:
         types:
           added: "Added"
           updated: "Updated"
+          completed: "Completed"
           removed: "Removed"
     materials:
       page_title: "Required collection items"

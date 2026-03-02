@@ -46,6 +46,13 @@ module ArmoriesHelper
     t(key)
   end
 
+  def compact_progress_bucket_label(bucket)
+    progress_bucket_label(bucket)
+      .to_s
+      .sub(/\s+de\s+progresso\z/i, "")
+      .sub(/\s+progress\z/i, "")
+  end
+
   def progress_bucket_badge_class(bucket)
     bucket&.to_sym == :near ? "bg-warning text-dark" : "bg-secondary"
   end

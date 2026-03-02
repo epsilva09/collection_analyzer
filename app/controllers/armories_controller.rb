@@ -353,7 +353,7 @@ class ArmoriesController < ApplicationController
     normalized = value.to_s
     return nil if normalized.blank?
 
-    return normalized if %w[added updated removed].include?(normalized)
+    return normalized if %w[added updated completed removed].include?(normalized)
 
     nil
   end
@@ -419,9 +419,9 @@ class ArmoriesController < ApplicationController
           key: key,
           tier: previous["tier"],
           name: previous["name"],
-          change_type: :removed,
+          change_type: :completed,
           from_progress: previous["progress"],
-          to_progress: nil,
+          to_progress: 100,
           from_bucket: previous["bucket"],
           to_bucket: nil,
           materials_delta: summarize_materials_delta(materials_index(previous["materials"]), {})

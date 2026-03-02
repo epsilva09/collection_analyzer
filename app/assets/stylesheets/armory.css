@@ -941,6 +941,178 @@ textarea:focus-visible {
   margin-right: var(--armory-space-2);
 }
 
+.progress-changes-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.progress-changes-metrics .badge {
+  font-weight: 600;
+}
+
+.progress-changes-filters-actions .btn {
+  min-width: 140px;
+}
+
+.armory-page .armory-section-card {
+  background: linear-gradient(180deg, rgba(48, 54, 61, 0.92) 0%, rgba(33, 38, 45, 0.92) 100%) !important;
+}
+
+.armory-page .armory-section-card .card-body h2,
+.armory-page .armory-section-card .card-body h3 {
+  color: var(--cabal-primary) !important;
+  text-shadow: none;
+  margin-top: 0;
+}
+
+.armory-page .armory-section-card .text-body-secondary,
+.armory-page .armory-section-card p {
+  color: var(--armory-text-muted) !important;
+}
+
+.progress-changes-table-wrap {
+  overflow-x: visible;
+}
+
+.progress-changes-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.progress-changes-table col.progress-col-collection {
+  width: 20%;
+}
+
+.progress-changes-table col.progress-col-type {
+  width: 10%;
+}
+
+.progress-changes-table col.progress-col-progress {
+  width: 15%;
+}
+
+.progress-changes-table col.progress-col-bucket {
+  width: 15%;
+}
+
+.progress-changes-table col.progress-col-materials {
+  width: 40%;
+}
+
+@media (min-width: 1200px) {
+  .progress-changes-table col.progress-col-collection {
+    width: 18%;
+  }
+
+  .progress-changes-table col.progress-col-type {
+    width: 8%;
+  }
+
+  .progress-changes-table col.progress-col-progress {
+    width: 11%;
+  }
+
+  .progress-changes-table col.progress-col-bucket {
+    width: 11%;
+  }
+
+  .progress-changes-table col.progress-col-materials {
+    width: 52%;
+  }
+}
+
+@media (max-width: 992px) {
+  .progress-changes-table col.progress-col-collection {
+    width: 22%;
+  }
+
+  .progress-changes-table col.progress-col-type {
+    width: 12%;
+  }
+
+  .progress-changes-table col.progress-col-progress {
+    width: 15%;
+  }
+
+  .progress-changes-table col.progress-col-bucket {
+    width: 15%;
+  }
+
+  .progress-changes-table col.progress-col-materials {
+    width: 36%;
+  }
+}
+
+.progress-changes-table th,
+.progress-changes-table td {
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.progress-changes-table th:first-child,
+.progress-changes-table td:first-child {
+  min-width: 0 !important;
+}
+
+.progress-changes-table .progress-change-type {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.progress-changes-table .progress-delta-cell {
+  white-space: normal !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-changes-table .progress-delta-arrow {
+  opacity: 0.7;
+  margin: 0 0.25rem;
+}
+
+.progress-changes-table .progress-delta-to {
+  font-weight: 700;
+}
+
+.progress-materials-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.progress-material-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  line-height: 1.2;
+  padding: 0.35rem 0.45rem;
+}
+
+.progress-material-name {
+  font-weight: 700;
+}
+
+.progress-material-values {
+  opacity: 0.92;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-material-shift {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-materials-details summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  opacity: 0.9;
+}
+
+.progress-materials-details summary:hover {
+  opacity: 1;
+}
+
 .armory-section-card {
   border: 1px solid var(--armory-border-default) !important;
   border-radius: var(--armory-radius-lg) !important;
@@ -1035,6 +1207,23 @@ textarea:focus-visible {
   .progress-filters-actions {
     grid-template-columns: 1fr 1fr;
     display: grid;
+  }
+
+  .progress-changes-filters-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .progress-changes-filters-actions .btn {
+    min-width: 0;
+  }
+
+  .progress-changes-table .progress-delta-cell {
+    white-space: normal;
+  }
+
+  .progress-changes-table .progress-delta-to {
+    display: inline-block;
   }
 
   .progress-filters-sticky {
