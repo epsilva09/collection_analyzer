@@ -33,3 +33,17 @@ Recommended collection slots:
 - 21:00
 
 These provide day coverage and make timeline/hour filters useful for change analysis.
+
+## Scheduler configured in this project
+
+The file `config/recurring.yml` now includes these recurring entries for
+`CollectTrackedCharactersSnapshotsJob`:
+
+- `09:00` every day
+- `14:00` every day
+- `21:00` every day
+
+Configured for:
+
+- `development`
+- `production`

@@ -1,11 +1,13 @@
 <% content_for :title, t('armories.progress.changes.page_title') %>
+<% current_time = @current_snapshot&.respond_to?(:captured_at) && @current_snapshot&.captured_at.present? ? @current_snapshot.captured_at : @current_snapshot&.captured_on&.in_time_zone %>
+<% previous_time = @previous_snapshot&.respond_to?(:captured_at) && @previous_snapshot&.captured_at.present? ? @previous_snapshot.captured_at : @previous_snapshot&.captured_on&.in_time_zone %>
 
 <div class="container-fluid">
   <div class="row justify-content-center">
     <div class="col-12 col-md-10 col-lg-8">
       <main class="text-center armory-page">
         <%= render 'locale_switcher' %>
-        <%= render 'page_header', heading: t('armories.progress.changes.heading', date: (@current_snapshot&.captured_at&.strftime('%Y-%m-%d %H:%M') || '-')), icon_class: nil %>
+        <%= render 'page_header', heading: t('armories.progress.changes.heading', date: (current_time&.strftime('%Y-%m-%d %H:%M') || '-')), icon_class: nil %>
 
         <%= render 'menu',
                    current_page: :progress,
@@ -29,8 +31,8 @@
               <h2 class="h6 mb-2"><%= t('armories.progress.changes.summary') %></h2>
               <p class="mb-0 small text-body-secondary">
                 <%= t('armories.progress.changes.comparing_with',
-                      current_date: @current_snapshot.captured_at.strftime('%Y-%m-%d %H:%M'),
-                      previous_date: (@previous_snapshot&.captured_at&.strftime('%Y-%m-%d %H:%M') || t('armories.progress.changes.first_snapshot'))) %>
+                      current_date: current_time.strftime('%Y-%m-%d %H:%M'),
+                      previous_date: (previous_time&.strftime('%Y-%m-%d %H:%M') || t('armories.progress.changes.first_snapshot'))) %>
               </p>
             </div>
           </section>

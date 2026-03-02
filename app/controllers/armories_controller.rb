@@ -163,7 +163,7 @@ class ArmoriesController < ApplicationController
     @previous_snapshot = tracking_service.previous_snapshot_for(
       character_idx: @character_idx,
       locale: I18n.locale,
-      before: @current_snapshot.captured_at
+      before: snapshot_timestamp(@current_snapshot)
     )
 
     changes = build_collection_changes(@current_snapshot, @previous_snapshot)
@@ -468,6 +468,14 @@ class ArmoriesController < ApplicationController
       next if delta.zero?
 
       { name: name, from: from, to: to, delta: delta }
+    end
+  end
+
+  def snapshot_timestamp(snapshot)
+    if snapshot.respond_to?(:captured_at) && snapshot.captured_at.present?
+      snapshot.captured_at
+    else
+      snapshot.captured_on.in_time_zone
     end
   end
 end

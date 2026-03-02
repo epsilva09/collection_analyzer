@@ -72,8 +72,9 @@
                           <% snapshot = row[:snapshot] %>
                           <% delta_rate = row[:delta_completion_rate] %>
                           <% delta_completed = row[:delta_completed_collections] %>
+                          <% snapshot_time = snapshot.respond_to?(:captured_at) && snapshot.captured_at.present? ? snapshot.captured_at : snapshot.captured_on.in_time_zone %>
                           <tr>
-                            <td><%= snapshot.captured_at.strftime('%Y-%m-%d %H:%M') %></td>
+                            <td><%= snapshot_time.strftime('%Y-%m-%d %H:%M') %></td>
                             <td class="text-end"><%= "#{snapshot.completed_collections}/#{snapshot.total_collections}" %></td>
                             <td class="text-end"><%= number_to_percentage(snapshot.completion_rate, precision: 2) %></td>
                             <td class="text-end <%= delta_rate.to_f.positive? ? 'text-success' : (delta_rate.to_f.negative? ? 'text-danger' : 'text-body-secondary') %>">

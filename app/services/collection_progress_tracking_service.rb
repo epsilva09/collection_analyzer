@@ -30,18 +30,20 @@ class CollectionProgressTrackingService
 
     rounded_captured_at = captured_at.change(sec: 0)
     captured_on = rounded_captured_at.to_date
+    supports_captured_at = @scope.column_names.include?("captured_at")
 
-    record = @scope.find_or_initialize_by(
+    identity = {
       character_idx: character_idx,
-      locale: locale.to_s,
-      captured_at: rounded_captured_at
-    )
+      locale: locale.to_s
+    }
+    identity[supports_captured_at ? :captured_at : :captured_on] = supports_captured_at ? rounded_captured_at : captured_on
 
-    record.assign_attributes(
+    record = @scope.find_or_initialize_by(identity)
+
+    attrs = {
       character_name: name.to_s.strip,
       character_idx: character_idx,
       captured_on: captured_on,
-      captured_at: rounded_captured_at,
       total_collections: total_collections,
       completed_collections: completed_collections,
       near_count: near_count,
@@ -50,19 +52,23 @@ class CollectionProgressTrackingService
       below_one_count: below_one_count,
       completion_rate: completion_rate,
       collections_payload: build_collections_payload(progress_data)
-    )
+    }
+    attrs[:captured_at] = rounded_captured_at if supports_captured_at
+
+    record.assign_attributes(attrs)
 
     record.save!
     record
   end
 
   def history_for(character_idx:, locale:, limit: 14, day: nil, hour: nil)
+    supports_captured_at = @scope.column_names.include?("captured_at")
     relation = @scope
       .for_character(character_idx, locale)
-      .order(captured_at: :desc)
+      .order(supports_captured_at ? { captured_at: :desc } : { captured_on: :desc })
 
     relation = relation.for_day(day) if day.present?
-    relation = relation.for_hour(hour) if hour.present?
+    relation = relation.for_hour(hour) if hour.present? && supports_captured_at
 
     relation.limit(limit)
   end
@@ -76,10 +82,11 @@ class CollectionProgressTrackingService
   end
 
   def previous_snapshot_for(character_idx:, locale:, before:)
+    supports_captured_at = @scope.column_names.include?("captured_at")
     @scope
       .for_character(character_idx, locale)
-      .where("captured_at < ?", before)
-      .order(captured_at: :desc)
+      .where(supports_captured_at ? "captured_at < ?" : "captured_on < ?", before)
+      .order(supports_captured_at ? { captured_at: :desc } : { captured_on: :desc })
       .first
   end
 

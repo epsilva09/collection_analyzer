@@ -3,7 +3,7 @@ class CollectionProgressSnapshot < ApplicationRecord
   validates :character_name, presence: true
   validates :locale, presence: true
   validates :captured_on, presence: true
-  validates :captured_at, presence: true
+  validates :captured_at, presence: true, if: :supports_captured_at?
 
   before_validation :normalize_fields
 
@@ -16,6 +16,8 @@ class CollectionProgressSnapshot < ApplicationRecord
   }
 
   scope :for_hour, ->(hour) {
+    next all unless column_names.include?("captured_at")
+
     where("CAST(strftime('%H', captured_at) AS INTEGER) = ?", hour.to_i)
   }
 
@@ -24,7 +26,13 @@ class CollectionProgressSnapshot < ApplicationRecord
   def normalize_fields
     self.character_name = character_name.to_s.strip
     self.locale = locale.to_s
-    self.captured_on ||= captured_at&.to_date
-    self.captured_at ||= captured_on&.in_time_zone
+    if supports_captured_at?
+      self.captured_on ||= captured_at&.to_date
+      self.captured_at ||= captured_on&.in_time_zone
+    end
+  end
+
+  def supports_captured_at?
+    self.class.column_names.include?("captured_at")
   end
 end
