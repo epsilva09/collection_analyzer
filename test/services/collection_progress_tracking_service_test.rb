@@ -33,6 +33,10 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
     assert_equal 1, record.mid_count
     assert_equal 1, record.low_count
     assert_equal 0, record.below_one_count
+    assert record.collections_payload.present?
+    payload_buckets = record.collections_payload.map { |entry| entry["bucket"] }
+    assert_includes payload_buckets, "near"
+    assert record.collections_payload.all? { |entry| entry["key"].present? }
   end
 
   test "upserts record for same character locale and date" do
@@ -87,5 +91,12 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
 
     assert_equal 2, history.size
     assert_operator history.first.captured_on, :>, history.last.captured_on
+
+    snapshot = service.snapshot_for(character_idx: 1, locale: :en, captured_on: Date.new(2026, 3, 3))
+    previous = service.previous_snapshot_for(character_idx: 1, locale: :en, before: Date.new(2026, 3, 3))
+
+    assert_not_nil snapshot
+    assert_not_nil previous
+    assert_equal Date.new(2026, 3, 2), previous.captured_on
   end
 end

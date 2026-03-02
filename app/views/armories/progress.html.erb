@@ -45,6 +45,7 @@
                           <th scope="col" class="text-end"><%= t('armories.progress.history.completion_rate') %></th>
                           <th scope="col" class="text-end"><%= t('armories.progress.history.delta_rate') %></th>
                           <th scope="col" class="text-end"><%= t('armories.progress.history.delta_completed') %></th>
+                          <th scope="col" class="text-end"><%= t('armories.progress.history.actions') %></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -61,6 +62,11 @@
                             </td>
                             <td class="text-end <%= delta_completed.to_i.positive? ? 'text-success' : (delta_completed.to_i.negative? ? 'text-danger' : 'text-body-secondary') %>">
                               <%= delta_completed.nil? ? t('armories.progress.history.no_delta') : format('%+d', delta_completed) %>
+                            </td>
+                            <td class="text-end">
+                              <%= link_to t('armories.progress.history.view_changes'),
+                                          progress_changes_armory_path(name: @name, character_idx: snapshot.character_idx, captured_on: snapshot.captured_on),
+                                          class: 'btn btn-outline-secondary btn-sm' %>
                             </td>
                           </tr>
                         <% end %>

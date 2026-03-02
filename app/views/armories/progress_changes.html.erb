@@ -1,0 +1,105 @@
+<% content_for :title, t('armories.progress.changes.page_title') %>
+
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+      <main class="text-center armory-page">
+        <%= render 'locale_switcher' %>
+        <%= render 'page_header', heading: t('armories.progress.changes.heading', date: @captured_on.to_s), icon_class: nil %>
+
+        <%= render 'menu',
+                   current_page: :progress,
+                   name: @name,
+                   name_a: nil,
+                   name_b: nil %>
+
+        <div class="d-flex justify-content-center mb-3">
+          <%= link_to t('armories.progress.changes.back_to_progress'), progress_armory_path(name: @name), class: 'btn btn-outline-secondary btn-sm' %>
+        </div>
+
+        <% if @error.present? %>
+          <%= render 'error_alert',
+                     label: t('armories.progress.alerts.error'),
+                     message: @error,
+                     icon_class: nil,
+                     dismissible: false %>
+        <% else %>
+          <section class="card mb-3 text-start armory-section-card">
+            <div class="card-body">
+              <h2 class="h6 mb-2"><%= t('armories.progress.changes.summary') %></h2>
+              <p class="mb-0 small text-body-secondary">
+                <%= t('armories.progress.changes.comparing_with',
+                      current_date: @current_snapshot.captured_on.to_s,
+                      previous_date: (@previous_snapshot&.captured_on&.to_s || t('armories.progress.changes.first_snapshot'))) %>
+              </p>
+            </div>
+          </section>
+
+          <section class="card text-start armory-section-card">
+            <div class="card-body">
+              <h2 class="h6 mb-3"><%= t('armories.progress.changes.table_heading') %></h2>
+
+              <% if @changes.blank? %>
+                <p class="mb-0"><%= t('armories.progress.changes.no_changes') %></p>
+              <% else %>
+                <div class="table-responsive">
+                  <table class="table table-sm table-dark align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th scope="col"><%= t('armories.progress.changes.table.collection') %></th>
+                        <th scope="col" class="text-center"><%= t('armories.progress.changes.table.type') %></th>
+                        <th scope="col" class="text-end"><%= t('armories.progress.changes.table.progress') %></th>
+                        <th scope="col" class="text-end"><%= t('armories.progress.changes.table.bucket') %></th>
+                        <th scope="col"><%= t('armories.progress.changes.table.materials') %></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% @changes.each do |change| %>
+                        <tr>
+                          <td><%= [change[:tier], change[:name]].compact.join(' / ') %></td>
+                          <td class="text-center">
+                            <span class="badge <%= change[:change_type] == :updated ? 'bg-info' : (change[:change_type] == :added ? 'bg-success' : 'bg-danger') %>">
+                              <%= t("armories.progress.changes.types.#{change[:change_type]}") %>
+                            </span>
+                          </td>
+                          <td class="text-end">
+                            <% from_progress = change[:from_progress] %>
+                            <% to_progress = change[:to_progress] %>
+                            <%= from_progress.nil? ? '—' : "#{from_progress}%" %>
+                            →
+                            <%= to_progress.nil? ? '—' : "#{to_progress}%" %>
+                          </td>
+                          <td class="text-end">
+                            <% from_bucket = change[:from_bucket].presence %>
+                            <% to_bucket = change[:to_bucket].presence %>
+                            <%= from_bucket.present? ? progress_bucket_label(from_bucket) : '—' %>
+                            →
+                            <%= to_bucket.present? ? progress_bucket_label(to_bucket) : '—' %>
+                          </td>
+                          <td>
+                            <% if change[:materials_delta].present? %>
+                              <div class="d-flex flex-wrap gap-1">
+                                <% change[:materials_delta].each do |delta| %>
+                                  <% badge_class = delta[:delta].positive? ? 'bg-danger' : 'bg-success' %>
+                                  <span class="badge <%= badge_class %>">
+                                    <%= "#{delta[:name]}: #{delta[:from]}→#{delta[:to]} (#{format('%+d', delta[:delta])})" %>
+                                  </span>
+                                <% end %>
+                              </div>
+                            <% else %>
+                              <span class="text-body-secondary">—</span>
+                            <% end %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              <% end %>
+            </div>
+          </section>
+        <% end %>
+      </main>
+    </div>
+  </div>
+</div>

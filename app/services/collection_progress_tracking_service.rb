@@ -43,7 +43,8 @@ class CollectionProgressTrackingService
       mid_count: mid_count,
       low_count: low_count,
       below_one_count: below_one_count,
-      completion_rate: completion_rate
+      completion_rate: completion_rate,
+      collections_payload: build_collections_payload(progress_data)
     )
 
     record.save!
@@ -57,7 +58,48 @@ class CollectionProgressTrackingService
       .limit(limit)
   end
 
+  def snapshot_for(character_idx:, locale:, captured_on:)
+    @scope.find_by(
+      character_idx: character_idx.to_i,
+      locale: locale.to_s,
+      captured_on: captured_on
+    )
+  end
+
+  def previous_snapshot_for(character_idx:, locale:, before:)
+    @scope
+      .for_character(character_idx, locale)
+      .where("captured_on < ?", before)
+      .order(captured_on: :desc)
+      .first
+  end
+
   private
+
+  def build_collections_payload(progress_data)
+    progress_data.to_h.flat_map do |bucket, entries|
+      Array(entries).map do |entry|
+        {
+          key: entry_key(entry),
+          tier: entry[:tier].to_s,
+          name: entry[:name].to_s,
+          bucket: bucket.to_s,
+          progress: entry[:progress].to_i,
+          missing: entry[:missing].to_i,
+          materials: Array(entry[:aggregated_materials]).map do |material|
+            {
+              name: material[:name].to_s,
+              needed: material[:needed].to_i
+            }
+          end.sort_by { |material| material[:name].downcase }
+        }
+      end
+    end.sort_by { |entry| entry[:key] }
+  end
+
+  def entry_key(entry)
+    [ entry[:tier].to_s.strip, entry[:name].to_s.strip ].join("::")
+  end
 
   def extract_total_collections(collection_data)
     Array(collection_data).sum do |tier|

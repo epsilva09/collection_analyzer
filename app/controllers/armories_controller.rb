@@ -127,6 +127,37 @@ class ArmoriesController < ApplicationController
     end
   end
 
+  def progress_changes
+    @name = params[:name].presence || "Cadamantis"
+    @character_idx = params[:character_idx].to_i
+    @captured_on = Date.iso8601(params[:captured_on].to_s)
+    @error = nil
+
+    tracking_service = CollectionProgressTrackingService.new
+    @current_snapshot = tracking_service.snapshot_for(
+      character_idx: @character_idx,
+      locale: I18n.locale,
+      captured_on: @captured_on
+    )
+
+    if @current_snapshot.blank?
+      @error = t("armories.progress.changes.not_found")
+      @changes = []
+      return
+    end
+
+    @previous_snapshot = tracking_service.previous_snapshot_for(
+      character_idx: @character_idx,
+      locale: I18n.locale,
+      before: @captured_on
+    )
+
+    @changes = build_collection_changes(@current_snapshot, @previous_snapshot)
+  rescue ArgumentError
+    @error = t("armories.progress.changes.invalid_date")
+    @changes = []
+  end
+
   def material_collections
     @name = params[:name].presence || "Cadamantis"
     @material_name = params[:material].to_s
@@ -294,6 +325,94 @@ class ArmoriesController < ApplicationController
         delta_completion_rate: previous_snapshot ? (snapshot.completion_rate.to_f - previous_snapshot.completion_rate.to_f).round(2) : nil,
         delta_completed_collections: previous_snapshot ? snapshot.completed_collections.to_i - previous_snapshot.completed_collections.to_i : nil
       }
+    end
+  end
+
+  def build_collection_changes(current_snapshot, previous_snapshot)
+    current_entries = index_collections_payload(current_snapshot.collections_payload)
+    previous_entries = index_collections_payload(previous_snapshot&.collections_payload)
+
+    keys = (current_entries.keys + previous_entries.keys).uniq.sort
+
+    keys.filter_map do |key|
+      current = current_entries[key]
+      previous = previous_entries[key]
+
+      if previous.nil?
+        {
+          key: key,
+          tier: current["tier"],
+          name: current["name"],
+          change_type: :added,
+          from_progress: nil,
+          to_progress: current["progress"],
+          from_bucket: nil,
+          to_bucket: current["bucket"],
+          materials_delta: summarize_materials_delta({}, materials_index(current["materials"]))
+        }
+      elsif current.nil?
+        {
+          key: key,
+          tier: previous["tier"],
+          name: previous["name"],
+          change_type: :removed,
+          from_progress: previous["progress"],
+          to_progress: nil,
+          from_bucket: previous["bucket"],
+          to_bucket: nil,
+          materials_delta: summarize_materials_delta(materials_index(previous["materials"]), {})
+        }
+      else
+        progress_changed = previous["progress"].to_i != current["progress"].to_i
+        bucket_changed = previous["bucket"].to_s != current["bucket"].to_s
+
+        previous_materials = materials_index(previous["materials"])
+        current_materials = materials_index(current["materials"])
+        materials_delta = summarize_materials_delta(previous_materials, current_materials)
+
+        next unless progress_changed || bucket_changed || materials_delta.present?
+
+        {
+          key: key,
+          tier: current["tier"],
+          name: current["name"],
+          change_type: :updated,
+          from_progress: previous["progress"],
+          to_progress: current["progress"],
+          from_bucket: previous["bucket"],
+          to_bucket: current["bucket"],
+          materials_delta: materials_delta
+        }
+      end
+    end
+  end
+
+  def index_collections_payload(payload)
+    Array(payload).each_with_object({}) do |entry, indexed|
+      key = entry["key"].to_s
+      indexed[key] = entry if key.present?
+    end
+  end
+
+  def materials_index(materials)
+    Array(materials).each_with_object({}) do |material, indexed|
+      name = material["name"].to_s
+      next if name.blank?
+
+      indexed[name] = material["needed"].to_i
+    end
+  end
+
+  def summarize_materials_delta(previous_materials, current_materials)
+    keys = (previous_materials.keys + current_materials.keys).uniq.sort
+
+    keys.filter_map do |name|
+      from = previous_materials[name].to_i
+      to = current_materials[name].to_i
+      delta = to - from
+      next if delta.zero?
+
+      { name: name, from: from, to: to, delta: delta }
     end
   end
 end

@@ -48,6 +48,8 @@ traceability.
   character name), scoped by locale and day.
 - Added a progress timeline card in the progress page with completion
   percentage and daily delta indicators.
+- Added a new progress changes screen linked from each timeline row,
+  showing per-collection diff versus the previous snapshot.
 - Added dedicated service/model tests for snapshot recording, upsert, and
   timeline ordering.
 

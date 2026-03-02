@@ -69,6 +69,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_includes response.body, I18n.t("armories.progress.labels.low")
       assert_includes response.body, I18n.t("armories.progress.history.heading")
+      assert_includes response.body, I18n.t("armories.progress.history.view_changes")
       assert_includes response.body, I18n.t("armories.progress.filters.status_label")
       assert_includes response.body, I18n.t("armories.progress.filters.item_label")
       assert_includes response.body, "Low"
@@ -206,6 +207,69 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       assert_includes response.body, "Resposta JSON inválida"
       assert_includes response.body, "unexpected token at"
     end
+  end
+
+  test "progress changes shows changed collections compared to previous snapshot" do
+    locale = I18n.locale.to_s
+
+    CollectionProgressSnapshot.create!(
+      character_name: "X",
+      character_idx: 222,
+      locale: locale,
+      captured_on: Date.new(2026, 3, 1),
+      total_collections: 3,
+      completed_collections: 0,
+      near_count: 1,
+      mid_count: 1,
+      low_count: 1,
+      below_one_count: 0,
+      completion_rate: 0,
+      collections_payload: [
+        {
+          key: "Tier1::Low",
+          tier: "Tier1",
+          name: "Low",
+          bucket: "low",
+          progress: 10,
+          missing: 90,
+          materials: [ { name: "Material A", needed: 3 } ]
+        }
+      ]
+    )
+
+    CollectionProgressSnapshot.create!(
+      character_name: "X",
+      character_idx: 222,
+      locale: locale,
+      captured_on: Date.new(2026, 3, 2),
+      total_collections: 3,
+      completed_collections: 1,
+      near_count: 0,
+      mid_count: 1,
+      low_count: 1,
+      below_one_count: 0,
+      completion_rate: 33.33,
+      collections_payload: [
+        {
+          key: "Tier1::Low",
+          tier: "Tier1",
+          name: "Low",
+          bucket: "mid",
+          progress: 35,
+          missing: 65,
+          materials: [ { name: "Material A", needed: 1 } ]
+        }
+      ]
+    )
+
+    get progress_changes_armory_path,
+      params: { name: "X", character_idx: 222, captured_on: "2026-03-02", locale: locale }
+
+    assert_response :success
+    assert_includes response.body, "Tier1 / Low"
+    assert_includes response.body, "10%"
+    assert_includes response.body, "35%"
+    assert_includes response.body, "Material A"
   end
 
   private
