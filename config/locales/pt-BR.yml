@@ -89,6 +89,15 @@ pt-BR:
         collections_count: "Coleções impactadas"
         example_mission: "Exemplo de missão"
         no_mission: "Sem missão específica"
+      history:
+        heading: "Evolução do progresso"
+        description: "Snapshots diários para acompanhar seu avanço nas coleções."
+        date: "Data"
+        completed: "Concluídas"
+        completion_rate: "Taxa de conclusão"
+        delta_rate: "Variação (%)"
+        delta_completed: "Variação (coleções)"
+        no_delta: "—"
     materials:
       page_title: "Itens de Coleção Necessários"
       heading: "Itens que faltam para completar coleções"

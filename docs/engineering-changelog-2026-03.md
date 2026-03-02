@@ -38,6 +38,18 @@ traceability.
 - 2026-03 Cycle 26: `docs/engineering-cycles/2026-03-cycle-26.md`
 - 2026-03 Cycle 27: `docs/engineering-cycles/2026-03-cycle-27.md`
 - 2026-03 Cycle 28: `docs/engineering-cycles/2026-03-cycle-28.md`
+- 2026-03 Cycle 29: `docs/engineering-cycles/2026-03-cycle-29.md`
+
+## Cycle 29 — Progress Tracking MVP
+
+- Added persistent daily snapshots for collection progress in
+  `collection_progress_snapshots`.
+- Rekeyed uniqueness and history lookup to `character_idx` (instead of
+  character name), scoped by locale and day.
+- Added a progress timeline card in the progress page with completion
+  percentage and daily delta indicators.
+- Added dedicated service/model tests for snapshot recording, upsert, and
+  timeline ordering.
 
 ## Point 1 — Performance
 

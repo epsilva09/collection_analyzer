@@ -60,6 +60,7 @@ class ArmoriesController < ApplicationController
   def progress
     @name = params[:name].presence || "Cadamantis"
     @error = nil
+    @progress_history = []
 
     begin
       snapshot = CollectionSnapshotService.new(
@@ -70,12 +71,25 @@ class ArmoriesController < ApplicationController
       @top_materials = snapshot[:top_materials]
       @collection_data = snapshot[:collection_data]
 
-      @error = t("armories.errors.character_idx_not_found", name: @name) unless @character_idx
+      if @character_idx
+        progress_tracking_service = CollectionProgressTrackingService.new
+        progress_tracking_service.record!(
+          name: @name,
+          locale: I18n.locale,
+          snapshot: snapshot
+        )
+        @progress_history = build_progress_history_rows(
+          progress_tracking_service.history_for(character_idx: @character_idx, locale: I18n.locale, limit: 14)
+        )
+      else
+        @error = t("armories.errors.character_idx_not_found", name: @name)
+      end
     rescue StandardError => e
       @character_idx = nil
       @progress_data = ArmoryDefaults.empty_progress_data
       @top_materials = []
       @collection_data = []
+      @progress_history = []
       @error = localized_error_message(e)
     end
 
@@ -266,6 +280,20 @@ class ArmoriesController < ApplicationController
       message
     else
       t("armories.errors.unexpected")
+    end
+  end
+
+  def build_progress_history_rows(history)
+    rows = history.to_a.sort_by(&:captured_on).reverse
+
+    rows.each_with_index.map do |snapshot, index|
+      previous_snapshot = rows[index + 1]
+
+      {
+        snapshot: snapshot,
+        delta_completion_rate: previous_snapshot ? (snapshot.completion_rate.to_f - previous_snapshot.completion_rate.to_f).round(2) : nil,
+        delta_completed_collections: previous_snapshot ? snapshot.completed_collections.to_i - previous_snapshot.completed_collections.to_i : nil
+      }
     end
   end
 end

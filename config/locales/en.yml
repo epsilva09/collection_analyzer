@@ -119,6 +119,15 @@ en:
         collections_count: "Collections affected"
         example_mission: "Example mission"
         no_mission: "No specific mission"
+      history:
+        heading: "Progress timeline"
+        description: "Daily snapshots to track how your collections evolve over time."
+        date: "Date"
+        completed: "Completed"
+        completion_rate: "Completion rate"
+        delta_rate: "Change (%)"
+        delta_completed: "Change (collections)"
+        no_delta: "—"
     materials:
       page_title: "Required collection items"
       heading: "Items missing to complete collections"

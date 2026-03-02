@@ -30,6 +30,47 @@
                          dismissible: false %>
             <% end %>
 
+            <% if @progress_history.present? %>
+              <section class="card mb-3 text-start armory-section-card" aria-label="<%= t('armories.progress.history.heading') %>">
+                <div class="card-body">
+                  <h2 class="h6 mb-1"><%= t('armories.progress.history.heading') %></h2>
+                  <p class="small text-body-secondary mb-3"><%= t('armories.progress.history.description') %></p>
+
+                  <div class="table-responsive">
+                    <table class="table table-sm table-dark align-middle mb-0">
+                      <thead>
+                        <tr>
+                          <th scope="col"><%= t('armories.progress.history.date') %></th>
+                          <th scope="col" class="text-end"><%= t('armories.progress.history.completed') %></th>
+                          <th scope="col" class="text-end"><%= t('armories.progress.history.completion_rate') %></th>
+                          <th scope="col" class="text-end"><%= t('armories.progress.history.delta_rate') %></th>
+                          <th scope="col" class="text-end"><%= t('armories.progress.history.delta_completed') %></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% @progress_history.each do |row| %>
+                          <% snapshot = row[:snapshot] %>
+                          <% delta_rate = row[:delta_completion_rate] %>
+                          <% delta_completed = row[:delta_completed_collections] %>
+                          <tr>
+                            <td><%= snapshot.captured_on.to_s %></td>
+                            <td class="text-end"><%= "#{snapshot.completed_collections}/#{snapshot.total_collections}" %></td>
+                            <td class="text-end"><%= number_to_percentage(snapshot.completion_rate, precision: 2) %></td>
+                            <td class="text-end <%= delta_rate.to_f.positive? ? 'text-success' : (delta_rate.to_f.negative? ? 'text-danger' : 'text-body-secondary') %>">
+                              <%= delta_rate.nil? ? t('armories.progress.history.no_delta') : format('%+.2f%%', delta_rate) %>
+                            </td>
+                            <td class="text-end <%= delta_completed.to_i.positive? ? 'text-success' : (delta_completed.to_i.negative? ? 'text-danger' : 'text-body-secondary') %>">
+                              <%= delta_completed.nil? ? t('armories.progress.history.no_delta') : format('%+d', delta_completed) %>
+                            </td>
+                          </tr>
+                        <% end %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </section>
+            <% end %>
+
             <% if @progress_data.present? %>
               <% labels = { near: t('armories.progress.labels.near'), mid: t('armories.progress.labels.mid'), low: t('armories.progress.labels.low'), below_one: t('armories.progress.labels.below_one') } %>
               <% ordered_buckets = [:near, :mid, :low, :below_one] %>
