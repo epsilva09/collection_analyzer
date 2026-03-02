@@ -84,13 +84,15 @@ class ArmoriesController < ApplicationController
 
         @history_day = parse_history_day(params[:history_day])
         @history_hour = parse_history_hour(params[:history_hour])
+        @history_visibility = normalize_history_visibility(params[:history_visibility])
         @progress_history = build_progress_history_rows(
           progress_tracking_service.history_for(
             character_idx: @character_idx,
             locale: I18n.locale,
             limit: 30,
             day: @history_day,
-            hour: @history_hour
+            hour: @history_hour,
+            changed_only: @history_visibility != "all"
           )
         )
       else
@@ -371,6 +373,13 @@ class ArmoriesController < ApplicationController
     return hour if hour.between?(0, 23)
 
     nil
+  end
+
+  def normalize_history_visibility(value)
+    normalized = value.to_s
+    return "all" if normalized == "all"
+
+    "changed"
   end
 
   def register_tracked_character!(name:, character_idx:)

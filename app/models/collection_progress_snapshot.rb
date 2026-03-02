@@ -4,6 +4,7 @@ class CollectionProgressSnapshot < ApplicationRecord
   validates :locale, presence: true
   validates :captured_on, presence: true
   validates :captured_at, presence: true, if: :supports_captured_at?
+  validates :changes_count, numericality: { greater_than_or_equal_to: 0 }
 
   before_validation :normalize_fields
 
@@ -13,6 +14,10 @@ class CollectionProgressSnapshot < ApplicationRecord
 
   scope :for_day, ->(day) {
     where(captured_on: day)
+  }
+
+  scope :changed_only, -> {
+    where(has_changes: true)
   }
 
   scope :for_hour, ->(hour) {

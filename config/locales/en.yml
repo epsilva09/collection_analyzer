@@ -126,6 +126,9 @@ en:
         filter_day: "Filter by day"
         filter_hour: "Filter by hour"
         all_hours: "All hours"
+        filter_visibility: "Visibility"
+        visibility_changed: "Changed only"
+        visibility_all: "All snapshots"
         apply_filters: "Apply filters"
         clear_filters: "Clear filters"
         completed: "Completed"
@@ -134,6 +137,8 @@ en:
         delta_completed: "Change (collections)"
         actions: "Details"
         view_changes: "View changes"
+        changed_badge: "%{count} changes"
+        unchanged_badge: "Unchanged"
         no_delta: "—"
       changes:
         page_title: "Progress changes"

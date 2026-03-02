@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_01_141000) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_01_151000) do
   create_table "collection_progress_snapshots", force: :cascade do |t|
     t.string "character_name", null: false
     t.string "locale", null: false
@@ -27,8 +27,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_01_141000) do
     t.datetime "updated_at", null: false
     t.json "collections_payload", default: [], null: false
     t.datetime "captured_at", null: false
+    t.boolean "has_changes", default: true, null: false
+    t.integer "changes_count", default: 0, null: false
     t.index ["character_idx", "locale", "captured_at"], name: "index_collection_progress_snapshots_by_time"
     t.index ["character_idx", "locale", "created_at"], name: "index_collection_progress_snapshots_history_lookup"
+    t.index ["character_idx", "locale", "has_changes", "captured_at"], name: "index_collection_progress_snapshots_changed_timeline"
   end
 
   create_table "tracked_characters", force: :cascade do |t|

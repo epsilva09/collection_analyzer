@@ -37,11 +37,14 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
     payload_buckets = record.collections_payload.map { |entry| entry["bucket"] }
     assert_includes payload_buckets, "near"
     assert record.collections_payload.all? { |entry| entry["key"].present? }
+    assert_equal true, record.has_changes
+    assert_operator record.changes_count, :>, 0
   end
 
-  test "upserts record for same character locale and timestamp minute" do
+  test "marks snapshot as unchanged when payload matches previous snapshot" do
     service = CollectionProgressTrackingService.new
-    captured_at = Time.zone.parse("2026-03-01 10:15")
+    first_captured_at = Time.zone.parse("2026-03-01 10:15")
+    second_captured_at = Time.zone.parse("2026-03-01 10:16")
 
     service.record!(
       name: "Cadamantis",
@@ -51,24 +54,26 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
         collection_data: [{ "collections" => [{ "name" => "A" }] }],
         progress_data: { near: [{ name: "A" }], mid: [], low: [], below_one: [] }
       },
-      captured_at: captured_at
+      captured_at: first_captured_at
     )
 
-    service.record!(
+    second = service.record!(
       name: "Cadamantis",
       locale: :en,
       snapshot: {
         character_idx: 1,
-        collection_data: [{ "collections" => [{ "name" => "A" }, { "name" => "B" }] }],
-        progress_data: { near: [], mid: [{ name: "B" }], low: [], below_one: [] }
+        collection_data: [{ "collections" => [{ "name" => "A" }] }],
+        progress_data: { near: [{ name: "A" }], mid: [], low: [], below_one: [] }
       },
-      captured_at: captured_at
+      captured_at: second_captured_at
     )
 
     records = CollectionProgressSnapshot.for_character(1, :en)
-    assert_equal 1, records.count
-    assert_equal 2, records.first.total_collections
-    assert_equal 1, records.first.completed_collections
+    assert_equal 2, records.count
+    assert_equal 1, second.total_collections
+    assert_equal 0, second.completed_collections
+    assert_equal false, second.has_changes
+    assert_equal 0, second.changes_count
   end
 
   test "returns limited history ordered by captured time descending" do
@@ -98,5 +103,8 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
     assert_not_nil snapshot
     assert_not_nil previous
     assert_operator previous.captured_at, :<, snapshot.captured_at
+
+    changed_only_history = service.history_for(character_idx: 1, locale: :en, limit: 10, changed_only: true)
+    assert changed_only_history.all?(&:has_changes)
   end
 end

@@ -96,6 +96,9 @@ pt-BR:
         filter_day: "Filtrar por dia"
         filter_hour: "Filtrar por hora"
         all_hours: "Todas as horas"
+        filter_visibility: "Exibição"
+        visibility_changed: "Somente com mudanças"
+        visibility_all: "Todos os snapshots"
         apply_filters: "Aplicar filtros"
         clear_filters: "Limpar filtros"
         completed: "Concluídas"
@@ -104,6 +107,8 @@ pt-BR:
         delta_completed: "Variação (coleções)"
         actions: "Detalhes"
         view_changes: "Ver alterações"
+        changed_badge: "%{count} mudanças"
+        unchanged_badge: "Sem mudanças"
         no_delta: "—"
       changes:
         page_title: "Alterações de progresso"

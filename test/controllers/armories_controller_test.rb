@@ -275,6 +275,51 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Material A"
   end
 
+  test "progress history defaults to changed snapshots and can show all" do
+    locale = I18n.locale.to_s
+
+    CollectionProgressSnapshot.create!(
+      character_name: "X",
+      character_idx: 222,
+      locale: locale,
+      captured_on: Date.new(2026, 3, 1),
+      captured_at: Time.zone.parse("2026-03-01 08:00"),
+      total_collections: 3,
+      completed_collections: 1,
+      near_count: 1,
+      mid_count: 1,
+      low_count: 0,
+      below_one_count: 0,
+      completion_rate: 33.33,
+      has_changes: false,
+      changes_count: 0,
+      collections_payload: []
+    )
+
+    details = {
+      values: [],
+      data: [
+        { "name" => "Tier1", "collections" => [
+            { "name" => "Near", "progress" => 82, "rewards" => [ { "description" => "STR +1" } ] }
+          ] }
+      ]
+    }
+
+    with_stubbed_client(
+      fetch_character_idx: ->(_name) { 222 },
+      fetch_collection_details: ->(_idx) { details }
+    ) do
+      get progress_armory_path, params: { name: "X" }
+      assert_response :success
+      assert_includes response.body, I18n.t("armories.progress.history.visibility_changed")
+      assert_not_includes response.body, I18n.t("armories.progress.history.unchanged_badge")
+
+      get progress_armory_path, params: { name: "X", history_visibility: "all" }
+      assert_response :success
+      assert_includes response.body, I18n.t("armories.progress.history.unchanged_badge")
+    end
+  end
+
   private
 
   def with_stubbed_client(fetch_character_idx:, fetch_collection_details:)
