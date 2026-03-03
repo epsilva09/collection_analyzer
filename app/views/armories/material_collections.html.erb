@@ -1,9 +1,7 @@
 <% content_for :title, t('armories.material_collections.page_title', material: @material_name.presence || '-') %>
 
-<div class="container-fluid">
-  <div class="row justify-content-center">
-    <div class="col-12 col-md-10 col-lg-8">
-      <main class="text-center armory-page">
+<div class="container-fluid armory-layout-container">
+  <main class="text-center armory-page armory-layout-main">
             <%= render 'locale_switcher' %>
 
             <%= render 'page_header',
@@ -32,8 +30,10 @@
                 data-controller="material-collections-filters"
                 data-material-collections-filters-total-count-value="<%= @collections_for_material.size %>"
                 data-material-collections-filters-results-template-value="<%= t('armories.material_collections.filters.results_summary').gsub('%{count}', 'COUNT') %>">
-                <div class="card mb-3 text-start materials-filters-card materials-filters-sticky armory-section-card" data-material-collections-filters-target="filtersCard">
-                  <div class="card-body">
+                <div class="armory-workspace armory-workspace--filters-left">
+                  <aside class="armory-workspace-filters armory-workspace-filters--compact" aria-label="<%= t('armories.material_collections.filters.heading') %>">
+                    <div class="card mb-0 text-start materials-filters-card materials-filters-sticky armory-section-card" data-material-collections-filters-target="filtersCard">
+                      <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 materials-filters-toolbar">
                       <h2 class="h6 mb-0"><%= t('armories.material_collections.filters.heading') %></h2>
                       <span class="badge bg-secondary-subtle text-light-emphasis progress-filters-counter">
@@ -44,7 +44,7 @@
                     </div>
 
                     <div class="row g-2 align-items-end">
-                      <div class="col-12 col-md-5">
+                      <div class="col-12">
                         <label for="material-collections-name-filter" class="form-label mb-1"><%= t('armories.material_collections.filters.collection_label') %></label>
                         <input
                           id="material-collections-name-filter"
@@ -61,7 +61,7 @@
                         </datalist>
                       </div>
 
-                      <div class="col-12 col-md-5">
+                      <div class="col-12">
                         <label for="material-collections-bucket-filter" class="form-label mb-1"><%= t('armories.material_collections.filters.bucket_label') %></label>
                         <input
                           id="material-collections-bucket-filter"
@@ -78,7 +78,7 @@
                         </datalist>
                       </div>
 
-                      <div class="col-12 col-md-2 d-grid">
+                      <div class="col-12 d-grid">
                         <button type="button" class="btn btn-outline-light" data-action="click->material-collections-filters#clearFilters">
                           <%= t('armories.material_collections.filters.clear') %>
                         </button>
@@ -87,42 +87,46 @@
 
                     <div class="form-text mt-2"><%= t('armories.material_collections.filters.multi_hint') %></div>
                     <p class="small mt-2 mb-0" data-material-collections-filters-target="resultsSummary" aria-live="polite"></p>
-                  </div>
-                </div>
+                      </div>
+                    </div>
+                  </aside>
 
-                <%= render 'section_card',
-                           title: t('armories.material_collections.list_heading'),
-                           icon_class: 'fas fa-list-ul',
-                           count: @collections_for_material.size,
-                           card_classes: 'mt-3',
-                           body_classes: 'p-0' do %>
-                  <div class="table-responsive">
-                    <table class="table table-dark table-hover mb-0 align-middle armory-data-table material-collections-data-table">
-                      <thead>
-                        <tr>
-                          <th class="border-0"><%= t('armories.material_collections.table.collection') %></th>
-                          <th class="border-0 table-col-numeric"><%= t('armories.material_collections.table.bucket') %></th>
-                          <th class="border-0 table-col-numeric"><%= t('armories.progress.badges.progress') %></th>
-                          <th class="border-0 table-col-numeric"><%= t('armories.progress.badges.missing') %></th>
-                          <th class="border-0 table-col-numeric"><%= t('armories.material_collections.table.needed') %></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <% @collections_for_material.each do |col| %>
-                          <%= render 'material_collections_row', collection: col %>
-                        <% end %>
-                      </tbody>
-                    </table>
-                  </div>
-                <% end %>
+                  <div class="armory-workspace-content">
+                    <%= render 'section_card',
+                               title: t('armories.material_collections.list_heading'),
+                               icon_class: 'fas fa-list-ul',
+                               count: @collections_for_material.size,
+                               card_classes: 'mt-0',
+                               body_classes: 'p-0' do %>
+                      <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0 align-middle armory-data-table material-collections-data-table">
+                          <thead>
+                            <tr>
+                              <th class="border-0"><%= t('armories.material_collections.table.collection') %></th>
+                              <th class="border-0 table-col-numeric"><%= t('armories.material_collections.table.bucket') %></th>
+                              <th class="border-0 table-col-numeric"><%= t('armories.progress.badges.progress') %></th>
+                              <th class="border-0 table-col-numeric"><%= t('armories.progress.badges.missing') %></th>
+                              <th class="border-0 table-col-numeric"><%= t('armories.material_collections.table.needed') %></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <% @collections_for_material.each do |col| %>
+                              <%= render 'material_collections_row', collection: col %>
+                            <% end %>
+                          </tbody>
+                        </table>
+                      </div>
+                    <% end %>
 
-                <div class="armory-empty-state text-center mt-3" data-material-collections-filters-target="emptyState" hidden>
-                  <i class="fas fa-filter fa-2x mb-2" aria-hidden="true"></i>
-                  <h3 class="h6 mb-1"><%= t('armories.material_collections.filters.empty_title') %></h3>
-                  <p class="mb-3"><%= t('armories.material_collections.filters.empty_description') %></p>
-                  <button type="button" class="btn btn-outline-light btn-sm" data-action="click->material-collections-filters#clearFilters">
-                    <%= t('armories.material_collections.filters.clear_and_show_all') %>
-                  </button>
+                    <div class="armory-empty-state text-center mt-3" data-material-collections-filters-target="emptyState" hidden>
+                      <i class="fas fa-filter fa-2x mb-2" aria-hidden="true"></i>
+                      <h3 class="h6 mb-1"><%= t('armories.material_collections.filters.empty_title') %></h3>
+                      <p class="mb-3"><%= t('armories.material_collections.filters.empty_description') %></p>
+                      <button type="button" class="btn btn-outline-light btn-sm" data-action="click->material-collections-filters#clearFilters">
+                        <%= t('armories.material_collections.filters.clear_and_show_all') %>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </section>
             <% else %>
@@ -131,7 +135,5 @@
                          icon_class: 'fas fa-info-circle',
                          alert_classes: 'mt-4' %>
             <% end %>
-      </main>
-    </div>
-  </div>
+  </main>
 </div>

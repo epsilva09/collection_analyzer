@@ -1,9 +1,7 @@
 <% content_for :title, t('armories.compare.page_title') %>
 
-<div class="container-fluid">
-  <div class="row justify-content-center">
-    <div class="col-12 col-md-10 col-lg-8">
-      <main class="text-center armory-page">
+<div class="container-fluid armory-layout-container">
+  <main class="text-center armory-page armory-layout-main">
             <%= render 'locale_switcher' %>
         <%= render 'page_header', heading: t('armories.compare.heading'), icon_class: nil %>
 
@@ -90,7 +88,5 @@
                          icon_class: 'fas fa-info-circle',
                          alert_classes: '' %>
             <% end %>
-      </main>
-    </div>
-  </div>
+  </main>
 </div>

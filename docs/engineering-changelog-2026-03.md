@@ -39,6 +39,26 @@ traceability.
 - 2026-03 Cycle 27: `docs/engineering-cycles/2026-03-cycle-27.md`
 - 2026-03 Cycle 28: `docs/engineering-cycles/2026-03-cycle-28.md`
 - 2026-03 Cycle 29: `docs/engineering-cycles/2026-03-cycle-29.md`
+- 2026-03 Cycle 30: `docs/engineering-cycles/2026-03-cycle-30.md`
+
+## Cycle 30 — Frontend Layout Refactor and A11y Pass
+
+- Replaced narrow centered layout with reusable wide-layout primitives and
+  workspace distribution (`filters | content`) across core Armories pages.
+- Standardized sidebar filters in:
+  - Progress
+  - Progress Changes
+  - Materials
+  - Material Collections
+- Migrated `index` and `compare` to the same wide container pattern for
+  visual consistency.
+- Added compact sidebar mode and spacing normalization for cleaner density.
+- Unified sticky offsets via shared CSS variable to keep Materials/Progress
+  alignment consistent across breakpoints.
+- Fixed Progress screen text leak caused by missing translation key in ARIA
+  label (`Heading">` symptom).
+- Added consistent `:focus-visible` styling for keyboard navigation in Armory
+  pages.
 
 ## Cycle 29 — Progress Tracking MVP
 

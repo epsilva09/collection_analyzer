@@ -6,10 +6,8 @@
 <% updated_count = @changes&.count { |change| change[:change_type] == :updated }.to_i %>
 <% completed_count = @changes&.count { |change| change[:change_type] == :completed }.to_i %>
 
-<div class="container-fluid">
-  <div class="row justify-content-center">
-    <div class="col-12 col-md-10 col-lg-8">
-      <main class="text-center armory-page progress-changes-page">
+<div class="container-fluid armory-layout-container">
+  <main class="text-center armory-page armory-layout-main progress-changes-page">
         <%= render 'locale_switcher' %>
         <%= render 'page_header', heading: t('armories.progress.changes.heading', date: (current_time&.strftime('%Y-%m-%d %H:%M') || '-')), icon_class: nil %>
 
@@ -59,37 +57,41 @@
             <div class="card-body">
               <h2 class="h6 mb-3"><%= t('armories.progress.changes.table_heading') %></h2>
 
-              <%= form_with url: progress_changes_armory_path, method: :get, local: true, class: 'row g-2 align-items-end mb-3 progress-changes-filters' do %>
-                <%= hidden_field_tag :name, @name %>
-                <%= hidden_field_tag :character_idx, @character_idx %>
-                <%= hidden_field_tag :snapshot_id, @current_snapshot.id %>
+              <div class="armory-workspace armory-workspace--filters-left">
+                <aside class="armory-workspace-filters armory-workspace-filters--compact" aria-label="<%= t('armories.progress.changes.filter_type') %>">
+                  <%= form_with url: progress_changes_armory_path, method: :get, local: true, class: 'row g-2 align-items-end mb-0 progress-changes-filters' do %>
+                    <%= hidden_field_tag :name, @name %>
+                    <%= hidden_field_tag :character_idx, @character_idx %>
+                    <%= hidden_field_tag :snapshot_id, @current_snapshot.id %>
 
-                <div class="col-12 col-md-6">
-                  <label class="form-label mb-1" for="change-type-filter"><%= t('armories.progress.changes.filter_type') %></label>
-                  <%= select_tag :change_type,
-                                 options_for_select([
-                                   [t('armories.progress.changes.filter_all_types'), ''],
-                                   [t('armories.progress.changes.types.added'), 'added'],
-                                   [t('armories.progress.changes.types.updated'), 'updated'],
-                                   [t('armories.progress.changes.types.completed'), 'completed']
-                                 ], @change_type),
-                                 id: 'change-type-filter',
-                                 class: 'form-select form-select-sm' %>
-                </div>
+                    <div class="col-12">
+                      <label class="form-label mb-1" for="change-type-filter"><%= t('armories.progress.changes.filter_type') %></label>
+                      <%= select_tag :change_type,
+                                     options_for_select([
+                                       [t('armories.progress.changes.filter_all_types'), ''],
+                                       [t('armories.progress.changes.types.added'), 'added'],
+                                       [t('armories.progress.changes.types.updated'), 'updated'],
+                                       [t('armories.progress.changes.types.completed'), 'completed']
+                                     ], @change_type),
+                                     id: 'change-type-filter',
+                                     class: 'form-select form-select-sm' %>
+                    </div>
 
-                <div class="col-12 col-md-6 d-grid gap-2 d-md-flex justify-content-md-end progress-changes-filters-actions">
-                  <%= submit_tag t('armories.progress.changes.apply_filters'), class: 'btn btn-outline-secondary btn-sm flex-md-fill' %>
-                  <%= link_to t('armories.progress.changes.clear_filters'),
-                              progress_changes_armory_path(name: @name, character_idx: @character_idx, snapshot_id: @current_snapshot.id),
-                              class: 'btn btn-outline-light btn-sm flex-md-fill' %>
-                </div>
-              <% end %>
+                    <div class="col-12 d-grid gap-2 progress-changes-filters-actions">
+                      <%= submit_tag t('armories.progress.changes.apply_filters'), class: 'btn btn-outline-secondary btn-sm w-100' %>
+                      <%= link_to t('armories.progress.changes.clear_filters'),
+                                  progress_changes_armory_path(name: @name, character_idx: @character_idx, snapshot_id: @current_snapshot.id),
+                                  class: 'btn btn-outline-light btn-sm w-100' %>
+                    </div>
+                  <% end %>
+                </aside>
 
-              <% if @changes.blank? %>
-                <p class="mb-0"><%= t('armories.progress.changes.no_changes') %></p>
-              <% else %>
-                <div class="progress-changes-table-wrap">
-                  <table class="table table-sm table-dark align-middle mb-0 armory-data-table progress-changes-table">
+                <div class="armory-workspace-content">
+                  <% if @changes.blank? %>
+                    <p class="mb-0"><%= t('armories.progress.changes.no_changes') %></p>
+                  <% else %>
+                    <div class="progress-changes-table-wrap">
+                      <table class="table table-sm table-dark align-middle mb-0 armory-data-table progress-changes-table">
                     <colgroup>
                       <col class="progress-col-collection">
                       <col class="progress-col-type">
@@ -175,13 +177,13 @@
                         </tr>
                       <% end %>
                     </tbody>
-                  </table>
+                      </table>
+                    </div>
+                  <% end %>
                 </div>
-              <% end %>
+              </div>
             </div>
           </section>
         <% end %>
-      </main>
-    </div>
-  </div>
+  </main>
 </div>

@@ -1,9 +1,7 @@
 <% content_for :title, t('armories.progress.page_title') %>
 
-<div class="container-fluid">
-  <div class="row justify-content-center">
-    <div class="col-12 col-md-10 col-lg-8">
-      <main class="text-center armory-page">
+<div class="container-fluid armory-layout-container">
+  <main class="text-center armory-page armory-layout-main">
             <%= render 'locale_switcher' %>
         <%= render 'page_header', heading: t('armories.progress.heading'), icon_class: nil %>
 
@@ -139,8 +137,10 @@
                 data-progress-filters-total-count-value="<%= total_entries %>"
                 data-progress-filters-important-statuses-value="<%= important_attributes.join('|').downcase %>"
                 data-progress-filters-results-template-value="<%= t('armories.progress.filters.results_summary').gsub('%{count}', 'COUNT') %>">
-                <div class="card mb-3 text-start progress-filters-card progress-filters-sticky armory-section-card" data-progress-filters-target="filtersCard">
-                  <div class="card-body">
+                <div class="armory-workspace armory-workspace--filters-left">
+                  <aside class="armory-workspace-filters armory-workspace-filters--compact" aria-label="<%= t('armories.progress.heading') %>">
+                    <div class="card mb-0 text-start progress-filters-card progress-filters-sticky armory-section-card" data-progress-filters-target="filtersCard">
+                      <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 progress-filters-toolbar mb-2">
                       <h2 class="h6 mb-0"><%= t('armories.progress.heading') %></h2>
                       <span class="badge bg-secondary-subtle text-light-emphasis progress-filters-counter">
@@ -151,7 +151,7 @@
                     </div>
 
                     <div class="row g-2 align-items-end">
-                      <div class="col-12 col-md-5">
+                      <div class="col-12">
                         <label for="progress-status-filter" class="form-label mb-1"><%= t('armories.progress.filters.status_label') %></label>
                         <input
                           id="progress-status-filter"
@@ -168,7 +168,7 @@
                         </datalist>
                       </div>
 
-                      <div class="col-12 col-md-5">
+                      <div class="col-12">
                         <label for="progress-item-filter" class="form-label mb-1"><%= t('armories.progress.filters.item_label') %></label>
                         <input
                           id="progress-item-filter"
@@ -185,7 +185,7 @@
                         </datalist>
                       </div>
 
-                      <div class="col-12 col-md-2 d-grid gap-2 progress-filters-actions">
+                      <div class="col-12 d-grid gap-2 progress-filters-actions">
                         <button type="button" id="progress-clear-filters" class="btn btn-outline-light" data-action="click->progress-filters#clearFilters">
                           <%= t('armories.progress.filters.clear') %>
                         </button>
@@ -241,7 +241,7 @@
 
                     <div class="collapse mt-3" id="progress-advanced-filters">
                       <div class="row g-2">
-                        <div class="col-12 col-md-6">
+                        <div class="col-12">
                           <label for="progress-status-filter-multi" class="form-label mb-1 small"><%= t('armories.progress.filters.status_multi_label') %></label>
                           <select
                             id="progress-status-filter-multi"
@@ -256,7 +256,7 @@
                             <% end %>
                           </select>
                         </div>
-                        <div class="col-12 col-md-6">
+                        <div class="col-12">
                           <label for="progress-item-filter-multi" class="form-label mb-1 small"><%= t('armories.progress.filters.item_multi_label') %></label>
                           <select
                             id="progress-item-filter-multi"
@@ -274,32 +274,34 @@
                       </div>
                       <div class="form-text mt-1"><%= t('armories.progress.filters.shortcuts_hint') %></div>
                     </div>
+                      </div>
+                    </div>
+                  </aside>
+
+                  <div class="armory-workspace-content">
+                    <div class="accordion" id="progress-groups">
+                    <% ordered_buckets.each_with_index do |bucket, group_index| %>
+                      <% items = @progress_data[bucket] || [] %>
+                      <% next if items.blank? %>
+                      <%= render 'progress_bucket',
+                                 bucket: bucket,
+                                 label: labels[bucket],
+                                 items: items,
+                                 group_index: group_index %>
+                    <% end %>
+                    </div>
+
+                    <div class="armory-empty-state text-center mt-3" data-progress-filters-target="emptyState" hidden>
+                      <i class="fas fa-filter fa-2x mb-2" aria-hidden="true"></i>
+                      <h3 class="h6 mb-1"><%= t('armories.progress.filters.empty_title') %></h3>
+                      <p class="mb-3"><%= t('armories.progress.filters.empty_description') %></p>
+                      <button type="button" class="btn btn-outline-light btn-sm" data-action="click->progress-filters#clearFilters">
+                        <%= t('armories.progress.filters.clear_and_show_all') %>
+                      </button>
+                    </div>
                   </div>
-                </div>
-
-                <div class="accordion" id="progress-groups">
-                <% ordered_buckets.each_with_index do |bucket, group_index| %>
-                  <% items = @progress_data[bucket] || [] %>
-                  <% next if items.blank? %>
-                  <%= render 'progress_bucket',
-                             bucket: bucket,
-                             label: labels[bucket],
-                             items: items,
-                             group_index: group_index %>
-                <% end %>
-                </div>
-
-                <div class="armory-empty-state text-center mt-3" data-progress-filters-target="emptyState" hidden>
-                  <i class="fas fa-filter fa-2x mb-2" aria-hidden="true"></i>
-                  <h3 class="h6 mb-1"><%= t('armories.progress.filters.empty_title') %></h3>
-                  <p class="mb-3"><%= t('armories.progress.filters.empty_description') %></p>
-                  <button type="button" class="btn btn-outline-light btn-sm" data-action="click->progress-filters#clearFilters">
-                    <%= t('armories.progress.filters.clear_and_show_all') %>
-                  </button>
                 </div>
               </section>
             <% end %>
-      </main>
-    </div>
-  </div>
+  </main>
 </div>
