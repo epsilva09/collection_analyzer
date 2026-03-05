@@ -57,11 +57,11 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
           "collections" => [
             {
               "name" => "Elo Perdido I",
-              "progress" => 53,
+              "progress" => 100,
               "rewards" => [
-                { "description" => "ATK +1" },
-                { "description" => "DEF +2" },
-                { "description" => "CRIT +3" }
+                { "description" => "Ignorar Acerto +70" },
+                { "description" => "Ignorar Acerto +150" },
+                { "description" => "Ignorar Acerto +300" }
               ]
             }
           ]
@@ -77,8 +77,12 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
           "collections" => [
             {
               "name" => "Elo Perdido I",
-              "progress" => 100,
-              "rewards" => [ { "description" => "ATK +1" } ]
+              "progress" => 64,
+              "rewards" => [
+                { "description" => "Ignorar Acerto +70" },
+                { "description" => "Ignorar Acerto +150" },
+                { "description" => "Ignorar Acerto +300" }
+              ]
             }
           ]
         }
@@ -94,10 +98,11 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_includes response.body, I18n.t("armories.compare_collections.heading")
       assert_includes response.body, "Mundo / Elo Perdido I"
-      assert_includes response.body, "53%"
       assert_includes response.body, "100%"
-      assert_includes response.body, "ATK +1"
-      assert_includes response.body, "DEF +2"
+      assert_includes response.body, "64%"
+      assert_includes response.body, "300 vs 150"
+      assert_includes response.body, "100%"
+      assert_includes response.body, "Ignorar Acerto +300"
       assert_includes response.body, "armory-bonus-badge--unlocked"
       assert_includes response.body, "armory-bonus-badge--locked"
     end

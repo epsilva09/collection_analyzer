@@ -286,6 +286,6 @@ en:
       table:
         collection: "Collection"
         diff: "Difference"
-        bonus_diff: "Applied bonus difference"
+        bonus_diff: "Applied attribute comparison"
         bonuses_a: "Bonuses (%{name})"
         bonuses_b: "Bonuses (%{name})"

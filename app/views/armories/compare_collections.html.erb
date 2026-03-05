@@ -137,6 +137,17 @@
                             vs
                             <%= row[:unlocked_bonuses_b].to_i %>/<%= row[:total_bonuses_b].to_i %>
                           </small>
+                          <% attribute_comparison = Array(row[:bonus_attribute_comparison]) %>
+                          <% if attribute_comparison.present? %>
+                            <div class="mt-2 text-start">
+                              <% attribute_comparison.each do |attribute_row| %>
+                                <div class="small">
+                                  <span class="text-muted"><%= attribute_row[:attribute] %>:</span>
+                                  <span class="fw-semibold"><%= attribute_row[:value_a].to_i %> vs <%= attribute_row[:value_b].to_i %></span>
+                                </div>
+                              <% end %>
+                            </div>
+                          <% end %>
                         </td>
                         <td>
                           <% bonuses_a = Array(row[:bonuses_a]) %>

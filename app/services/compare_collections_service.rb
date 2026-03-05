@@ -11,6 +11,7 @@ class CompareCollectionsService
   ].freeze
 
   PREFIX_REGEX = /\A\s*(PVE\s+)?Ignorar\s+/i
+  BONUS_VALUE_REGEX = /[-+−]?\s*\d+(?:[.,]\d+)?\s*%?/u
 
   def initialize(client: ArmoryClient.new)
     @client = client
@@ -168,6 +169,7 @@ class CompareCollectionsService
 
       unlocked_a = bonuses_a.count { |bonus| bonus[:unlocked] }
       unlocked_b = bonuses_b.count { |bonus| bonus[:unlocked] }
+      attribute_comparison = compare_applied_bonus_attributes(bonuses_a, bonuses_b)
 
       {
         key: key,
@@ -184,9 +186,57 @@ class CompareCollectionsService
         unlocked_bonuses_b: unlocked_b,
         total_bonuses_a: bonuses_a.size,
         total_bonuses_b: bonuses_b.size,
-        bonus_diff: unlocked_a - unlocked_b
+        bonus_diff: unlocked_a - unlocked_b,
+        bonus_attribute_comparison: attribute_comparison
       }
     end
+  end
+
+  def compare_applied_bonus_attributes(bonuses_a, bonuses_b)
+    values_a = applied_bonus_attribute_values(bonuses_a)
+    values_b = applied_bonus_attribute_values(bonuses_b)
+
+    keys = (values_a.keys + values_b.keys).uniq
+
+    keys.map do |attribute|
+      value_a = values_a[attribute].to_f
+      value_b = values_b[attribute].to_f
+
+      {
+        attribute: attribute,
+        value_a: value_a,
+        value_b: value_b,
+        diff: value_a - value_b
+      }
+    end.sort_by { |entry| [ -entry[:diff].abs, entry[:attribute].downcase ] }
+  end
+
+  def applied_bonus_attribute_values(bonuses)
+    Array(bonuses).each_with_object({}) do |bonus, memo|
+      next unless bonus.is_a?(Hash)
+      next unless bonus[:unlocked]
+
+      description = bonus[:description].to_s
+      attribute = normalize_bonus_attribute(description)
+      value = extract_bonus_numeric_value(description)
+      next if attribute.blank? || value.nil?
+
+      memo[attribute] = [ memo[attribute].to_f, value ].max
+    end
+  end
+
+  def normalize_bonus_attribute(description)
+    text = description.to_s.squish
+    return "" if text.blank?
+
+    text.gsub(BONUS_VALUE_REGEX, "").gsub(/[()]/, "").squish
+  end
+
+  def extract_bonus_numeric_value(description)
+    raw = description.to_s.scan(BONUS_VALUE_REGEX).last
+    return nil if raw.blank?
+
+    raw.to_s.gsub(/[^\d,.-]/, "").tr(",", ".").to_f
   end
 
   def index_collection_progress_rows(collection_data)
