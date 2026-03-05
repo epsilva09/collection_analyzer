@@ -91,6 +91,15 @@ docker compose up -d postgres
 
 ### Install
 
+Default local credentials used by this project are:
+
+```bash
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+```
+
 If your local Postgres credentials differ from defaults, set:
 
 ```bash
@@ -112,6 +121,16 @@ bin/rails db:prepare
 
 ```bash
 DB_HOST=127.0.0.1 DB_PORT=5432 DB_USERNAME=postgres DB_PASSWORD=postgres bin/dev
+```
+
+When running `bin/rails server` in `development`, the app now tries to
+auto-start PostgreSQL via `docker compose up -d postgres` if the database
+is not reachable.
+
+To disable this behavior for a session:
+
+```bash
+AUTO_START_POSTGRES=0 bin/rails server
 ```
 
 When `foreman` is available, `bin/dev` starts both web and jobs processes
