@@ -74,6 +74,10 @@ traceability.
 - Migrated the project database stack from SQLite to PostgreSQL (`pg` gem,
   `database.yml`, Docker runtime dependencies, and CI PostgreSQL service for
   tests).
+- Added a new collections-comparison page (`A` vs `B`) with per-collection
+  progress, progress delta, and bonus lists for each character.
+- Added filters (name, completion status, minimum delta) and visual bonus
+  state differentiation (unlocked highlighted, locked opaque).
 
 ## Cycle 29 — Progress Tracking MVP
 

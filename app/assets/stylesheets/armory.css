@@ -299,6 +299,19 @@ input[type="text"]::placeholder, input[type="email"]::placeholder, textarea::pla
   color: #ffffff !important;
 }
 
+.armory-bonus-badge {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: opacity var(--armory-duration-fast) var(--armory-ease);
+}
+
+.armory-bonus-badge--unlocked {
+  opacity: 1;
+}
+
+.armory-bonus-badge--locked {
+  opacity: 0.45;
+}
+
 /* Table Styles */
 .table {
   background: rgba(33, 38, 45, 0.8) !important;

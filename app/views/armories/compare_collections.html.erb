@@ -1,0 +1,173 @@
+<% content_for :title, t('armories.compare_collections.page_title') %>
+
+<div class="container-fluid armory-layout-container">
+  <main class="text-center armory-page armory-layout-main">
+    <%= render 'locale_switcher' %>
+    <%= render 'page_header', heading: t('armories.compare_collections.heading'), icon_class: nil %>
+
+    <%= render 'menu',
+               current_page: :compare_collections,
+               name: (params[:name_a].presence || params[:name_b].presence),
+               name_a: params[:name_a],
+               name_b: params[:name_b],
+               show_compare_actions: false %>
+
+    <%= render 'compare_search_form', form_url: compare_collections_armory_path %>
+
+    <% if @error.present? %>
+      <%= render 'error_alert',
+                 label: t('armories.compare.alerts.error'),
+                 message: @error,
+                 icon_class: nil,
+                 dismissible: false %>
+    <% end %>
+
+    <% if @comparison_ready && @result.present? %>
+      <% summary = @result[:collection_comparison_summary] || {} %>
+
+      <section class="armory-section-card mb-4">
+        <div class="armory-section-card__header">
+          <h2 class="armory-section-card__title"><%= t('armories.compare_collections.summary_heading') %></h2>
+        </div>
+        <div class="armory-section-card__body">
+          <div class="row g-3 text-start">
+            <div class="col-6 col-md-3">
+              <span class="badge bg-secondary"><%= t('armories.compare_collections.summary.total') %></span>
+              <div class="fw-semibold mt-2"><%= summary[:total].to_i %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="badge bg-success"><%= t('armories.compare_collections.summary.completed_both') %></span>
+              <div class="fw-semibold mt-2"><%= summary[:completed_both].to_i %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="badge bg-primary"><%= t('armories.compare_collections.summary.completed_only_a', name: @result[:name_a]) %></span>
+              <div class="fw-semibold mt-2"><%= summary[:completed_only_a].to_i %></div>
+            </div>
+            <div class="col-6 col-md-3">
+              <span class="badge bg-info text-dark"><%= t('armories.compare_collections.summary.completed_only_b', name: @result[:name_b]) %></span>
+              <div class="fw-semibold mt-2"><%= summary[:completed_only_b].to_i %></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="armory-workspace">
+        <aside class="armory-workspace-filters armory-workspace-filters--compact">
+          <div class="card sticky-top" style="top: var(--armory-sticky-offset);">
+            <div class="card-body">
+              <h3 class="h6 text-uppercase mb-3"><%= t('armories.compare_collections.filters.heading') %></h3>
+
+              <%= form_with url: compare_collections_armory_path, method: :get, local: true, class: 'row g-2 align-items-end mb-0' do %>
+                <%= hidden_field_tag :name_a, params[:name_a] %>
+                <%= hidden_field_tag :name_b, params[:name_b] %>
+
+                <div class="col-12">
+                  <%= label_tag :collection_name, t('armories.compare_collections.filters.collection_name'), class: 'form-label mb-1' %>
+                  <%= text_field_tag :collection_name, @collection_filter_name, class: 'form-control form-control-sm', placeholder: t('armories.compare_collections.filters.collection_name_placeholder') %>
+                </div>
+
+                <div class="col-12">
+                  <%= label_tag :collection_status, t('armories.compare_collections.filters.status'), class: 'form-label mb-1' %>
+                  <%= select_tag :collection_status,
+                                 options_for_select([
+                                   [t('armories.compare_collections.filters.status_all'), ''],
+                                   [t('armories.compare_collections.summary.completed_both'), 'completed_both'],
+                                   [t('armories.compare_collections.summary.completed_only_a', name: @result[:name_a]), 'completed_only_a'],
+                                   [t('armories.compare_collections.summary.completed_only_b', name: @result[:name_b]), 'completed_only_b'],
+                                   [t('armories.compare_collections.filters.status_pending_both'), 'pending_both']
+                                 ], @collection_filter_status),
+                                 class: 'form-select form-select-sm' %>
+                </div>
+
+                <div class="col-12">
+                  <%= label_tag :min_progress_delta, t('armories.compare_collections.filters.min_delta'), class: 'form-label mb-1' %>
+                  <%= number_field_tag :min_progress_delta, @collection_filter_min_delta, min: 0, class: 'form-control form-control-sm', placeholder: '0' %>
+                </div>
+
+                <div class="col-12 d-flex gap-2 mt-2">
+                  <%= submit_tag t('armories.compare_collections.filters.apply'), class: 'btn btn-primary btn-sm flex-fill' %>
+                  <%= link_to t('armories.compare_collections.filters.clear'),
+                              compare_collections_armory_path(name_a: params[:name_a], name_b: params[:name_b]),
+                              class: 'btn btn-outline-secondary btn-sm flex-fill' %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </aside>
+
+        <div class="armory-workspace-content">
+          <section class="armory-section-card">
+            <div class="armory-section-card__header d-flex justify-content-between align-items-center">
+              <h2 class="armory-section-card__title mb-0"><%= t('armories.compare_collections.table_heading') %></h2>
+              <span class="badge bg-secondary"><%= t('armories.compare_collections.results_count', count: @result[:collection_comparison].size, total: @collection_comparison_total.to_i) %></span>
+            </div>
+            <div class="armory-section-card__body p-0">
+              <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 align-middle armory-data-table">
+                  <thead>
+                    <tr>
+                      <th><%= t('armories.compare_collections.table.collection') %></th>
+                      <th class="text-center"><%= @result[:name_a] %> (%)</th>
+                      <th class="text-center"><%= @result[:name_b] %> (%)</th>
+                      <th class="text-center"><%= t('armories.compare_collections.table.bonus_diff') %></th>
+                      <th><%= t('armories.compare_collections.table.bonuses_a', name: @result[:name_a]) %></th>
+                      <th><%= t('armories.compare_collections.table.bonuses_b', name: @result[:name_b]) %></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @result[:collection_comparison].each do |row| %>
+                      <% progress_a = row[:progress_a].to_i %>
+                      <% progress_b = row[:progress_b].to_i %>
+                      <% bonus_diff = row[:bonus_diff].to_i %>
+                      <tr>
+                        <td>
+                          <div class="fw-semibold"><%= row[:tier] %> / <%= row[:collection_name] %></div>
+                          <small class="text-muted">
+                            <%= row[:done_a] ? t('armories.compare_collections.status.done_a') : t('armories.compare_collections.status.pending_a') %>
+                            |
+                            <%= row[:done_b] ? t('armories.compare_collections.status.done_b') : t('armories.compare_collections.status.pending_b') %>
+                          </small>
+                        </td>
+                        <td class="text-center"><%= progress_a %>%</td>
+                        <td class="text-center"><%= progress_b %>%</td>
+                        <td class="text-center <%= bonus_diff >= 0 ? 'text-success' : 'text-danger' %>">
+                          <div><%= bonus_diff >= 0 ? '+' : '' %><%= bonus_diff %></div>
+                          <small class="text-muted">
+                            <%= row[:unlocked_bonuses_a].to_i %>/<%= row[:total_bonuses_a].to_i %>
+                            vs
+                            <%= row[:unlocked_bonuses_b].to_i %>/<%= row[:total_bonuses_b].to_i %>
+                          </small>
+                        </td>
+                        <td>
+                          <% bonuses_a = Array(row[:bonuses_a]) %>
+                          <% if bonuses_a.present? %>
+                            <%= safe_join(bonuses_a.map { |bonus| content_tag(:span, bonus[:description], class: "badge me-1 mb-1 armory-bonus-badge #{bonus[:unlocked] ? 'armory-bonus-badge--unlocked bg-success' : 'armory-bonus-badge--locked bg-secondary'}") }) %>
+                          <% else %>
+                            <span class="text-muted">—</span>
+                          <% end %>
+                        </td>
+                        <td>
+                          <% bonuses_b = Array(row[:bonuses_b]) %>
+                          <% if bonuses_b.present? %>
+                            <%= safe_join(bonuses_b.map { |bonus| content_tag(:span, bonus[:description], class: "badge me-1 mb-1 armory-bonus-badge #{bonus[:unlocked] ? 'armory-bonus-badge--unlocked bg-success' : 'armory-bonus-badge--locked bg-secondary'}") }) %>
+                          <% else %>
+                            <span class="text-muted">—</span>
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    <% elsif (params[:name_a].present? ^ params[:name_b].present?) %>
+      <%= render 'info_alert',
+                 message: t('armories.compare.hints.both_names_required'),
+                 icon_class: 'fas fa-info-circle',
+                 alert_classes: '' %>
+    <% end %>
+  </main>
+</div>

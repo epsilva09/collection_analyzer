@@ -48,6 +48,101 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "compare collections shows per-collection progress and bonuses for both characters" do
+    details_a = {
+      values: [ "HP +100" ],
+      data: [
+        {
+          "name" => "Mundo",
+          "collections" => [
+            {
+              "name" => "Elo Perdido I",
+              "progress" => 53,
+              "rewards" => [
+                { "description" => "ATK +1" },
+                { "description" => "DEF +2" },
+                { "description" => "CRIT +3" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+    details_b = {
+      values: [ "HP +90" ],
+      data: [
+        {
+          "name" => "Mundo",
+          "collections" => [
+            {
+              "name" => "Elo Perdido I",
+              "progress" => 100,
+              "rewards" => [ { "description" => "ATK +1" } ]
+            }
+          ]
+        }
+      ]
+    }
+
+    with_stubbed_client(
+      fetch_character_idx: ->(name) { name == "A" ? 1 : (name == "B" ? 2 : nil) },
+      fetch_collection_details: ->(idx) { idx == 1 ? details_a : (idx == 2 ? details_b : { values: [], data: [] }) }
+    ) do
+      get compare_collections_armory_path, params: { name_a: "A", name_b: "B" }
+
+      assert_response :success
+      assert_includes response.body, I18n.t("armories.compare_collections.heading")
+      assert_includes response.body, "Mundo / Elo Perdido I"
+      assert_includes response.body, "53%"
+      assert_includes response.body, "100%"
+      assert_includes response.body, "ATK +1"
+      assert_includes response.body, "DEF +2"
+      assert_includes response.body, "armory-bonus-badge--unlocked"
+      assert_includes response.body, "armory-bonus-badge--locked"
+    end
+  end
+
+  test "compare collections filters by pending status and collection name" do
+    details_a = {
+      values: [],
+      data: [
+        {
+          "name" => "Mundo",
+          "collections" => [
+            { "name" => "Elo Perdido I", "progress" => 53, "rewards" => [ { "description" => "ATK +1" } ] },
+            { "name" => "Elo Perdido II", "progress" => 100, "rewards" => [ { "description" => "ATK +1" } ] }
+          ]
+        }
+      ]
+    }
+
+    details_b = {
+      values: [],
+      data: [
+        {
+          "name" => "Mundo",
+          "collections" => [
+            { "name" => "Elo Perdido I", "progress" => 40, "rewards" => [ { "description" => "ATK +1" } ] },
+            { "name" => "Elo Perdido II", "progress" => 100, "rewards" => [ { "description" => "ATK +1" } ] }
+          ]
+        }
+      ]
+    }
+
+    with_stubbed_client(
+      fetch_character_idx: ->(name) { name == "A" ? 1 : (name == "B" ? 2 : nil) },
+      fetch_collection_details: ->(idx) { idx == 1 ? details_a : (idx == 2 ? details_b : { values: [], data: [] }) }
+    ) do
+      get compare_collections_armory_path,
+        params: { name_a: "A", name_b: "B", collection_status: "pending_both", collection_name: "Elo Perdido I" }
+
+      assert_response :success
+      assert_includes response.body, "Elo Perdido I"
+      assert_not_includes response.body, "Elo Perdido II"
+    end
+  end
+
   test "progress lists collections by progress ranges" do
     details = {
       values: [],

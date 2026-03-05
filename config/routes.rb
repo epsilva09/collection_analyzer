@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   # Armory lookup
   get "armory", to: "armories#index"
   get "armory/compare", to: "armories#compare", as: :compare_armory
+  get "armory/compare/collections", to: "armories#compare_collections", as: :compare_collections_armory
   get "armory/progress", to: "armories#progress", as: :progress_armory
   get "armory/progress/changes", to: "armories#progress_changes", as: :progress_changes_armory
   get "armory/materials", to: "armories#materials", as: :materials_armory

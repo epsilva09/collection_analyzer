@@ -50,6 +50,11 @@ class CompareCollectionsService
     result[:common_annotated] = result[:common].map { |item| annotate_value(item) }
     result[:only_a_annotated] = result[:only_a].map { |item| annotate_value(item) }
     result[:only_b_annotated] = result[:only_b].map { |item| annotate_value(item) }
+    result[:collection_comparison] = build_collection_comparison_rows(
+      result[:collection_data_a],
+      result[:collection_data_b]
+    )
+    result[:collection_comparison_summary] = summarize_collection_comparison(result[:collection_comparison])
 
     { comparison_ready: comparison_ready, result: result }
   end
@@ -143,6 +148,118 @@ class CompareCollectionsService
       parsed_key: cleaned,
       is_special: false,
       had_ignore_prefix: had_ignore_prefix
+    }
+  end
+
+  def build_collection_comparison_rows(collection_data_a, collection_data_b)
+    indexed_a = index_collection_progress_rows(collection_data_a)
+    indexed_b = index_collection_progress_rows(collection_data_b)
+
+    keys = (indexed_a.keys + indexed_b.keys).uniq.sort
+
+    keys.map do |key|
+      row_a = indexed_a[key] || {}
+      row_b = indexed_b[key] || {}
+
+      progress_a = row_a[:progress]
+      progress_b = row_b[:progress]
+      bonuses_a = row_a[:bonuses] || []
+      bonuses_b = row_b[:bonuses] || []
+
+      unlocked_a = bonuses_a.count { |bonus| bonus[:unlocked] }
+      unlocked_b = bonuses_b.count { |bonus| bonus[:unlocked] }
+
+      {
+        key: key,
+        tier: row_a[:tier] || row_b[:tier],
+        collection_name: row_a[:collection_name] || row_b[:collection_name],
+        progress_a: progress_a,
+        progress_b: progress_b,
+        progress_diff: progress_a.to_i - progress_b.to_i,
+        done_a: progress_a.to_i >= 100,
+        done_b: progress_b.to_i >= 100,
+        bonuses_a: bonuses_a,
+        bonuses_b: bonuses_b,
+        unlocked_bonuses_a: unlocked_a,
+        unlocked_bonuses_b: unlocked_b,
+        total_bonuses_a: bonuses_a.size,
+        total_bonuses_b: bonuses_b.size,
+        bonus_diff: unlocked_a - unlocked_b
+      }
+    end
+  end
+
+  def index_collection_progress_rows(collection_data)
+    Array(collection_data).each_with_object({}) do |tier, memo|
+      next unless tier.is_a?(Hash)
+
+      tier_name = tier["name"].to_s
+      collections = tier["collections"]
+      next unless collections.is_a?(Array)
+
+      collections.each do |collection|
+        next unless collection.is_a?(Hash)
+
+        collection_name = collection["name"].to_s
+        key = [ tier_name, collection_name ].join("::")
+
+        memo[key] = {
+          tier: tier_name,
+          collection_name: collection_name,
+          progress: collection["progress"].to_i,
+          bonuses: extract_bonus_rows(collection)
+        }
+      end
+    end
+  end
+
+  def extract_bonus_rows(collection)
+    rewards = Array(collection["rewards"]).select { |reward| reward.is_a?(Hash) }
+    progress = collection["progress"].to_i
+
+    rewards.map.with_index do |reward, index|
+      description = reward["description"].to_s.strip
+      next if description.blank?
+
+      threshold = reward_threshold(rewards.size, index)
+      unlocked_by_progress = progress >= threshold
+      unlocked_by_applied = reward.key?("applied") && truthy_value?(reward["applied"])
+
+      {
+        description: description,
+        unlocked: unlocked_by_applied || unlocked_by_progress
+      }
+    end.compact
+  end
+
+  def reward_threshold(total_rewards, index)
+    if total_rewards == 3
+      [ 30, 60, 100 ][index] || 100
+    elsif total_rewards.positive?
+      (((index + 1) * 100.0) / total_rewards).round
+    else
+      100
+    end
+  end
+
+  def truthy_value?(value)
+    value == true ||
+      value == 1 ||
+      value.to_s == "1" ||
+      value.to_s.casecmp("true").zero? ||
+      value.to_s.casecmp("yes").zero? ||
+      value.to_s.casecmp("y").zero?
+  end
+
+  def summarize_collection_comparison(rows)
+    rows = Array(rows)
+
+    {
+      total: rows.size,
+      completed_both: rows.count { |row| row[:done_a] && row[:done_b] },
+      completed_only_a: rows.count { |row| row[:done_a] && !row[:done_b] },
+      completed_only_b: rows.count { |row| row[:done_b] && !row[:done_a] },
+      pending_both: rows.count { |row| !row[:done_a] && !row[:done_b] }
     }
   end
 end

@@ -6,6 +6,7 @@ pt-BR:
     menu:
       index: "Pesquisa"
       compare: "Comparar"
+      compare_collections: "Comparar coleções"
       progress: "Progresso"
       materials: "Materiais"
   armories:
@@ -226,3 +227,35 @@ pt-BR:
         multi_hint: "Separe por vírgula para aplicar múltiplos filtros."
         clear: "Limpar"
         results_summary: "Exibindo %{count} atributos"
+    compare_collections:
+      page_title: "Comparar Coleções"
+      heading: "Comparar Coleções por Progresso e Bônus"
+      summary_heading: "Resumo de conclusão"
+      table_heading: "Comparação por coleção"
+      results_count: "%{count} de %{total} coleções"
+      summary:
+        total: "Total"
+        completed_both: "Concluída por ambos"
+        completed_only_a: "Somente %{name}"
+        completed_only_b: "Somente %{name}"
+      status:
+        done_a: "A concluída"
+        pending_a: "A pendente"
+        done_b: "B concluída"
+        pending_b: "B pendente"
+      filters:
+        heading: "Filtros"
+        collection_name: "Coleção"
+        collection_name_placeholder: "Digite tier ou coleção..."
+        status: "Status"
+        status_all: "Todos"
+        status_pending_both: "Pendente para ambos"
+        min_delta: "Diferença mínima (%)"
+        apply: "Aplicar"
+        clear: "Limpar"
+      table:
+        collection: "Coleção"
+        diff: "Diferença"
+        bonus_diff: "Diferença de bônus aplicados"
+        bonuses_a: "Bônus (%{name})"
+        bonuses_b: "Bônus (%{name})"

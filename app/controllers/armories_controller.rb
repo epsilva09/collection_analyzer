@@ -279,6 +279,55 @@ class ArmoriesController < ApplicationController
     end
   end
 
+  def compare_collections
+    name_a = params[:name_a].presence
+    name_b = params[:name_b].presence
+
+    @error = nil
+    compare_service = CompareCollectionsService.new
+    @result = compare_service.empty_result(name_a, name_b)
+    @comparison_ready = name_a.present? && name_b.present?
+
+    begin
+      compare_payload = compare_service.call(name_a: name_a, name_b: name_b)
+      @comparison_ready = compare_payload[:comparison_ready]
+      @result = compare_payload[:result]
+
+      @collection_filter_name = params[:collection_name].to_s.strip
+      @collection_filter_status = normalize_collection_compare_status_filter(params[:collection_status])
+      @collection_filter_min_delta = parse_collection_compare_min_delta(params[:min_progress_delta])
+
+      if @comparison_ready
+        rows = Array(@result[:collection_comparison])
+        @collection_comparison_total = rows.size
+        @result[:collection_comparison] = filter_collection_comparison_rows(
+          rows,
+          collection_name: @collection_filter_name,
+          status: @collection_filter_status,
+          min_delta: @collection_filter_min_delta
+        )
+      else
+        @collection_comparison_total = 0
+      end
+    rescue StandardError => e
+      @error = localized_error_message(e)
+      @collection_filter_name = ""
+      @collection_filter_status = nil
+      @collection_filter_min_delta = nil
+      @collection_comparison_total = 0
+    end
+
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: {
+          result: @result,
+          error: @error
+        }
+      end
+    end
+  end
+
   private
 
   def bucket_weight(bucket)
@@ -385,6 +434,64 @@ class ArmoriesController < ApplicationController
     return "all" if normalized == "all"
 
     "changed"
+  end
+
+  def filter_collection_comparison_rows(rows, collection_name:, status:, min_delta:)
+    filtered_rows = Array(rows)
+
+    if collection_name.present?
+      term = collection_name.downcase
+      filtered_rows = filtered_rows.select do |row|
+        row[:collection_name].to_s.downcase.include?(term) ||
+          row[:tier].to_s.downcase.include?(term)
+      end
+    end
+
+    if status.present?
+      filtered_rows = filtered_rows.select do |row|
+        collection_compare_status_match?(row, status)
+      end
+    end
+
+    if min_delta.present?
+      filtered_rows = filtered_rows.select do |row|
+        row[:progress_diff].to_i.abs >= min_delta
+      end
+    end
+
+    filtered_rows
+  end
+
+  def collection_compare_status_match?(row, status)
+    case status
+    when "completed_both"
+      row[:done_a] && row[:done_b]
+    when "completed_only_a"
+      row[:done_a] && !row[:done_b]
+    when "completed_only_b"
+      row[:done_b] && !row[:done_a]
+    when "pending_both"
+      !row[:done_a] && !row[:done_b]
+    else
+      true
+    end
+  end
+
+  def normalize_collection_compare_status_filter(value)
+    normalized = value.to_s
+    return nil if normalized.blank?
+
+    allowed = %w[completed_both completed_only_a completed_only_b pending_both]
+    allowed.include?(normalized) ? normalized : nil
+  end
+
+  def parse_collection_compare_min_delta(value)
+    return nil if value.blank?
+
+    numeric = value.to_i
+    return nil if numeric.negative?
+
+    numeric
   end
 
   def register_tracked_character!(name:, character_idx:)

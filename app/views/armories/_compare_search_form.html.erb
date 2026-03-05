@@ -2,7 +2,8 @@
   <div class="col-12 col-md-10 col-lg-8">
     <div class="card shadow-sm" data-controller="submit-loading" data-submit-loading-loading-text-value="<%= t('armories.shared.loading_compare') %>">
       <div class="card-body">
-        <%= form_with url: compare_armory_path, method: :get, local: true, class: 'row g-3 justify-content-center', data: { action: 'submit->submit-loading#handleSubmit' } do |f| %>
+        <% form_url = local_assigns.fetch(:form_url, compare_armory_path) %>
+        <%= form_with url: form_url, method: :get, local: true, class: 'row g-3 justify-content-center', data: { action: 'submit->submit-loading#handleSubmit' } do |f| %>
           <div class="col-12 col-md-5">
             <%= f.label :name_a, t('armories.compare.form.character_a'), class: 'form-label fw-bold' %>
             <%= f.text_field :name_a,

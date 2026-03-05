@@ -36,6 +36,7 @@ en:
     menu:
       index: "Search"
       compare: "Compare"
+      compare_collections: "Compare collections"
       progress: "Progress"
       materials: "Materials"
   armories:
@@ -256,3 +257,35 @@ en:
         multi_hint: "Separate values with commas to apply multiple filters."
         clear: "Clear"
         results_summary: "Showing %{count} attributes"
+    compare_collections:
+      page_title: "Compare collections"
+      heading: "Compare collections by progress and bonuses"
+      summary_heading: "Completion summary"
+      table_heading: "Collection comparison"
+      results_count: "%{count} of %{total} collections"
+      summary:
+        total: "Total"
+        completed_both: "Completed by both"
+        completed_only_a: "Only %{name}"
+        completed_only_b: "Only %{name}"
+      status:
+        done_a: "A done"
+        pending_a: "A pending"
+        done_b: "B done"
+        pending_b: "B pending"
+      filters:
+        heading: "Filters"
+        collection_name: "Collection"
+        collection_name_placeholder: "Type tier or collection..."
+        status: "Status"
+        status_all: "All"
+        status_pending_both: "Pending for both"
+        min_delta: "Minimum difference (%)"
+        apply: "Apply"
+        clear: "Clear"
+      table:
+        collection: "Collection"
+        diff: "Difference"
+        bonus_diff: "Applied bonus difference"
+        bonuses_a: "Bonuses (%{name})"
+        bonuses_b: "Bonuses (%{name})"
