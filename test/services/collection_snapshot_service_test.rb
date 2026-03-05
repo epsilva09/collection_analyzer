@@ -197,14 +197,33 @@ class CollectionSnapshotServiceTest < ActiveSupport::TestCase
       }
     end
 
-    snapshot = CollectionSnapshotService.new(client: fake_client).call("Cadamantis")
+    cache = ActiveSupport::Cache::MemoryStore.new
+    notifications = []
+    subscriber = ActiveSupport::Notifications.subscribe("collection_snapshot.inconsistent_progress") do |_name, _start, _finish, _id, payload|
+      notifications << payload
+    end
+
+    snapshot = CollectionSnapshotService.new(client: fake_client, cache: cache, cache_ttl: 10.minutes).call("Cadamantis")
 
     divine_entry = snapshot[:progress_data][:near].find { |entry| entry[:name] == "Aprimoramento Divino" }
     assert_not_nil divine_entry
+    assert_equal true, divine_entry[:inconsistent_progress]
 
     needed_materials = divine_entry[:aggregated_materials].to_h { |material| [ material[:name], material[:needed] ] }
     assert_equal 1, needed_materials["Conversor Divino - Moto"]
     assert_equal 4997, needed_materials["Nucleo divino"]
+
+    assert_equal 1, notifications.size
+    event = notifications.first
+    assert_equal "Cadamantis", event[:character_name]
+    assert_equal 888, event[:character_idx]
+    assert_equal "Tier Divino", event[:tier_name]
+    assert_equal "Aprimoramento Divino", event[:collection_name]
+    assert_equal 100, event[:progress]
+    assert_equal 2, event[:pending_materials_count]
+    assert_equal 4998, event[:pending_materials_total]
+  ensure
+    ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
   end
 
   test "marks reward as unlocked by progress threshold even when applied is false" do

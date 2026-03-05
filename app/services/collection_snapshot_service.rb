@@ -42,7 +42,11 @@ class CollectionSnapshotService
     if resolved_character_idx
       details = @client.fetch_collection_details(resolved_character_idx)
       collection_data = details[:data] || []
-      progress_data = build_progress_data(collection_data)
+      progress_data = build_progress_data(
+        collection_data,
+        character_name: name,
+        character_idx: resolved_character_idx
+      )
     end
 
     {
@@ -80,7 +84,7 @@ class CollectionSnapshotService
     @cache.write(cache_key, snapshot, expires_in: @cache_ttl)
   end
 
-  def build_progress_data(collection_data)
+  def build_progress_data(collection_data, character_name:, character_idx:)
     progress_data = ArmoryDefaults.empty_progress_data
 
     collection_data.each do |tier|
@@ -91,6 +95,19 @@ class CollectionSnapshotService
         next unless progress >= 0
 
         materials = build_materials(collection)
+        inconsistent_progress = progress >= 100 && materials.present?
+
+        if inconsistent_progress
+          report_inconsistent_progress(
+            character_name: character_name,
+            character_idx: character_idx,
+            tier_name: tier["name"],
+            collection_name: collection["name"],
+            progress: progress,
+            materials: materials
+          )
+        end
+
         # Some API payloads may report 100% while still listing pending materials.
         # Keep these collections in snapshot tracking to avoid false "completed" diffs.
         next unless progress < 100 || materials.present?
@@ -102,7 +119,8 @@ class CollectionSnapshotService
           missing: 100 - progress,
           rewards: build_rewards(collection, progress),
           materials: materials,
-          aggregated_materials: aggregate_entry_materials(materials)
+          aggregated_materials: aggregate_entry_materials(materials),
+          inconsistent_progress: inconsistent_progress
         }
         entry[:status] = entry[:rewards].map { |reward| reward[:description] }.join(", ")
 
@@ -116,6 +134,21 @@ class CollectionSnapshotService
     end
 
     progress_data
+  end
+
+  def report_inconsistent_progress(character_name:, character_idx:, tier_name:, collection_name:, progress:, materials:)
+    payload = {
+      character_name: character_name.to_s,
+      character_idx: character_idx.to_i,
+      tier_name: tier_name.to_s,
+      collection_name: collection_name.to_s,
+      progress: progress.to_i,
+      pending_materials_count: materials.size,
+      pending_materials_total: materials.sum { |material| material[:needed].to_i }
+    }
+
+    ActiveSupport::Notifications.instrument("collection_snapshot.inconsistent_progress", payload)
+    Rails.logger.warn("collection_snapshot.inconsistent_progress #{payload.to_json}")
   end
 
   def build_rewards(collection, progress)
