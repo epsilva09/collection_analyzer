@@ -276,7 +276,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "progress history defaults to changed snapshots and can show all" do
-    locale = I18n.locale.to_s
+    locale = "pt-BR"
 
     CollectionProgressSnapshot.create!(
       character_name: "X",
@@ -309,15 +309,87 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       fetch_character_idx: ->(_name) { 222 },
       fetch_collection_details: ->(_idx) { details }
     ) do
-      get progress_armory_path, params: { name: "X" }
+      get progress_armory_path, params: { name: "X", locale: locale }
       assert_response :success
       assert_includes response.body, I18n.t("armories.progress.history.visibility_changed")
       assert_not_includes response.body, I18n.t("armories.progress.history.unchanged_badge")
 
-      get progress_armory_path, params: { name: "X", history_visibility: "all" }
+      get progress_armory_path, params: { name: "X", history_visibility: "all", locale: locale }
       assert_response :success
       assert_includes response.body, I18n.t("armories.progress.history.unchanged_badge")
     end
+  end
+
+  test "progress changes does not mark collection as completed when progress is 100 but materials are still pending" do
+    locale = I18n.locale.to_s
+
+    previous_snapshot = CollectionProgressSnapshot.create!(
+      character_name: "Cadamantis",
+      character_idx: 75008,
+      locale: locale,
+      captured_on: Date.new(2026, 3, 4),
+      captured_at: Time.zone.parse("2026-03-04 09:00"),
+      total_collections: 10,
+      completed_collections: 4,
+      near_count: 1,
+      mid_count: 1,
+      low_count: 1,
+      below_one_count: 0,
+      completion_rate: 40.0,
+      collections_payload: [
+        {
+          key: "TierDivino::AprimoramentoDivino",
+          tier: "TierDivino",
+          name: "Aprimoramento Divino",
+          bucket: "near",
+          progress: 99,
+          missing: 1,
+          materials: [
+            { name: "Conversor Divino - Moto", needed: 1 },
+            { name: "Nucleo divino", needed: 4998 }
+          ]
+        }
+      ]
+    )
+
+    current_snapshot = CollectionProgressSnapshot.create!(
+      character_name: "Cadamantis",
+      character_idx: 75008,
+      locale: locale,
+      captured_on: Date.new(2026, 3, 5),
+      captured_at: Time.zone.parse("2026-03-05 09:00"),
+      total_collections: 10,
+      completed_collections: 4,
+      near_count: 1,
+      mid_count: 1,
+      low_count: 1,
+      below_one_count: 0,
+      completion_rate: 40.0,
+      collections_payload: [
+        {
+          key: "TierDivino::AprimoramentoDivino",
+          tier: "TierDivino",
+          name: "Aprimoramento Divino",
+          bucket: "near",
+          progress: 100,
+          missing: 0,
+          materials: [
+            { name: "Conversor Divino - Moto", needed: 1 },
+            { name: "Nucleo divino", needed: 4997 }
+          ]
+        }
+      ]
+    )
+
+    get progress_changes_armory_path,
+      params: { name: "Cadamantis", character_idx: 75008, snapshot_id: current_snapshot.id, locale: locale }
+
+    assert_response :success
+    assert_includes response.body, "Aprimoramento Divino"
+    assert_select "table.progress-changes-table tbody tr td span.progress-change-type", text: I18n.t("armories.progress.changes.types.updated"), count: 1
+    assert_select "table.progress-changes-table tbody tr td span.progress-change-type", text: I18n.t("armories.progress.changes.types.completed"), count: 0
+    assert_includes response.body, "4998"
+    assert_includes response.body, "4997"
   end
 
   private

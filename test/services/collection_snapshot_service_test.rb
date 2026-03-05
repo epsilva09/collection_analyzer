@@ -171,6 +171,42 @@ class CollectionSnapshotServiceTest < ActiveSupport::TestCase
     assert_equal({ near: [], mid: [], low: [], below_one: [] }, snapshot[:materials_by_bucket])
   end
 
+  test "keeps collections with progress 100 when materials are still missing" do
+    fake_client = Object.new
+    fake_client.define_singleton_method(:fetch_character_idx) { |_name| 888 }
+
+    fake_client.define_singleton_method(:fetch_collection_details) do |_idx|
+      {
+        values: [],
+        data: [
+          {
+            "name" => "Tier Divino",
+            "collections" => [
+              {
+                "name" => "Aprimoramento Divino",
+                "progress" => 100,
+                "rewards" => [ { "description" => "ATK +10" } ],
+                "data" => [
+                  { "name" => "Conversor Divino - Moto", "progress" => 0, "max" => 1 },
+                  { "name" => "Nucleo divino", "progress" => 3, "max" => 5000 }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    end
+
+    snapshot = CollectionSnapshotService.new(client: fake_client).call("Cadamantis")
+
+    divine_entry = snapshot[:progress_data][:near].find { |entry| entry[:name] == "Aprimoramento Divino" }
+    assert_not_nil divine_entry
+
+    needed_materials = divine_entry[:aggregated_materials].to_h { |material| [ material[:name], material[:needed] ] }
+    assert_equal 1, needed_materials["Conversor Divino - Moto"]
+    assert_equal 4997, needed_materials["Nucleo divino"]
+  end
+
   test "marks reward as unlocked by progress threshold even when applied is false" do
     fake_client = Object.new
     fake_client.define_singleton_method(:fetch_character_idx) { |_name| 456 }

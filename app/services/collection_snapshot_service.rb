@@ -88,9 +88,12 @@ class CollectionSnapshotService
 
       tier["collections"].each do |collection|
         progress = collection["progress"].to_i
-        next unless progress >= 0 && progress < 100
+        next unless progress >= 0
 
         materials = build_materials(collection)
+        # Some API payloads may report 100% while still listing pending materials.
+        # Keep these collections in snapshot tracking to avoid false "completed" diffs.
+        next unless progress < 100 || materials.present?
 
         entry = {
           tier: tier["name"],
