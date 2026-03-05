@@ -103,7 +103,7 @@ en:
         error: "Error"
       labels:
         near: "≥ 80% progress"
-        mid: "30–59% progress"
+        mid: "30–79% progress"
         low: "1–29% progress"
         below_one: "< 1% progress"
       badges:

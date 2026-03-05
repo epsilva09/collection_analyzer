@@ -73,7 +73,7 @@ pt-BR:
         error: "Erro"
       labels:
         near: "≥ 80% de progresso"
-        mid: "30–59% de progresso"
+        mid: "30–79% de progresso"
         low: "1–29% de progresso"
         below_one: "< 1% de progresso"
       badges:

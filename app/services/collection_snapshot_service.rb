@@ -240,7 +240,7 @@ class CollectionSnapshotService
       :below_one
     elsif progress <= 29
       :low
-    elsif progress <= 59
+    elsif progress <= 79
       :mid
     elsif progress >= @near_completion_threshold
       :near

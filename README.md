@@ -26,7 +26,7 @@ The application helps you:
       differences.
   - Runs only when both names are provided.
 - **Collection progress dashboard**
-  - Buckets collections into ranges: `<1%`, `1–29%`, `30–59%`, and
+  - Buckets collections into ranges: `<1%`, `1–29%`, `30–79%`, and
       `≥80%`.
   - Shows collection rewards/status and missing materials summary.
 - **Materials analytics**

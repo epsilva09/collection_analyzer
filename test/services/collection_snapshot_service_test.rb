@@ -261,6 +261,40 @@ class CollectionSnapshotServiceTest < ActiveSupport::TestCase
     assert_equal false, mid_collection[:rewards][2][:unlocked]
   end
 
+  test "keeps 60-79 progress collections in snapshot tracking" do
+    fake_client = Object.new
+    fake_client.define_singleton_method(:fetch_character_idx) { |_name| 654 }
+
+    fake_client.define_singleton_method(:fetch_collection_details) do |_idx|
+      {
+        values: [],
+        data: [
+          {
+            "name" => "Mundo",
+            "collections" => [
+              {
+                "name" => "Elo Perdido I",
+                "progress" => 70,
+                "rewards" => [ { "description" => "ATK +2" } ],
+                "data" => [
+                  { "name" => "Ticket Especial", "progress" => 0, "max" => 1000 }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    end
+
+    snapshot = CollectionSnapshotService.new(client: fake_client).call("Cadamantis")
+
+    tracked_entry = snapshot[:progress_data][:mid].find { |entry| entry[:name] == "Elo Perdido I" }
+    assert_not_nil tracked_entry
+    assert_equal 70, tracked_entry[:progress]
+    assert_equal "mid", tracked_entry[:bucket].to_s if tracked_entry.key?(:bucket)
+    assert_equal 1, tracked_entry[:aggregated_materials].size
+  end
+
   test "ignores malformed collection, reward, and mission payload blocks" do
     fake_client = Object.new
     fake_client.define_singleton_method(:fetch_character_idx) { |_name| 246 }
