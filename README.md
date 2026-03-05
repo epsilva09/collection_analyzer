@@ -83,6 +83,12 @@ docker run -d \
   postgres:16
 ```
 
+Option 3 (Docker Compose, recommended):
+
+```bash
+docker compose up -d postgres
+```
+
 ### Install
 
 If your local Postgres credentials differ from defaults, set:
@@ -141,6 +147,20 @@ bin/jobs
 
 Open:
 [http://localhost:3000](http://localhost:3000)
+
+### Stop local PostgreSQL
+
+Docker container mode:
+
+```bash
+docker rm -f collection-analyzer-postgres
+```
+
+Docker Compose mode:
+
+```bash
+docker compose down
+```
 
 ## Configuration
 
