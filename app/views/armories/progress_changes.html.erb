@@ -83,6 +83,20 @@
                                   progress_changes_armory_path(name: @name, character_idx: @character_idx, snapshot_id: @current_snapshot.id),
                                   class: 'btn btn-outline-light btn-sm w-100' %>
                     </div>
+
+                    <div class="col-12">
+                      <div class="form-check form-switch">
+                        <%= check_box_tag :show_stable_materials,
+                                          '1',
+                                          @show_stable_materials,
+                                          id: 'show-stable-materials',
+                                          class: 'form-check-input',
+                                          onchange: 'this.form.requestSubmit();' %>
+                        <label class="form-check-label small" for="show-stable-materials">
+                          <%= t('armories.progress.changes.show_stable_materials') %>
+                        </label>
+                      </div>
+                    </div>
                   <% end %>
                 </aside>
 
@@ -147,20 +161,23 @@
                             <span class="progress-delta-to"><%= to_bucket_label %></span>
                           </td>
                           <td>
-                            <% if change[:materials_delta].present? %>
-                              <% deltas = change[:materials_delta] %>
+                            <% deltas = Array(change[:materials_delta]) %>
+                            <% stable_materials = @show_stable_materials ? Array(change[:materials_stable]) : [] %>
+                            <% if deltas.present? || stable_materials.present? %>
                               <% collapsed = deltas.size > 3 %>
                               <% initial_deltas = collapsed ? deltas.first(3) : deltas %>
-                              <div class="progress-materials-list">
-                                <% initial_deltas.each do |delta| %>
-                                  <% item_class = delta[:delta].positive? ? 'text-bg-danger progress-material-delta--up' : 'text-bg-success progress-material-delta--down' %>
-                                  <span class="badge progress-material-delta <%= item_class %>">
-                                    <span class="progress-material-name"><%= delta[:name] %></span>
-                                    <span class="progress-material-values"><%= "#{delta[:from]}→#{delta[:to]}" %></span>
-                                    <span class="progress-material-shift"><%= format('%+d', delta[:delta]) %></span>
-                                  </span>
-                                <% end %>
-                              </div>
+                              <% if deltas.present? %>
+                                <div class="progress-materials-list">
+                                  <% initial_deltas.each do |delta| %>
+                                    <% item_class = delta[:delta].positive? ? 'text-bg-danger progress-material-delta--up' : 'text-bg-success progress-material-delta--down' %>
+                                    <span class="badge progress-material-delta <%= item_class %>">
+                                      <span class="progress-material-name"><%= delta[:name] %></span>
+                                      <span class="progress-material-values"><%= "#{delta[:from]}→#{delta[:to]}" %></span>
+                                      <span class="progress-material-shift"><%= format('%+d', delta[:delta]) %></span>
+                                    </span>
+                                  <% end %>
+                                </div>
+                              <% end %>
 
                               <% if collapsed %>
                                 <details class="progress-materials-details mt-1">
@@ -176,6 +193,19 @@
                                     <% end %>
                                   </div>
                                 </details>
+                              <% end %>
+
+                              <% if stable_materials.present? %>
+                                <div class="small text-body-secondary mt-1"><%= t('armories.progress.changes.stable_materials_heading') %></div>
+                                <div class="progress-materials-list mt-1">
+                                  <% stable_materials.each do |stable| %>
+                                    <span class="badge progress-material-delta progress-material-delta--stable">
+                                      <span class="progress-material-name"><%= stable[:name] %></span>
+                                      <span class="progress-material-values"><%= "#{stable[:needed]}→#{stable[:needed]}" %></span>
+                                      <span class="progress-material-shift">0</span>
+                                    </span>
+                                  <% end %>
+                                </div>
                               <% end %>
                             <% else %>
                               <span class="text-body-secondary">—</span>

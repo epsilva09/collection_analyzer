@@ -391,8 +391,23 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "table.progress-changes-table tbody tr td span.progress-change-type", text: I18n.t("armories.progress.changes.types.updated"), count: 1
     assert_select "table.progress-changes-table tbody tr td span.progress-change-type", text: I18n.t("armories.progress.changes.types.completed"), count: 0
     assert_includes response.body, I18n.t("armories.progress.badges.inconsistent_data")
+    assert_not_includes response.body, "Conversor Divino - Moto"
     assert_includes response.body, "4998"
     assert_includes response.body, "4997"
+
+    get progress_changes_armory_path,
+      params: {
+        name: "Cadamantis",
+        character_idx: 75008,
+        snapshot_id: current_snapshot.id,
+        locale: locale,
+        show_stable_materials: "1"
+      }
+
+    assert_response :success
+    assert_includes response.body, I18n.t("armories.progress.changes.stable_materials_heading")
+    assert_includes response.body, "Conversor Divino - Moto"
+    assert_includes response.body, "1→1"
   end
 
   private

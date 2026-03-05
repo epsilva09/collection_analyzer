@@ -1210,6 +1210,12 @@ textarea:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
+.progress-material-delta--stable {
+  background: rgba(108, 117, 125, 0.25) !important;
+  border: 1px solid rgba(173, 181, 189, 0.5);
+  color: #dce3ea !important;
+}
+
 .progress-materials-details summary {
   cursor: pointer;
   font-size: 0.82rem;

@@ -59,6 +59,10 @@ traceability.
   label (`Heading">` symptom).
 - Added consistent `:focus-visible` styling for keyboard navigation in Armory
   pages.
+- Added inconsistency guard surface in UI with dedicated badge when progress
+  data conflicts with pending materials.
+- Added `progress_changes` toggle to show stable pending materials (no delta)
+  for auditing difficult mismatch cases.
 
 ## Cycle 29 — Progress Tracking MVP
 

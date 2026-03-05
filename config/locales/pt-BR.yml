@@ -130,6 +130,8 @@ pt-BR:
           other: "+%{count} materiais"
         filter_type: "Filtrar por tipo"
         filter_all_types: "Todos os tipos"
+        show_stable_materials: "Mostrar pendências sem alteração"
+        stable_materials_heading: "Pendências estáveis"
         apply_filters: "Aplicar filtros"
         clear_filters: "Limpar filtros"
         no_changes: "Nenhuma alteração detectada neste período."

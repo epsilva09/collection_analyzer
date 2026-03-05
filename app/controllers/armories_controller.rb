@@ -147,6 +147,7 @@ class ArmoriesController < ApplicationController
     @character_idx = params[:character_idx].to_i
     @snapshot_id = params[:snapshot_id].to_i
     @change_type = normalize_change_type_filter(params[:change_type])
+    @show_stable_materials = truthy_param?(params[:show_stable_materials])
     @error = nil
 
     tracking_service = CollectionProgressTrackingService.new
@@ -168,7 +169,11 @@ class ArmoriesController < ApplicationController
       before: snapshot_timestamp(@current_snapshot)
     )
 
-    changes = build_collection_changes(@current_snapshot, @previous_snapshot)
+    changes = build_collection_changes(
+      @current_snapshot,
+      @previous_snapshot,
+      include_stable_materials: @show_stable_materials
+    )
     @changes = filter_collection_changes(changes, change_type: @change_type)
   end
 
@@ -392,7 +397,7 @@ class ArmoriesController < ApplicationController
     Rails.logger.warn("Failed to track character idx=#{character_idx}: #{e.message}")
   end
 
-  def build_collection_changes(current_snapshot, previous_snapshot)
+  def build_collection_changes(current_snapshot, previous_snapshot, include_stable_materials: false)
     current_entries = index_collections_payload(current_snapshot.collections_payload)
     previous_entries = index_collections_payload(previous_snapshot&.collections_payload)
 
@@ -413,7 +418,8 @@ class ArmoriesController < ApplicationController
           to_progress: current["progress"],
           from_bucket: nil,
           to_bucket: current["bucket"],
-          materials_delta: summarize_materials_delta({}, materials_index(current["materials"]))
+          materials_delta: summarize_materials_delta({}, materials_index(current["materials"])),
+          materials_stable: []
         }
       elsif current.nil?
         {
@@ -426,7 +432,8 @@ class ArmoriesController < ApplicationController
           to_progress: 100,
           from_bucket: previous["bucket"],
           to_bucket: nil,
-          materials_delta: summarize_materials_delta(materials_index(previous["materials"]), {})
+          materials_delta: summarize_materials_delta(materials_index(previous["materials"]), {}),
+          materials_stable: []
         }
       else
         progress_changed = previous["progress"].to_i != current["progress"].to_i
@@ -435,6 +442,7 @@ class ArmoriesController < ApplicationController
         previous_materials = materials_index(previous["materials"])
         current_materials = materials_index(current["materials"])
         materials_delta = summarize_materials_delta(previous_materials, current_materials)
+        materials_stable = include_stable_materials ? summarize_stable_materials(previous_materials, current_materials) : []
 
         next unless progress_changed || bucket_changed || materials_delta.present?
 
@@ -448,7 +456,8 @@ class ArmoriesController < ApplicationController
           to_progress: current["progress"],
           from_bucket: previous["bucket"],
           to_bucket: current["bucket"],
-          materials_delta: materials_delta
+          materials_delta: materials_delta,
+          materials_stable: materials_stable
         }
       end
     end
@@ -483,6 +492,18 @@ class ArmoriesController < ApplicationController
     end
   end
 
+  def summarize_stable_materials(previous_materials, current_materials)
+    common_keys = previous_materials.keys & current_materials.keys
+
+    common_keys.filter_map do |name|
+      from = previous_materials[name].to_i
+      to = current_materials[name].to_i
+      next unless from.positive? && to == from
+
+      { name: name, needed: to }
+    end.sort_by { |entry| entry[:name].downcase }
+  end
+
   def snapshot_timestamp(snapshot)
     if snapshot.respond_to?(:captured_at) && snapshot.captured_at.present?
       snapshot.captured_at
@@ -493,5 +514,9 @@ class ArmoriesController < ApplicationController
 
   def payload_truthy?(value)
     value == true || value.to_s.casecmp("true").zero?
+  end
+
+  def truthy_param?(value)
+    value == true || value.to_s == "1" || value.to_s.casecmp("true").zero?
   end
 end

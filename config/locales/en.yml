@@ -160,6 +160,8 @@ en:
           other: "+%{count} materials"
         filter_type: "Filter by type"
         filter_all_types: "All types"
+        show_stable_materials: "Show stable pending materials"
+        stable_materials_heading: "Stable pending materials"
         apply_filters: "Apply filters"
         clear_filters: "Clear filters"
         no_changes: "No changes detected in this period."
