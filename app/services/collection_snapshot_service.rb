@@ -91,6 +91,8 @@ class CollectionSnapshotService
       next unless tier.is_a?(Hash) && tier["collections"].is_a?(Array)
 
       tier["collections"].each do |collection|
+        next unless collection.is_a?(Hash)
+
         progress = collection["progress"].to_i
         next unless progress >= 0
 
@@ -152,7 +154,7 @@ class CollectionSnapshotService
   end
 
   def build_rewards(collection, progress)
-    rewards_raw = collection["rewards"] || []
+    rewards_raw = Array(collection["rewards"]).select { |reward| reward.is_a?(Hash) }
 
     rewards_raw.map.with_index do |reward, index|
       threshold = reward_threshold(rewards_raw.size, index)
@@ -191,6 +193,8 @@ class CollectionSnapshotService
 
     if collection["data"].is_a?(Array)
       collection["data"].each do |item|
+        next unless item.is_a?(Hash)
+
         needed = item["max"].to_i - item["progress"].to_i
         if needed > 0
           materials << {
@@ -206,8 +210,14 @@ class CollectionSnapshotService
 
     if collection["missions"].is_a?(Array)
       collection["missions"].each do |mission|
+        next unless mission.is_a?(Hash)
+
         mission_name = mission["name"] || mission["title"]
-        (mission["data"] || []).each do |item|
+        next unless mission["data"].is_a?(Array)
+
+        mission["data"].each do |item|
+          next unless item.is_a?(Hash)
+
           needed = item["max"].to_i - item["progress"].to_i
           if needed > 0
             materials << {

@@ -260,4 +260,56 @@ class CollectionSnapshotServiceTest < ActiveSupport::TestCase
     assert_equal false, mid_collection[:rewards][1][:unlocked]
     assert_equal false, mid_collection[:rewards][2][:unlocked]
   end
+
+  test "ignores malformed collection, reward, and mission payload blocks" do
+    fake_client = Object.new
+    fake_client.define_singleton_method(:fetch_character_idx) { |_name| 246 }
+
+    fake_client.define_singleton_method(:fetch_collection_details) do |_idx|
+      {
+        values: [],
+        data: [
+          {
+            "name" => "Tier Chaos",
+            "collections" => [
+              nil,
+              "invalid",
+              {
+                "name" => "Colecao Resiliente",
+                "progress" => 45,
+                "rewards" => [
+                  nil,
+                  "broken",
+                  { "description" => "Amp 3%", "applied" => "yes" }
+                ],
+                "data" => [
+                  nil,
+                  { "name" => "Ticket Especial", "progress" => 1, "max" => 2 },
+                  "broken"
+                ],
+                "missions" => [
+                  nil,
+                  "broken",
+                  { "name" => "Mission A", "data" => [ nil, { "name" => "Core", "progress" => 0, "max" => 3 } ] },
+                  { "name" => "Mission B", "data" => "invalid" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    end
+
+    snapshot = CollectionSnapshotService.new(client: fake_client).call("Cadamantis")
+
+    entry = snapshot[:progress_data][:mid].find { |collection| collection[:name] == "Colecao Resiliente" }
+    assert_not_nil entry
+    assert_equal 1, entry[:rewards].size
+    assert_equal "Amp 3%", entry[:rewards].first[:description]
+    assert_equal true, entry[:rewards].first[:unlocked]
+
+    materials_by_name = entry[:materials].to_h { |material| [ material[:name], material[:needed] ] }
+    assert_equal 1, materials_by_name["Ticket Especial"]
+    assert_equal 3, materials_by_name["Core"]
+  end
 end

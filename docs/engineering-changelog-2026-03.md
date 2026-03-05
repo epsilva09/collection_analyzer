@@ -68,6 +68,9 @@ traceability.
 - Added stronger payload normalization for `inconsistent_progress` in change
   classification (accepts legacy truthy variants) and test coverage for
   anomaly contracts.
+- Hardened `CollectionSnapshotService` against malformed
+  `collections/rewards/missions` payload blocks and added regression tests
+  to prevent parser crashes from malformed API fragments.
 
 ## Cycle 29 — Progress Tracking MVP
 
