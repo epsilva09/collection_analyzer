@@ -408,6 +408,7 @@ class ArmoriesController < ApplicationController
           tier: current["tier"],
           name: current["name"],
           change_type: :added,
+          inconsistent_progress: payload_truthy?(current["inconsistent_progress"]),
           from_progress: nil,
           to_progress: current["progress"],
           from_bucket: nil,
@@ -420,6 +421,7 @@ class ArmoriesController < ApplicationController
           tier: previous["tier"],
           name: previous["name"],
           change_type: :completed,
+          inconsistent_progress: false,
           from_progress: previous["progress"],
           to_progress: 100,
           from_bucket: previous["bucket"],
@@ -441,6 +443,7 @@ class ArmoriesController < ApplicationController
           tier: current["tier"],
           name: current["name"],
           change_type: :updated,
+          inconsistent_progress: payload_truthy?(current["inconsistent_progress"]),
           from_progress: previous["progress"],
           to_progress: current["progress"],
           from_bucket: previous["bucket"],
@@ -486,5 +489,9 @@ class ArmoriesController < ApplicationController
     else
       snapshot.captured_on.in_time_zone
     end
+  end
+
+  def payload_truthy?(value)
+    value == true || value.to_s.casecmp("true").zero?
   end
 end

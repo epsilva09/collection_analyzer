@@ -117,7 +117,14 @@
                                        else 'text-bg-danger progress-change-type--removed'
                                        end %>
                         <tr>
-                          <td><%= [change[:tier], change[:name]].compact.join(' / ') %></td>
+                          <td>
+                            <div class="d-flex flex-wrap align-items-center gap-1">
+                              <span><%= [change[:tier], change[:name]].compact.join(' / ') %></span>
+                              <% if change[:inconsistent_progress] == true %>
+                                <span class="badge progress-inconsistent-badge"><%= t('armories.progress.badges.inconsistent_data') %></span>
+                              <% end %>
+                            </div>
+                          </td>
                           <td class="text-center">
                             <span class="badge progress-change-type <%= type_class %>">
                               <%= t("armories.progress.changes.types.#{change[:change_type]}") %>

@@ -11,7 +11,12 @@
   <div class="d-flex w-100 justify-content-between align-items-start">
     <div class="text-start me-3 flex-grow-1">
       <div class="d-flex align-items-baseline justify-content-between">
-        <strong class="me-2"><%= collection[:tier] %> – <%= collection[:name] %></strong>
+        <div class="me-2 d-flex flex-wrap align-items-center gap-1">
+          <strong><%= collection[:tier] %> – <%= collection[:name] %></strong>
+          <% if collection[:inconsistent_progress] == true %>
+            <span class="badge progress-inconsistent-badge"><%= t('armories.progress.badges.inconsistent_data') %></span>
+          <% end %>
+        </div>
         <div class="text-end ms-2">
           <span class="badge bg-secondary me-1"><%= t('armories.progress.badges.progress') %>: <%= collection[:progress] %>%</span>
           <span class="badge bg-info"><%= t('armories.progress.badges.missing') %>: <%= collection[:missing] %>%</span>

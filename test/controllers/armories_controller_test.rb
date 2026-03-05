@@ -344,6 +344,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
           bucket: "near",
           progress: 99,
           missing: 1,
+          inconsistent_progress: false,
           materials: [
             { name: "Conversor Divino - Moto", needed: 1 },
             { name: "Nucleo divino", needed: 4998 }
@@ -373,6 +374,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
           bucket: "near",
           progress: 100,
           missing: 0,
+          inconsistent_progress: true,
           materials: [
             { name: "Conversor Divino - Moto", needed: 1 },
             { name: "Nucleo divino", needed: 4997 }
@@ -388,6 +390,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Aprimoramento Divino"
     assert_select "table.progress-changes-table tbody tr td span.progress-change-type", text: I18n.t("armories.progress.changes.types.updated"), count: 1
     assert_select "table.progress-changes-table tbody tr td span.progress-change-type", text: I18n.t("armories.progress.changes.types.completed"), count: 0
+    assert_includes response.body, I18n.t("armories.progress.badges.inconsistent_data")
     assert_includes response.body, "4998"
     assert_includes response.body, "4997"
   end

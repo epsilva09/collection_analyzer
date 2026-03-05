@@ -80,6 +80,7 @@ pt-BR:
         progress: "Progresso"
         missing: "Falta"
         missing_items: "%{count} itens faltando"
+        inconsistent_data: "Dados inconsistentes"
       actions:
         show_all: "Ver todos (%{count})"
       top_materials:

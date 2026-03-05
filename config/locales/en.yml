@@ -110,6 +110,7 @@ en:
         progress: "Progress"
         missing: "Missing"
         missing_items: "%{count} items missing"
+        inconsistent_data: "Inconsistent data"
       actions:
         show_all: "Show all (%{count})"
       top_materials:

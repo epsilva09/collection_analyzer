@@ -119,6 +119,7 @@ class CollectionProgressTrackingService
           bucket: bucket.to_s,
           progress: entry[:progress].to_i,
           missing: entry[:missing].to_i,
+          inconsistent_progress: entry[:inconsistent_progress] == true,
           materials: Array(entry[:aggregated_materials]).map do |material|
             {
               name: material[:name].to_s,
@@ -183,6 +184,7 @@ class CollectionProgressTrackingService
       "bucket" => (raw["bucket"] || raw[:bucket]).to_s,
       "progress" => (raw["progress"] || raw[:progress]).to_i,
       "missing" => (raw["missing"] || raw[:missing]).to_i,
+      "inconsistent_progress" => raw["inconsistent_progress"] == true || raw[:inconsistent_progress] == true,
       "materials" => materials
     }
   end

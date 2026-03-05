@@ -107,4 +107,36 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
     changed_only_history = service.history_for(character_idx: 1, locale: :en, limit: 10, changed_only: true)
     assert changed_only_history.all?(&:has_changes)
   end
+
+  test "persists inconsistent progress flag in collections payload" do
+    snapshot = {
+      character_idx: 42,
+      collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
+      progress_data: {
+        near: [
+          {
+            tier: "Tier",
+            name: "Aprimoramento Divino",
+            progress: 100,
+            missing: 0,
+            inconsistent_progress: true,
+            aggregated_materials: [ { name: "Nucleo divino", needed: 4997 } ]
+          }
+        ],
+        mid: [],
+        low: [],
+        below_one: []
+      }
+    }
+
+    record = CollectionProgressTrackingService.new.record!(
+      name: "Cadamantis",
+      locale: :"pt-BR",
+      snapshot: snapshot,
+      captured_at: Time.zone.parse("2026-03-05 10:00")
+    )
+
+    entry = record.collections_payload.first
+    assert_equal true, entry["inconsistent_progress"]
+  end
 end

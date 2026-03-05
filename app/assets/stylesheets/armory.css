@@ -1175,6 +1175,13 @@ textarea:focus-visible {
   font-weight: 700;
 }
 
+.progress-inconsistent-badge {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%) !important;
+  color: #1a1a1a !important;
+  border: 1px solid rgba(255, 193, 7, 0.65);
+  font-weight: 700;
+}
+
 .progress-materials-list {
   display: flex;
   flex-wrap: wrap;
