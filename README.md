@@ -59,20 +59,53 @@ The application helps you:
 
 - Ruby (project-managed version)
 - Bundler
-- SQLite (default local database)
+- PostgreSQL (default local database)
+
+### Start PostgreSQL
+
+Option 1 (local service):
+
+```bash
+# Ubuntu/Debian
+sudo service postgresql start
+```
+
+Option 2 (Docker):
+
+```bash
+docker rm -f collection-analyzer-postgres >/dev/null 2>&1 || true
+docker run -d \
+  --name collection-analyzer-postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=collection_analyzer_development \
+  -p 5432:5432 \
+  postgres:16
+```
 
 ### Install
+
+If your local Postgres credentials differ from defaults, set:
+
+```bash
+export DB_HOST=127.0.0.1
+export DB_PORT=5432
+export DB_USERNAME=postgres
+export DB_PASSWORD=postgres
+```
+
+Then install and prepare the database:
 
 ```bash
 cd /home/epsilva09/projects/collection_analyzer
 bundle install
-bin/rails db:create db:migrate
+bin/rails db:prepare
 ```
 
 ### Run locally
 
 ```bash
-bin/dev
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_USERNAME=postgres DB_PASSWORD=postgres bin/dev
 ```
 
 When `foreman` is available, `bin/dev` starts both web and jobs processes
@@ -100,7 +133,8 @@ brew install foreman
 Alternative (without foreman):
 
 ```bash
-bin/rails server -b 0.0.0.0 -p 3000
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_USERNAME=postgres \
+DB_PASSWORD=postgres bin/rails server -b 0.0.0.0 -p 3000
 # in another terminal
 bin/jobs
 ```
@@ -139,7 +173,23 @@ Open:
 ### Tests
 
 ```bash
-bin/rails test
+DB_HOST=127.0.0.1 DB_PORT=5432 DB_USERNAME=postgres \
+DB_PASSWORD=postgres bin/rails test
+```
+
+### Troubleshooting (PostgreSQL)
+
+- Error `PG::ConnectionBad` / `Connection refused`:
+- Check if Postgres is running:
+
+```bash
+pg_isready -h 127.0.0.1 -p 5432 -U postgres
+```
+
+- If using Docker, verify container status:
+
+```bash
+docker ps --filter name=collection-analyzer-postgres
 ```
 
 ### Tests (JavaScript)

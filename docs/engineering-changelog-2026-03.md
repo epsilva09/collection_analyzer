@@ -71,6 +71,9 @@ traceability.
 - Hardened `CollectionSnapshotService` against malformed
   `collections/rewards/missions` payload blocks and added regression tests
   to prevent parser crashes from malformed API fragments.
+- Migrated the project database stack from SQLite to PostgreSQL (`pg` gem,
+  `database.yml`, Docker runtime dependencies, and CI PostgreSQL service for
+  tests).
 
 ## Cycle 29 — Progress Tracking MVP
 
