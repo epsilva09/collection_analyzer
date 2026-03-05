@@ -63,6 +63,11 @@ traceability.
   data conflicts with pending materials.
 - Added `progress_changes` toggle to show stable pending materials (no delta)
   for auditing difficult mismatch cases.
+- Added snapshot write debounce in `CollectionProgressTrackingService` to
+  skip unchanged writes inside a short interval window.
+- Added stronger payload normalization for `inconsistent_progress` in change
+  classification (accepts legacy truthy variants) and test coverage for
+  anomaly contracts.
 
 ## Cycle 29 — Progress Tracking MVP
 

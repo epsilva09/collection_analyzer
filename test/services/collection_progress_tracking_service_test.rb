@@ -44,7 +44,7 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
   test "marks snapshot as unchanged when payload matches previous snapshot" do
     service = CollectionProgressTrackingService.new
     first_captured_at = Time.zone.parse("2026-03-01 10:15")
-    second_captured_at = Time.zone.parse("2026-03-01 10:16")
+    second_captured_at = Time.zone.parse("2026-03-01 10:18")
 
     service.record!(
       name: "Cadamantis",
@@ -138,5 +138,169 @@ class CollectionProgressTrackingServiceTest < ActiveSupport::TestCase
 
     entry = record.collections_payload.first
     assert_equal true, entry["inconsistent_progress"]
+  end
+
+  test "throttles unchanged snapshots captured within the minimum interval" do
+    service = CollectionProgressTrackingService.new(min_record_interval: 5.minutes)
+    notifications = []
+
+    subscriber = ActiveSupport::Notifications.subscribe("collection_progress_tracking.write_throttled") do |_name, _start, _finish, _id, payload|
+      notifications << payload
+    end
+
+    first = service.record!(
+      name: "Cadamantis",
+      locale: :en,
+      snapshot: {
+        character_idx: 1,
+        collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
+        progress_data: {
+          near: [ { tier: "Tier", name: "A", progress: 80, missing: 20, aggregated_materials: [ { name: "Core", needed: 2 } ] } ],
+          mid: [],
+          low: [],
+          below_one: []
+        }
+      },
+      captured_at: Time.zone.parse("2026-03-05 10:00")
+    )
+
+    second = service.record!(
+      name: "Cadamantis",
+      locale: :en,
+      snapshot: {
+        character_idx: 1,
+        collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
+        progress_data: {
+          near: [ { tier: "Tier", name: "A", progress: 80, missing: 20, aggregated_materials: [ { name: "Core", needed: 2 } ] } ],
+          mid: [],
+          low: [],
+          below_one: []
+        }
+      },
+      captured_at: Time.zone.parse("2026-03-05 10:02")
+    )
+
+    assert_equal first.id, second.id
+    assert_equal 1, CollectionProgressSnapshot.for_character(1, :en).count
+    assert_equal 1, notifications.size
+    assert_equal first.id, notifications.first[:previous_snapshot_id]
+  ensure
+    ActiveSupport::Notifications.unsubscribe(subscriber) if subscriber
+  end
+
+  test "does not throttle when snapshot changed inside the interval" do
+    service = CollectionProgressTrackingService.new(min_record_interval: 5.minutes)
+
+    first = service.record!(
+      name: "Cadamantis",
+      locale: :en,
+      snapshot: {
+        character_idx: 1,
+        collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
+        progress_data: {
+          near: [ { tier: "Tier", name: "A", progress: 80, missing: 20, aggregated_materials: [ { name: "Core", needed: 2 } ] } ],
+          mid: [],
+          low: [],
+          below_one: []
+        }
+      },
+      captured_at: Time.zone.parse("2026-03-05 10:00")
+    )
+
+    second = service.record!(
+      name: "Cadamantis",
+      locale: :en,
+      snapshot: {
+        character_idx: 1,
+        collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
+        progress_data: {
+          near: [ { tier: "Tier", name: "A", progress: 84, missing: 16, aggregated_materials: [ { name: "Core", needed: 1 } ] } ],
+          mid: [],
+          low: [],
+          below_one: []
+        }
+      },
+      captured_at: Time.zone.parse("2026-03-05 10:02")
+    )
+
+    refute_equal first.id, second.id
+    assert_equal 2, CollectionProgressSnapshot.for_character(1, :en).count
+    assert_equal true, second.has_changes
+  end
+
+  test "normalizes legacy truthy inconsistent flag when comparing payloads" do
+    service = CollectionProgressTrackingService.new
+
+    first = service.record!(
+      name: "Cadamantis",
+      locale: :en,
+      snapshot: {
+        character_idx: 99,
+        collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
+        progress_data: {
+          near: [
+            {
+              tier: "Tier",
+              name: "A",
+              progress: 100,
+              missing: 0,
+              inconsistent_progress: true,
+              aggregated_materials: [ { name: "A", needed: 1 }, { name: "B", needed: 2 } ]
+            }
+          ],
+          mid: [],
+          low: [],
+          below_one: []
+        }
+      },
+      captured_at: Time.zone.parse("2026-03-05 10:00")
+    )
+
+    first.update_column(
+      :collections_payload,
+      [
+        {
+          "key" => "Tier::A",
+          "tier" => "Tier",
+          "name" => "A",
+          "bucket" => "near",
+          "progress" => "100",
+          "missing" => "0",
+          "inconsistent_progress" => "true",
+          "materials" => [
+            { "name" => "B", "needed" => "2" },
+            { "name" => "A", "needed" => "1" }
+          ]
+        }
+      ]
+    )
+
+    second = service.record!(
+      name: "Cadamantis",
+      locale: :en,
+      snapshot: {
+        character_idx: 99,
+        collection_data: [ { "collections" => [ { "name" => "A" } ] } ],
+        progress_data: {
+          near: [
+            {
+              tier: "Tier",
+              name: "A",
+              progress: 100,
+              missing: 0,
+              inconsistent_progress: true,
+              aggregated_materials: [ { name: "A", needed: 1 }, { name: "B", needed: 2 } ]
+            }
+          ],
+          mid: [],
+          low: [],
+          below_one: []
+        }
+      },
+      captured_at: Time.zone.parse("2026-03-05 10:10")
+    )
+
+    assert_equal false, second.has_changes
+    assert_equal 0, second.changes_count
   end
 end

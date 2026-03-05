@@ -1,6 +1,9 @@
 class CollectionProgressTrackingService
-  def initialize(scope: CollectionProgressSnapshot)
+  DEFAULT_MIN_RECORD_INTERVAL = 2.minutes
+
+  def initialize(scope: CollectionProgressSnapshot, min_record_interval: DEFAULT_MIN_RECORD_INTERVAL)
     @scope = scope
+    @min_record_interval = min_record_interval.to_f
   end
 
   def record!(name:, locale:, snapshot:, captured_at: Time.current)
@@ -71,7 +74,21 @@ class CollectionProgressTrackingService
       attrs[:changes_count] = change_metrics[:changes_count]
     end
 
+    if throttle_unchanged_snapshot?(
+      record: record,
+      previous_snapshot: previous_snapshot,
+      captured_at: rounded_captured_at,
+      supports_captured_at: supports_captured_at,
+      change_metrics: change_metrics,
+      character_idx: character_idx,
+      locale: locale
+    )
+      return previous_snapshot
+    end
+
     record.assign_attributes(attrs)
+
+    return record if record.persisted? && !record.changed?
 
     record.save!
     record
@@ -184,8 +201,47 @@ class CollectionProgressTrackingService
       "bucket" => (raw["bucket"] || raw[:bucket]).to_s,
       "progress" => (raw["progress"] || raw[:progress]).to_i,
       "missing" => (raw["missing"] || raw[:missing]).to_i,
-      "inconsistent_progress" => raw["inconsistent_progress"] == true || raw[:inconsistent_progress] == true,
+      "inconsistent_progress" => truthy_like_value?(raw["inconsistent_progress"] || raw[:inconsistent_progress]),
       "materials" => materials
     }
+  end
+
+  def throttle_unchanged_snapshot?(record:, previous_snapshot:, captured_at:, supports_captured_at:, change_metrics:, character_idx:, locale:)
+    return false unless record.new_record?
+    return false unless previous_snapshot
+    return false unless @min_record_interval.positive?
+    return false if change_metrics[:changed]
+
+    previous_timestamp = if supports_captured_at
+      previous_snapshot.captured_at
+    else
+      previous_snapshot.captured_on.in_time_zone
+    end
+
+    return false unless previous_timestamp
+
+    elapsed_seconds = captured_at.to_f - previous_timestamp.to_f
+    return false if elapsed_seconds.negative?
+    return false unless elapsed_seconds < @min_record_interval
+
+    ActiveSupport::Notifications.instrument(
+      "collection_progress_tracking.write_throttled",
+      character_idx: character_idx,
+      locale: locale.to_s,
+      previous_snapshot_id: previous_snapshot.id,
+      elapsed_seconds: elapsed_seconds.round(2),
+      min_record_interval_seconds: @min_record_interval.round(2)
+    )
+
+    true
+  end
+
+  def truthy_like_value?(value)
+    value == true ||
+      value == 1 ||
+      value.to_s == "1" ||
+      value.to_s.casecmp("true").zero? ||
+      value.to_s.casecmp("yes").zero? ||
+      value.to_s.casecmp("y").zero?
   end
 end
