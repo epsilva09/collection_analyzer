@@ -40,7 +40,7 @@ class CollectionSnapshotService
     progress_data = ArmoryDefaults.empty_progress_data
 
     if resolved_character_idx
-      details = @client.fetch_collection_details(resolved_character_idx)
+      details = CollectionRewardResolver.resolve(@client.fetch_collection_details(resolved_character_idx))
       collection_data = details[:data] || []
       progress_data = build_progress_data(
         collection_data,
@@ -157,35 +157,18 @@ class CollectionSnapshotService
     rewards_raw = Array(collection["rewards"]).select { |reward| reward.is_a?(Hash) }
 
     rewards_raw.map.with_index do |reward, index|
-      threshold = reward_threshold(rewards_raw.size, index)
-      unlocked_by_progress = progress >= threshold
-      unlocked_by_applied = reward.key?("applied") && truthy_value?(reward["applied"])
-
-      unlocked = unlocked_by_applied || unlocked_by_progress
+      unlocked = CollectionRewardResolver.reward_applied?(
+        progress: progress,
+        reward_index: index,
+        total_rewards: rewards_raw.size,
+        payload_applied: reward["applied"]
+      )
 
       {
         description: reward["description"].to_s,
         unlocked: unlocked
       }
     end
-  end
-
-  def reward_threshold(total_rewards, index)
-    if total_rewards == 3
-      [ 30, 60, 100 ][index] || 100
-    elsif total_rewards.positive?
-      (((index + 1) * 100.0) / total_rewards).round
-    else
-      100
-    end
-  end
-
-  def truthy_value?(value)
-    value == true ||
-      value == 1 ||
-      value.to_s.casecmp("true").zero? ||
-      value.to_s.casecmp("yes").zero? ||
-      value.to_s.casecmp("y").zero?
   end
 
   def build_materials(collection)

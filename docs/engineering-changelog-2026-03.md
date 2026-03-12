@@ -40,6 +40,26 @@ traceability.
 - 2026-03 Cycle 28: `docs/engineering-cycles/2026-03-cycle-28.md`
 - 2026-03 Cycle 29: `docs/engineering-cycles/2026-03-cycle-29.md`
 - 2026-03 Cycle 30: `docs/engineering-cycles/2026-03-cycle-30.md`
+- 2026-03 Cycle 31: `docs/engineering-cycles/2026-03-cycle-31.md`
+
+## Cycle 31 — Collection Reward Resolution by Progress
+
+- Replaced trust in top-level `values[]` and per-reward `applied` flags with a
+  shared `CollectionRewardResolver` that determines unlocked reward tiers from
+  collection `progress`.
+- Standardized reward thresholds for collection tiers:
+  - 1 reward: 100%
+  - 2 rewards: 60%, 100%
+  - 3 rewards: 30%, 60%, 100%
+- Rebuilt collection summary values from normalized reward data so the index
+  and compare screens reflect the same totals shown by progress-based
+  collection state.
+- Wired the resolver into:
+  - `ArmoriesController#index`
+  - `CollectionSnapshotService`
+  - `CompareCollectionsService`
+- Added regression coverage for payloads where the API `values[]` summary or
+  `rewards[*].applied` flags under-report unlocked bonuses at 60% progress.
 
 ## Cycle 30 — Frontend Layout Refactor and A11y Pass
 

@@ -57,4 +57,74 @@ class CompareCollectionsServiceTest < ActiveSupport::TestCase
     assert_not_nil pve_row
     assert_equal true, pve_row[:is_special]
   end
+
+  test "resolves values from collection progress before comparing" do
+    fake_client = Object.new
+
+    fake_client.define_singleton_method(:fetch_character_idx) do |name|
+      name == "A" ? 1 : 2
+    end
+
+    fake_client.define_singleton_method(:fetch_collection_details) do |idx|
+      if idx == 1
+        {
+          values: [ "Aumentou todas as técnicas Amp. 45%" ],
+          data: [
+            {
+              "name" => "Tier 1",
+              "collections" => [
+                {
+                  "name" => "Solo Flamejante II",
+                  "progress" => 60,
+                  "rewards" => [
+                    { "description" => "Aumentou todas as técnicas Amp. 1%", "applied" => true },
+                    { "description" => "Aumentou todas as técnicas Amp. 2%", "applied" => false },
+                    { "description" => "Aumentou todas as técnicas Amp. 5%", "applied" => false }
+                  ]
+                },
+                {
+                  "name" => "Cheque o mec. de atk",
+                  "progress" => 60,
+                  "rewards" => [
+                    { "description" => "Aumentou todas as técnicas Amp. 2%", "applied" => true },
+                    { "description" => "Aumentou todas as técnicas Amp. 4%", "applied" => false },
+                    { "description" => "Aumentou todas as técnicas Amp. 8%", "applied" => false }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      else
+        {
+          values: [ "Aumentou todas as técnicas Amp. 1%" ],
+          data: [
+            {
+              "name" => "Tier 1",
+              "collections" => [
+                {
+                  "name" => "Solo Flamejante II",
+                  "progress" => 30,
+                  "rewards" => [
+                    { "description" => "Aumentou todas as técnicas Amp. 1%" },
+                    { "description" => "Aumentou todas as técnicas Amp. 2%" },
+                    { "description" => "Aumentou todas as técnicas Amp. 5%" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      end
+    end
+
+    payload = CompareCollectionsService.new(client: fake_client).call(name_a: "A", name_b: "B")
+    result = payload[:result]
+
+    assert_includes result[:values_a], "Aumentou todas as técnicas Amp. 6%"
+    row = result[:detailed].find { |entry| entry[:attribute] == "Aumentou todas as técnicas Amp." }
+    assert_not_nil row
+    assert_equal 6.0, row[:value_a]
+    assert_equal 1.0, row[:value_b]
+  end
 end

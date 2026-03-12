@@ -27,13 +27,13 @@ class CompareCollectionsService
     result[:character_idx_b] = @client.fetch_character_idx(name_b)
 
     if result[:character_idx_a]
-      details = @client.fetch_collection_details(result[:character_idx_a])
+      details = resolved_collection_details(result[:character_idx_a])
       result[:values_a] = normalize_values(details[:values])
       result[:collection_data_a] = details[:data] || []
     end
 
     if result[:character_idx_b]
-      details = @client.fetch_collection_details(result[:character_idx_b])
+      details = resolved_collection_details(result[:character_idx_b])
       result[:values_b] = normalize_values(details[:values])
       result[:collection_data_b] = details[:data] || []
     end
@@ -78,6 +78,10 @@ class CompareCollectionsService
 
   def normalize_values(values)
     (values || []).map(&:to_s).map(&:strip)
+  end
+
+  def resolved_collection_details(character_idx)
+    CollectionRewardResolver.resolve(@client.fetch_collection_details(character_idx))
   end
 
   def build_detailed_rows(parsed_a, parsed_b)
@@ -271,34 +275,16 @@ class CompareCollectionsService
       description = reward["description"].to_s.strip
       next if description.blank?
 
-      threshold = reward_threshold(rewards.size, index)
-      unlocked_by_progress = progress >= threshold
-      unlocked_by_applied = reward.key?("applied") && truthy_value?(reward["applied"])
-
       {
         description: description,
-        unlocked: unlocked_by_applied || unlocked_by_progress
+        unlocked: CollectionRewardResolver.reward_applied?(
+          progress: progress,
+          reward_index: index,
+          total_rewards: rewards.size,
+          payload_applied: reward["applied"]
+        )
       }
     end.compact
-  end
-
-  def reward_threshold(total_rewards, index)
-    if total_rewards == 3
-      [ 30, 60, 100 ][index] || 100
-    elsif total_rewards.positive?
-      (((index + 1) * 100.0) / total_rewards).round
-    else
-      100
-    end
-  end
-
-  def truthy_value?(value)
-    value == true ||
-      value == 1 ||
-      value.to_s == "1" ||
-      value.to_s.casecmp("true").zero? ||
-      value.to_s.casecmp("yes").zero? ||
-      value.to_s.casecmp("y").zero?
   end
 
   def summarize_collection_comparison(rows)

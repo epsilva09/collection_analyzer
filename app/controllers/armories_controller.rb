@@ -13,7 +13,7 @@ class ArmoriesController < ApplicationController
       @character_idx = client.fetch_character_idx(@name)
       if @character_idx
         register_tracked_character!(name: @name, character_idx: @character_idx)
-        details = client.fetch_collection_details(@character_idx)
+        details = resolved_collection_details(client.fetch_collection_details(@character_idx))
         @collection_data = details[:data] || []
         @values = (details[:values] || []).map(&:to_s).map(&:strip)
       else
@@ -575,6 +575,10 @@ class ArmoriesController < ApplicationController
       key = entry["key"].to_s
       indexed[key] = entry if key.present?
     end
+  end
+
+  def resolved_collection_details(details)
+    CollectionRewardResolver.resolve(details)
   end
 
   def materials_index(materials)

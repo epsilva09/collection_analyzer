@@ -21,6 +21,59 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "index recalculates summary values from collection progress" do
+    details = {
+      values: [ "Aumentou todas as técnicas Amp. 45%" ],
+      data: [
+        {
+          "name" => "Tier 1",
+          "collections" => [
+            {
+              "name" => "Solo Flamejante II",
+              "progress" => 60,
+              "rewards" => [
+                { "description" => "Aumentou todas as técnicas Amp. 1%", "applied" => true },
+                { "description" => "Aumentou todas as técnicas Amp. 2%", "applied" => false },
+                { "description" => "Aumentou todas as técnicas Amp. 5%", "applied" => false }
+              ]
+            },
+            {
+              "name" => "Cheque o mec. de atk",
+              "progress" => 60,
+              "rewards" => [
+                { "description" => "Aumentou todas as técnicas Amp. 2%", "applied" => true },
+                { "description" => "Aumentou todas as técnicas Amp. 4%", "applied" => false },
+                { "description" => "Aumentou todas as técnicas Amp. 8%", "applied" => false }
+              ]
+            },
+            {
+              "name" => "Retaliação do chefe governante III",
+              "progress" => 100,
+              "rewards" => [
+                { "description" => "Aumentou todas as técnicas Amp. 2%" },
+                { "description" => "Aumentou todas as técnicas Amp. 5%" },
+                { "description" => "Aumentou todas as técnicas Amp. 8%" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+
+    with_stubbed_client(
+      fetch_character_idx: ->(_name) { 75008 },
+      fetch_collection_details: ->(_idx) { details }
+    ) do
+      get armory_path, params: { name: "Cadamantis", format: :json }
+
+      assert_response :success
+
+      body = JSON.parse(response.body)
+      assert_includes body["values"], "Aumentou todas as técnicas Amp. 14%"
+      refute_includes body["values"], "Aumentou todas as técnicas Amp. 45%"
+    end
+  end
+
   test "index shows error when character_idx missing" do
     with_stubbed_client(
       fetch_character_idx: ->(_name) { nil },
