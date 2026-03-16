@@ -40,7 +40,14 @@ class CollectionSnapshotService
     progress_data = ArmoryDefaults.empty_progress_data
 
     if resolved_character_idx
-      details = CollectionRewardResolver.resolve(@client.fetch_collection_details(resolved_character_idx))
+      details = CollectionRewardResolver.resolve(
+        @client.fetch_collection_details(resolved_character_idx),
+        context: {
+          source: "collection_snapshot_service",
+          character_name: name,
+          character_idx: resolved_character_idx
+        }
+      )
       collection_data = details[:data] || []
       progress_data = build_progress_data(
         collection_data,

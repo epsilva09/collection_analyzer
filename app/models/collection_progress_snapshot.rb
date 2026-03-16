@@ -23,7 +23,12 @@ class CollectionProgressSnapshot < ApplicationRecord
   scope :for_hour, ->(hour) {
     next all unless column_names.include?("captured_at")
 
-    where("CAST(strftime('%H', captured_at) AS INTEGER) = ?", hour.to_i)
+    adapter = connection.adapter_name.to_s.downcase
+    if adapter.include?("postgres")
+      where("EXTRACT(HOUR FROM captured_at) = ?", hour.to_i)
+    else
+      where("CAST(strftime('%H', captured_at) AS INTEGER) = ?", hour.to_i)
+    end
   }
 
   private

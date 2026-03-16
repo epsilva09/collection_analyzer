@@ -578,7 +578,14 @@ class ArmoriesController < ApplicationController
   end
 
   def resolved_collection_details(details)
-    CollectionRewardResolver.resolve(details)
+    CollectionRewardResolver.resolve(
+      details,
+      context: {
+        source: "armories#index",
+        character_name: @name,
+        character_idx: @character_idx
+      }
+    )
   end
 
   def materials_index(materials)

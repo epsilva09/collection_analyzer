@@ -81,7 +81,13 @@ class CompareCollectionsService
   end
 
   def resolved_collection_details(character_idx)
-    CollectionRewardResolver.resolve(@client.fetch_collection_details(character_idx))
+    CollectionRewardResolver.resolve(
+      @client.fetch_collection_details(character_idx),
+      context: {
+        source: "compare_collections_service",
+        character_idx: character_idx
+      }
+    )
   end
 
   def build_detailed_rows(parsed_a, parsed_b)

@@ -5,8 +5,8 @@ class CollectionRewardResolver
     3 => [ 30, 60, 100 ]
   }.freeze
 
-  def self.resolve(details)
-    new(details).resolved_details
+  def self.resolve(details, context: {})
+    new(details, context: context).resolved_details
   end
 
   def self.reward_thresholds(total_rewards)
@@ -36,8 +36,9 @@ class CollectionRewardResolver
       value.to_s.casecmp("y").zero?
   end
 
-  def initialize(details)
+  def initialize(details, context: {})
     @details = details || {}
+    @context = context || {}
   end
 
   def resolved_details
@@ -57,7 +58,9 @@ class CollectionRewardResolver
     return normalize_values(raw_values) if normalized_data.blank?
 
     values = aggregate_values_from_rewards(normalized_data)
-    values.presence || normalize_values(raw_values)
+    resolved = values.presence || normalize_values(raw_values)
+    report_values_divergence(raw_values: normalize_values(raw_values), resolved_values: resolved)
+    resolved
   end
 
   private
@@ -177,5 +180,22 @@ class CollectionRewardResolver
     return rounded.to_i.to_s if rounded == rounded.to_i
 
     format("%.2f", rounded).sub(/0+\z/, "").sub(/\.$/, "")
+  end
+
+  def report_values_divergence(raw_values:, resolved_values:)
+    return if raw_values == resolved_values
+
+    payload = {
+      source: @context[:source].to_s,
+      character_name: @context[:character_name].to_s,
+      character_idx: @context[:character_idx].to_i,
+      raw_values_count: raw_values.size,
+      resolved_values_count: resolved_values.size,
+      raw_values: raw_values,
+      resolved_values: resolved_values
+    }
+
+    ActiveSupport::Notifications.instrument("collection_reward_resolver.values_divergence", payload)
+    Rails.logger.warn("collection_reward_resolver.values_divergence #{payload.to_json}")
   end
 end
