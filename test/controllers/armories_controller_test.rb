@@ -221,6 +221,14 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
           comparison_cards: [
             { metric: :level, label_key: "level", value_a: 200, value_b: 190, diff: 10 }
           ],
+          collection_macro: {
+            a: { total: 10, completed: 5, in_progress: 3, near_completion: 2, average_progress: 66.5, unlocked_reward_tiers: 12, reward_tiers_total: 30 },
+            b: { total: 10, completed: 4, in_progress: 4, near_completion: 1, average_progress: 58.0, unlocked_reward_tiers: 9, reward_tiers_total: 30 },
+            completed_diff: 1,
+            average_progress_diff: 8.5,
+            near_completion_diff: 1,
+            unlocked_reward_diff: 3
+          },
           progression_gaps: [
             { system: :myth, label_key: "myth", value_a: 80, value_b: 70, diff: 10, detail_a: "Michael", detail_b: "Uriel" }
           ]
@@ -236,6 +244,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_includes response.body, I18n.t("armories.compare_overview.heading")
       assert_includes response.body, I18n.t("armories.compare_overview.summary_heading")
+      assert_includes response.body, I18n.t("armories.compare_overview.collection_heading")
       assert_includes response.body, I18n.t("armories.compare_overview.progression_heading")
       assert_includes response.body, "200"
       assert_includes response.body, "190"

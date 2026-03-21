@@ -53,6 +53,73 @@
         </div>
       </section>
 
+      <% collection_macro = @result[:collection_macro] || {} %>
+      <% collection_a = collection_macro[:a] || {} %>
+      <% collection_b = collection_macro[:b] || {} %>
+      <section class="armory-section-card mb-4">
+        <div class="armory-section-card__header">
+          <h2 class="armory-section-card__title"><%= t('armories.compare_overview.collection_heading') %></h2>
+        </div>
+        <div class="armory-section-card__body">
+          <div class="row g-3 text-start mb-3">
+            <div class="col-12 col-lg-6">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                  <h3 class="h6 mb-3"><%= @result[:name_a] %></h3>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.total') %>:</span> <strong><%= collection_a[:total].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.completed') %>:</span> <strong><%= collection_a[:completed].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.in_progress') %>:</span> <strong><%= collection_a[:in_progress].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.near') %>:</span> <strong><%= collection_a[:near_completion].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.avg_progress') %>:</span> <strong><%= number_with_precision(collection_a[:average_progress], precision: 2, strip_insignificant_zeros: true) %>%</strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.unlocked_rewards') %>:</span> <strong><%= collection_a[:unlocked_reward_tiers].to_i %>/<%= collection_a[:reward_tiers_total].to_i %></strong></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                  <h3 class="h6 mb-3"><%= @result[:name_b] %></h3>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.total') %>:</span> <strong><%= collection_b[:total].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.completed') %>:</span> <strong><%= collection_b[:completed].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.in_progress') %>:</span> <strong><%= collection_b[:in_progress].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.near') %>:</span> <strong><%= collection_b[:near_completion].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.avg_progress') %>:</span> <strong><%= number_with_precision(collection_b[:average_progress], precision: 2, strip_insignificant_zeros: true) %>%</strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.unlocked_rewards') %>:</span> <strong><%= collection_b[:unlocked_reward_tiers].to_i %>/<%= collection_b[:reward_tiers_total].to_i %></strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-2 text-start">
+            <div class="col-12 col-md-6 col-xl-3">
+              <span class="text-muted"><%= t('armories.compare_overview.collection_diffs.completed') %>:</span>
+              <span class="fw-semibold <%= collection_macro[:completed_diff].to_i >= 0 ? 'text-success' : 'text-danger' %>">
+                <%= collection_macro[:completed_diff].to_i >= 0 ? '+' : '' %><%= collection_macro[:completed_diff].to_i %>
+              </span>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <span class="text-muted"><%= t('armories.compare_overview.collection_diffs.avg_progress') %>:</span>
+              <span class="fw-semibold <%= collection_macro[:average_progress_diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                <%= collection_macro[:average_progress_diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(collection_macro[:average_progress_diff], precision: 2, strip_insignificant_zeros: true) %>
+              </span>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <span class="text-muted"><%= t('armories.compare_overview.collection_diffs.near') %>:</span>
+              <span class="fw-semibold <%= collection_macro[:near_completion_diff].to_i >= 0 ? 'text-success' : 'text-danger' %>">
+                <%= collection_macro[:near_completion_diff].to_i >= 0 ? '+' : '' %><%= collection_macro[:near_completion_diff].to_i %>
+              </span>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <span class="text-muted"><%= t('armories.compare_overview.collection_diffs.unlocked_rewards') %>:</span>
+              <span class="fw-semibold <%= collection_macro[:unlocked_reward_diff].to_i >= 0 ? 'text-success' : 'text-danger' %>">
+                <%= collection_macro[:unlocked_reward_diff].to_i >= 0 ? '+' : '' %><%= collection_macro[:unlocked_reward_diff].to_i %>
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="armory-section-card">
         <div class="armory-section-card__header">
           <h2 class="armory-section-card__title"><%= t('armories.compare_overview.progression_heading') %></h2>

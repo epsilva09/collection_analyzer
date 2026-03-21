@@ -22,6 +22,7 @@ class CompareOverviewService
     result[:character_b] = build_character_payload(name_b)
 
     result[:comparison_cards] = build_comparison_cards(result[:character_a], result[:character_b])
+    result[:collection_macro] = build_collection_macro(result[:character_a], result[:character_b])
     result[:progression_gaps] = build_progression_gaps(result[:character_a], result[:character_b])
 
     { comparison_ready: true, result: result }
@@ -34,6 +35,7 @@ class CompareOverviewService
       character_a: {},
       character_b: {},
       comparison_cards: [],
+      collection_macro: {},
       progression_gaps: []
     }
   end
@@ -51,7 +53,82 @@ class CompareOverviewService
       myth: @client.fetch_myth(character_idx),
       force_wing: @client.fetch_force_wing(character_idx),
       honor_medal: @client.fetch_honor_medal(character_idx),
-      stellar: @client.fetch_stellar(character_idx)
+      stellar: @client.fetch_stellar(character_idx),
+      collection: collection_summary(character_idx)
+    }
+  end
+
+  def collection_summary(character_idx)
+    details = CollectionRewardResolver.resolve(
+      @client.fetch_collection_details(character_idx),
+      context: {
+        source: "compare_overview_service",
+        character_idx: character_idx
+      }
+    )
+
+    collections = extract_collections(details[:data])
+    total = collections.size
+    completed = collections.count { |entry| entry[:progress] >= 100 }
+    not_started = collections.count { |entry| entry[:progress] <= 0 }
+    in_progress = [ total - completed - not_started, 0 ].max
+    near_completion = collections.count { |entry| entry[:progress] >= 80 && entry[:progress] < 100 }
+    average_progress = if total.positive?
+      (collections.sum { |entry| entry[:progress] }.to_f / total.to_f).round(2)
+    else
+      0.0
+    end
+
+    unlocked_reward_tiers = collections.sum { |entry| entry[:unlocked_rewards].to_i }
+    reward_tiers_total = collections.sum { |entry| entry[:total_rewards].to_i }
+
+    {
+      total: total,
+      completed: completed,
+      in_progress: in_progress,
+      not_started: not_started,
+      near_completion: near_completion,
+      average_progress: average_progress,
+      unlocked_reward_tiers: unlocked_reward_tiers,
+      reward_tiers_total: reward_tiers_total,
+      top_targets: collections
+        .select { |entry| entry[:progress] < 100 }
+        .sort_by { |entry| [ -entry[:progress], entry[:collection_name] ] }
+        .first(3)
+    }
+  end
+
+  def extract_collections(data)
+    Array(data).each_with_object([]) do |tier, rows|
+      next unless tier.is_a?(Hash)
+
+      tier_name = tier["name"].to_s
+      Array(tier["collections"]).each do |collection|
+        next unless collection.is_a?(Hash)
+
+        rewards = Array(collection["rewards"])
+        rows << {
+          tier: tier_name,
+          collection_name: collection["name"].to_s,
+          progress: collection["progress"].to_i,
+          unlocked_rewards: rewards.count { |reward| reward.is_a?(Hash) && CollectionRewardResolver.truthy?(reward["applied"]) },
+          total_rewards: rewards.size
+        }
+      end
+    end
+  end
+
+  def build_collection_macro(character_a, character_b)
+    collection_a = character_a[:collection] || {}
+    collection_b = character_b[:collection] || {}
+
+    {
+      a: collection_a,
+      b: collection_b,
+      completed_diff: collection_a[:completed].to_i - collection_b[:completed].to_i,
+      average_progress_diff: (collection_a[:average_progress].to_f - collection_b[:average_progress].to_f).round(2),
+      near_completion_diff: collection_a[:near_completion].to_i - collection_b[:near_completion].to_i,
+      unlocked_reward_diff: collection_a[:unlocked_reward_tiers].to_i - collection_b[:unlocked_reward_tiers].to_i
     }
   end
 

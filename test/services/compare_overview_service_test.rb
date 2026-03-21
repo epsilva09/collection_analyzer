@@ -42,6 +42,63 @@ class CompareOverviewServiceTest < ActiveSupport::TestCase
     fake_client.define_singleton_method(:fetch_stellar) do |idx|
       idx == 1 ? { lines: [ { level: 5 }, { level: 5 } ], values: [ "ATK" ] } : { lines: [ { level: 4 }, { level: 3 } ], values: [] }
     end
+    fake_client.define_singleton_method(:fetch_collection_details) do |idx|
+      if idx == 1
+        {
+          values: [ "ATK +20" ],
+          data: [
+            {
+              "name" => "Mundo",
+              "collections" => [
+                {
+                  "name" => "Elo Perdido I",
+                  "progress" => 100,
+                  "rewards" => [
+                    { "description" => "ATK +10", "applied" => true },
+                    { "description" => "ATK +20", "applied" => true }
+                  ]
+                },
+                {
+                  "name" => "Elo Perdido II",
+                  "progress" => 85,
+                  "rewards" => [
+                    { "description" => "ATK +5", "applied" => true },
+                    { "description" => "ATK +10", "applied" => false }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      else
+        {
+          values: [ "ATK +5" ],
+          data: [
+            {
+              "name" => "Mundo",
+              "collections" => [
+                {
+                  "name" => "Elo Perdido I",
+                  "progress" => 60,
+                  "rewards" => [
+                    { "description" => "ATK +10", "applied" => true },
+                    { "description" => "ATK +20", "applied" => false }
+                  ]
+                },
+                {
+                  "name" => "Elo Perdido II",
+                  "progress" => 40,
+                  "rewards" => [
+                    { "description" => "ATK +5", "applied" => true },
+                    { "description" => "ATK +10", "applied" => false }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      end
+    end
 
     service = CompareOverviewService.new(client: fake_client)
     payload = service.call(name_a: "A", name_b: "B")
@@ -51,6 +108,11 @@ class CompareOverviewServiceTest < ActiveSupport::TestCase
     assert_equal "B", payload[:result][:name_b]
     assert_equal CompareOverviewService::CARD_METRICS.size, payload[:result][:comparison_cards].size
     assert_equal 4, payload[:result][:progression_gaps].size
+    assert_equal 2, payload[:result][:collection_macro][:a][:total]
+    assert_equal 1, payload[:result][:collection_macro][:a][:completed]
+    assert_equal 1, payload[:result][:collection_macro][:a][:near_completion]
+    assert_equal 42.5, payload[:result][:collection_macro][:average_progress_diff]
+    assert_equal 1, payload[:result][:collection_macro][:unlocked_reward_diff]
 
     level_card = payload[:result][:comparison_cards].find { |row| row[:metric] == :level }
     assert_equal 10, level_card[:diff]
@@ -66,5 +128,6 @@ class CompareOverviewServiceTest < ActiveSupport::TestCase
     assert_equal false, payload[:comparison_ready]
     assert_equal [], payload[:result][:comparison_cards]
     assert_equal [], payload[:result][:progression_gaps]
+    assert_equal({}, payload[:result][:collection_macro])
   end
 end

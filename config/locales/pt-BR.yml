@@ -264,6 +264,7 @@ pt-BR:
       page_title: "Comparação Geral"
       heading: "Comparação Geral e Gap de Progressão"
       summary_heading: "Visão geral A vs B"
+      collection_heading: "Macro de coleções"
       progression_heading: "Gap de progressão por sistema"
       table:
         system: "Sistema"
@@ -281,3 +282,15 @@ pt-BR:
         defense_power_pvp: "Defesa PVP"
         myth_score: "Myth Score"
         achievement_point: "Pontos de conquista"
+      collection:
+        total: "Total"
+        completed: "Concluídas"
+        in_progress: "Em progresso"
+        near: "Quase concluídas"
+        avg_progress: "Progresso médio"
+        unlocked_rewards: "Tiers de bônus desbloqueados"
+      collection_diffs:
+        completed: "Dif. concluídas"
+        avg_progress: "Dif. progresso médio"
+        near: "Dif. quase concluídas"
+        unlocked_rewards: "Dif. tiers desbloqueados"
