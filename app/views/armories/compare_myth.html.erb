@@ -1,0 +1,217 @@
+<% content_for :title, t('armories.compare_myth.page_title') %>
+
+<div class="container-fluid armory-layout-container">
+  <main class="text-center armory-page armory-layout-main">
+    <%= render 'locale_switcher' %>
+    <%= render 'page_header', heading: t('armories.compare_myth.heading'), icon_class: nil %>
+
+    <%= render 'menu',
+               current_page: :compare_myth,
+               name: (params[:name_a].presence || params[:name_b].presence),
+               name_a: params[:name_a],
+               name_b: params[:name_b],
+               show_compare_actions: false %>
+
+    <%= render 'compare_search_form', form_url: compare_myth_armory_path %>
+
+    <% if @error.present? %>
+      <%= render 'error_alert',
+                 label: t('armories.compare.alerts.error'),
+                 message: @error,
+                 icon_class: nil,
+                 dismissible: false %>
+    <% end %>
+
+    <% if @comparison_ready && @result.present? %>
+      <section class="armory-section-card mb-4">
+        <div class="armory-section-card__header">
+          <h2 class="armory-section-card__title"><%= t('armories.compare_myth.summary_heading') %></h2>
+        </div>
+        <div class="armory-section-card__body">
+          <div class="row g-3 text-start">
+            <% Array(@result[:summary_cards]).each do |card| %>
+              <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card h-100 bg-dark border-secondary">
+                  <div class="card-body">
+                    <div class="small armory-kpi-label"><%= t("armories.compare_myth.metrics.#{card[:label_key]}") %></div>
+                    <div class="mt-2 armory-kpi-value"><span class="fw-semibold"><%= @result[:name_a] %>:</span> <span><%= number_with_delimiter(card[:value_a]) %></span></div>
+                    <div class="armory-kpi-value"><span class="fw-semibold"><%= @result[:name_b] %>:</span> <span><%= number_with_delimiter(card[:value_b]) %></span></div>
+                    <div class="mt-2 <%= card[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                      <%= card[:diff].to_f >= 0 ? '+' : '' %><%= number_with_delimiter(card[:diff]) %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </section>
+
+      <% grade = @result[:grade_summary] || {} %>
+      <% stigma = @result[:stigma_summary] || {} %>
+      <% lines = @result[:line_summary] || {} %>
+      <section class="armory-section-card mb-4">
+        <div class="armory-section-card__header">
+          <h2 class="armory-section-card__title"><%= t('armories.compare_myth.progression_heading') %></h2>
+        </div>
+        <div class="armory-section-card__body text-start">
+          <div class="row g-3">
+            <div class="col-12 col-lg-4">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                  <h3 class="h6 mb-3"><%= t('armories.compare_myth.blocks.grade') %></h3>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= @result[:name_a] %>:</span> <strong><%= grade[:grade_name_a] %> (G<%= grade[:grade_a].to_i %>)</strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= @result[:name_b] %>:</span> <strong><%= grade[:grade_name_b] %> (G<%= grade[:grade_b].to_i %>)</strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.level_progress') %>:</span> <strong><%= number_with_precision(grade[:level_progress_a], precision: 2, strip_insignificant_zeros: true) %>%</strong> vs <strong><%= number_with_precision(grade[:level_progress_b], precision: 2, strip_insignificant_zeros: true) %>%</strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.point_progress') %>:</span> <strong><%= number_with_precision(grade[:point_progress_a], precision: 2, strip_insignificant_zeros: true) %>%</strong> vs <strong><%= number_with_precision(grade[:point_progress_b], precision: 2, strip_insignificant_zeros: true) %>%</strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.next_grade') %>:</span> <strong><%= grade.dig(:next_grade_a, :name).presence || '-' %></strong> / <strong><%= grade.dig(:next_grade_b, :name).presence || '-' %></strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.next_grade_points') %>:</span> <strong><%= number_with_delimiter(grade.dig(:next_grade_a, :remaining_points).to_i) %></strong> vs <strong><%= number_with_delimiter(grade.dig(:next_grade_b, :remaining_points).to_i) %></strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.next_grade_power') %>:</span> <strong><%= number_with_precision(grade[:estimated_score_to_next_a], precision: 2, strip_insignificant_zeros: true) %></strong> vs <strong><%= number_with_precision(grade[:estimated_score_to_next_b], precision: 2, strip_insignificant_zeros: true) %></strong></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                  <h3 class="h6 mb-3"><%= t('armories.compare_myth.blocks.stigma') %></h3>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.stigma_score') %>:</span> <strong><%= number_with_delimiter(stigma[:score_a].to_i) %></strong> vs <strong><%= number_with_delimiter(stigma[:score_b].to_i) %></strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.stigma_grade') %>:</span> <strong><%= stigma[:grade_a].to_i %></strong> vs <strong><%= stigma[:grade_b].to_i %></strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.stigma_progress') %>:</span> <strong><%= number_with_precision(stigma[:progress_a], precision: 2, strip_insignificant_zeros: true) %>%</strong> vs <strong><%= number_with_precision(stigma[:progress_b], precision: 2, strip_insignificant_zeros: true) %>%</strong></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                  <h3 class="h6 mb-3"><%= t('armories.compare_myth.blocks.lines') %></h3>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_nodes') %>:</span> <strong><%= lines[:total_nodes_a].to_i %></strong> vs <strong><%= lines[:total_nodes_b].to_i %></strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_unlocked') %>:</span> <strong><%= lines[:unlocked_a].to_i %></strong> vs <strong><%= lines[:unlocked_b].to_i %></strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_avg_level') %>:</span> <strong><%= number_with_precision(lines[:avg_level_a], precision: 2, strip_insignificant_zeros: true) %></strong> vs <strong><%= number_with_precision(lines[:avg_level_b], precision: 2, strip_insignificant_zeros: true) %></strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_total_score') %>:</span> <strong><%= number_with_delimiter(lines[:total_score_a].to_i) %></strong> vs <strong><%= number_with_delimiter(lines[:total_score_b].to_i) %></strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="armory-section-card mb-4">
+        <div class="armory-section-card__header">
+          <h2 class="armory-section-card__title"><%= t('armories.compare_myth.lines_score_heading') %></h2>
+        </div>
+        <div class="armory-section-card__body p-0">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle armory-data-table">
+              <thead>
+                <tr>
+                  <th><%= t('armories.compare_myth.table.line_name') %></th>
+                  <th class="text-center"><%= t('armories.compare_myth.table.score_diff') %></th>
+                  <th class="text-center"><%= @result[:name_a] %></th>
+                  <th class="text-center"><%= @result[:name_b] %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% Array(@result[:line_node_rows]).each do |row| %>
+                  <tr>
+                    <td><%= row[:line_name] %></td>
+                    <td class="text-center <%= row[:score_diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                      <%= row[:score_diff].to_f >= 0 ? '+' : '' %><%= number_with_delimiter(row[:score_diff]) %>
+                    </td>
+                    <td class="text-center">
+                      <div><strong><%= number_with_delimiter(row[:score_a]) %></strong></div>
+                      <small class="armory-kpi-label"><%= t('armories.compare_myth.table.level_avg') %>: <%= number_with_precision(row[:avg_level_a], precision: 2, strip_insignificant_zeros: true) %> | n=<%= row[:count_a].to_i %></small>
+                    </td>
+                    <td class="text-center">
+                      <div><strong><%= number_with_delimiter(row[:score_b]) %></strong></div>
+                      <small class="armory-kpi-label"><%= t('armories.compare_myth.table.level_avg') %>: <%= number_with_precision(row[:avg_level_b], precision: 2, strip_insignificant_zeros: true) %> | n=<%= row[:count_b].to_i %></small>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="armory-section-card mb-4">
+        <div class="armory-section-card__header">
+          <h2 class="armory-section-card__title"><%= t('armories.compare_myth.lines_heading') %></h2>
+        </div>
+        <div class="armory-section-card__body p-0">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle armory-data-table">
+              <thead>
+                <tr>
+                  <th><%= t('armories.compare_myth.table.attribute') %></th>
+                  <th class="text-center"><%= @result[:name_a] %></th>
+                  <th class="text-center"><%= @result[:name_b] %></th>
+                  <th class="text-center"><%= t('armories.compare_myth.table.diff') %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% Array(@result[:line_attribute_rows]).each do |row| %>
+                  <tr class="<%= row[:is_special] ? 'special-attribute-row' : '' %>">
+                    <td>
+                      <% if row[:is_special] %>
+                        <i class="fas fa-star me-1"></i>
+                      <% end %>
+                      <%= row[:attribute] %>
+                    </td>
+                    <td class="text-center"><%= number_with_precision(row[:value_a], precision: 2, strip_insignificant_zeros: true) %></td>
+                    <td class="text-center"><%= number_with_precision(row[:value_b], precision: 2, strip_insignificant_zeros: true) %></td>
+                    <td class="text-center <%= row[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                      <%= row[:diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(row[:diff], precision: 2, strip_insignificant_zeros: true) %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="armory-section-card">
+        <div class="armory-section-card__header">
+          <h2 class="armory-section-card__title"><%= t('armories.compare_myth.grades_heading') %></h2>
+        </div>
+        <div class="armory-section-card__body p-0">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle armory-data-table">
+              <thead>
+                <tr>
+                  <th><%= t('armories.compare_myth.table.grade') %></th>
+                  <th><%= @result[:name_a] %></th>
+                  <th><%= @result[:name_b] %></th>
+                  <th><%= t('armories.compare_myth.table.status') %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% Array(@result[:grade_rows]).each do |row| %>
+                  <tr>
+                    <td>G<%= row[:grade].to_i %></td>
+                    <td>
+                      <div class="fw-semibold"><%= row[:name_a].presence || '-' %></div>
+                      <small class="text-muted"><%= row[:force_a].presence || '-' %></small>
+                    </td>
+                    <td>
+                      <div class="fw-semibold"><%= row[:name_b].presence || '-' %></div>
+                      <small class="text-muted"><%= row[:force_b].presence || '-' %></small>
+                    </td>
+                    <td><%= t("armories.compare_myth.status.#{row[:status]}") %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    <% elsif (params[:name_a].present? ^ params[:name_b].present?) %>
+      <%= render 'info_alert',
+                 message: t('armories.compare.hints.both_names_required'),
+                 icon_class: 'fas fa-info-circle',
+                 alert_classes: '' %>
+    <% end %>
+  </main>
+</div>

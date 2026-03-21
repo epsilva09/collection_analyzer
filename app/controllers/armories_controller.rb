@@ -308,6 +308,34 @@ class ArmoriesController < ApplicationController
     end
   end
 
+  def compare_myth
+    name_a = params[:name_a].presence
+    name_b = params[:name_b].presence
+
+    @error = nil
+    compare_service = CompareMythService.new
+    @result = compare_service.empty_result(name_a, name_b)
+    @comparison_ready = name_a.present? && name_b.present?
+
+    begin
+      compare_payload = compare_service.call(name_a: name_a, name_b: name_b)
+      @comparison_ready = compare_payload[:comparison_ready]
+      @result = compare_payload[:result]
+    rescue StandardError => e
+      @error = localized_error_message(e)
+    end
+
+    respond_to do |format|
+      format.html
+      format.json do
+        render json: {
+          result: @result,
+          error: @error
+        }
+      end
+    end
+  end
+
   def compare_collections
     name_a = params[:name_a].presence
     name_b = params[:name_b].presence

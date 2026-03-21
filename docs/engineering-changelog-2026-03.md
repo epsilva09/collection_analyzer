@@ -60,6 +60,10 @@ traceability.
   - payload-aware collection reliability signals aligned with controller logic
   - impact-effort ranking for in-progress collection priorities
   - progression-gap rows (myth, force wing, honor medal, stellar)
+- Added dedicated Myth comparison screen (`/armory/compare/myth`) with:
+  - primary score blocks (`score`, `totalScore`, `resurrection`, `point`)
+  - grade/stigma progression comparison
+  - aggregated line attributes and grade unlock matrix
 - Added `ArmoryCharacterNormalizer` and Armory client wrapper for character
   profile payload normalization.
 - Added focused test coverage for service contracts and controller rendering.

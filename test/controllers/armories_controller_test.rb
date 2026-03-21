@@ -279,6 +279,105 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "compare myth shows dedicated myth analysis blocks" do
+    fake_service = Object.new
+    fake_service.define_singleton_method(:empty_result) do |name_a, name_b|
+      {
+        name_a: name_a,
+        name_b: name_b,
+        summary_cards: [],
+        grade_summary: {},
+        stigma_summary: {},
+        line_summary: {},
+        line_attribute_rows: [],
+        grade_rows: []
+      }
+    end
+
+    fake_service.define_singleton_method(:call) do |name_a:, name_b:|
+      {
+        comparison_ready: true,
+        result: {
+          name_a: name_a,
+          name_b: name_b,
+          summary_cards: [
+            { metric: :score, label_key: "score", value_a: 21479, value_b: 19479, diff: 2000 }
+          ],
+          grade_summary: {
+            grade_a: 9,
+            grade_b: 8,
+            grade_name_a: "Michael",
+            grade_name_b: "Uriel",
+            level_progress_a: 47,
+            level_progress_b: 40,
+            point_progress_a: 9.93,
+            point_progress_b: 8.5,
+            estimated_score_to_next_a: 1200,
+            estimated_score_to_next_b: 1500,
+            next_grade_a: { name: "Metatron", point: 27500, remaining_points: 26507 },
+            next_grade_b: { name: "Michael", point: 24500, remaining_points: 23650 }
+          },
+          stigma_summary: {
+            score_a: 5000,
+            score_b: 4300,
+            grade_a: 150,
+            grade_b: 130,
+            progress_a: 100,
+            progress_b: 86
+          },
+          line_summary: {
+            total_nodes_a: 6,
+            total_nodes_b: 6,
+            unlocked_a: 6,
+            unlocked_b: 5,
+            avg_level_a: 5,
+            avg_level_b: 4,
+            total_score_a: 1320,
+            total_score_b: 1120
+          },
+          line_attribute_rows: [
+            { attribute: "Danos Críticos", value_a: 25, value_b: 15, diff: 10, is_special: true },
+            { attribute: "PVE Canc. Ig. Red Dano", value_a: 32, value_b: 24, diff: 8, is_special: false }
+          ],
+          line_node_rows: [
+            { line_name: "PVE Canc. Ig. Red Dano +16", score_a: 440, score_b: 220, score_diff: 220, avg_level_a: 5, avg_level_b: 4, count_a: 2, count_b: 1 }
+          ],
+          grade_rows: [
+            {
+              grade: 9,
+              name_a: "Michael",
+              name_b: "Michael",
+              force_a: "Danos Críticos 25%",
+              force_b: "Danos Críticos 25%",
+              enabled_a: true,
+              enabled_b: false,
+              status: :enabled_a_only
+            }
+          ]
+        }
+      }
+    end
+
+    original_new = CompareMythService.method(:new)
+    CompareMythService.define_singleton_method(:new) { fake_service }
+
+    begin
+      get compare_myth_armory_path, params: { name_a: "A", name_b: "B" }
+      assert_response :success
+      assert_includes response.body, I18n.t("armories.compare_myth.heading")
+      assert_includes response.body, I18n.t("armories.compare_myth.summary_heading")
+      assert_includes response.body, I18n.t("armories.compare_myth.progression_heading")
+      assert_includes response.body, I18n.t("armories.compare_myth.lines_heading")
+      assert_includes response.body, I18n.t("armories.compare_myth.lines_score_heading")
+      assert_includes response.body, I18n.t("armories.compare_myth.grades_heading")
+      assert_includes response.body, "21,479"
+      assert_includes response.body, "19,479"
+      assert_includes response.body, "special-attribute-row"
+    ensure
+      CompareMythService.define_singleton_method(:new, original_new)
+    end
+  end
+
   test "progress lists collections by progress ranges" do
     details = {
       values: [],

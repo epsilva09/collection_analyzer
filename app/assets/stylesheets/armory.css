@@ -933,6 +933,15 @@ textarea:focus-visible {
   background: linear-gradient(90deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.08) 100%);
 }
 
+.armory-kpi-label {
+  color: var(--armory-text-muted) !important;
+  font-weight: 600;
+}
+
+.armory-kpi-value {
+  color: var(--armory-text-default);
+}
+
 /* Scrollable card bodies - only for summary cards in compare page */
 .summary-card {
   min-height: 100%;
