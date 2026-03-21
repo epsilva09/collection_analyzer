@@ -53,6 +53,110 @@
         </div>
       </section>
 
+      <% weighted = @result[:weighted_profiles] || {} %>
+      <% pve = weighted[:pve] || {} %>
+      <% pvp = weighted[:pvp] || {} %>
+      <% overall = weighted[:overall] || {} %>
+      <section class="armory-section-card mb-4">
+        <div class="armory-section-card__header">
+          <h2 class="armory-section-card__title"><%= t('armories.compare_overview.weighted_heading') %></h2>
+        </div>
+        <div class="armory-section-card__body">
+          <div class="row g-3 text-start mb-3">
+            <div class="col-12 col-lg-4">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                  <div class="small text-muted"><%= t('armories.compare_overview.weighted.pve') %></div>
+                  <div class="mt-2"><span class="fw-semibold"><%= @result[:name_a] %>:</span> <span><%= number_with_precision(pve[:score_a], precision: 2, strip_insignificant_zeros: true) %></span></div>
+                  <div><span class="fw-semibold"><%= @result[:name_b] %>:</span> <span><%= number_with_precision(pve[:score_b], precision: 2, strip_insignificant_zeros: true) %></span></div>
+                  <div class="mt-2 <%= pve[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                    <%= pve[:diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(pve[:diff], precision: 2, strip_insignificant_zeros: true) %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-4">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                  <div class="small text-muted"><%= t('armories.compare_overview.weighted.pvp') %></div>
+                  <div class="mt-2"><span class="fw-semibold"><%= @result[:name_a] %>:</span> <span><%= number_with_precision(pvp[:score_a], precision: 2, strip_insignificant_zeros: true) %></span></div>
+                  <div><span class="fw-semibold"><%= @result[:name_b] %>:</span> <span><%= number_with_precision(pvp[:score_b], precision: 2, strip_insignificant_zeros: true) %></span></div>
+                  <div class="mt-2 <%= pvp[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                    <%= pvp[:diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(pvp[:diff], precision: 2, strip_insignificant_zeros: true) %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-4">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                  <div class="small text-muted"><%= t('armories.compare_overview.weighted.overall') %></div>
+                  <div class="mt-2"><span class="fw-semibold"><%= @result[:name_a] %>:</span> <span><%= number_with_precision(overall[:score_a], precision: 2, strip_insignificant_zeros: true) %></span></div>
+                  <div><span class="fw-semibold"><%= @result[:name_b] %>:</span> <span><%= number_with_precision(overall[:score_b], precision: 2, strip_insignificant_zeros: true) %></span></div>
+                  <div class="mt-2 <%= overall[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                    <%= overall[:diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(overall[:diff], precision: 2, strip_insignificant_zeros: true) %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive mb-3">
+            <table class="table table-dark table-hover mb-0 align-middle armory-data-table">
+              <thead>
+                <tr>
+                  <th><%= t('armories.compare_overview.weighted.table.metric') %> (<%= t('armories.compare_overview.weighted.pve') %>)</th>
+                  <th class="text-center"><%= t('armories.compare_overview.weighted.table.weight') %></th>
+                  <th class="text-center"><%= @result[:name_a] %></th>
+                  <th class="text-center"><%= @result[:name_b] %></th>
+                  <th class="text-center"><%= t('armories.compare_overview.table.diff') %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% Array(pve[:contributions]).each do |row| %>
+                  <tr>
+                    <td><%= t("armories.compare_overview.metrics.#{row[:label_key]}") %></td>
+                    <td class="text-center"><%= number_with_precision(row[:weight].to_f * 100.0, precision: 0) %>%</td>
+                    <td class="text-center"><%= number_with_precision(row[:weighted_a], precision: 2, strip_insignificant_zeros: true) %></td>
+                    <td class="text-center"><%= number_with_precision(row[:weighted_b], precision: 2, strip_insignificant_zeros: true) %></td>
+                    <td class="text-center <%= row[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                      <%= row[:diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(row[:diff], precision: 2, strip_insignificant_zeros: true) %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle armory-data-table">
+              <thead>
+                <tr>
+                  <th><%= t('armories.compare_overview.weighted.table.metric') %> (<%= t('armories.compare_overview.weighted.pvp') %>)</th>
+                  <th class="text-center"><%= t('armories.compare_overview.weighted.table.weight') %></th>
+                  <th class="text-center"><%= @result[:name_a] %></th>
+                  <th class="text-center"><%= @result[:name_b] %></th>
+                  <th class="text-center"><%= t('armories.compare_overview.table.diff') %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% Array(pvp[:contributions]).each do |row| %>
+                  <tr>
+                    <td><%= t("armories.compare_overview.metrics.#{row[:label_key]}") %></td>
+                    <td class="text-center"><%= number_with_precision(row[:weight].to_f * 100.0, precision: 0) %>%</td>
+                    <td class="text-center"><%= number_with_precision(row[:weighted_a], precision: 2, strip_insignificant_zeros: true) %></td>
+                    <td class="text-center"><%= number_with_precision(row[:weighted_b], precision: 2, strip_insignificant_zeros: true) %></td>
+                    <td class="text-center <%= row[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                      <%= row[:diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(row[:diff], precision: 2, strip_insignificant_zeros: true) %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <% collection_macro = @result[:collection_macro] || {} %>
       <% collection_a = collection_macro[:a] || {} %>
       <% collection_b = collection_macro[:b] || {} %>

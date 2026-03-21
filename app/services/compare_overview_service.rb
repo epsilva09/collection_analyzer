@@ -1,4 +1,27 @@
 class CompareOverviewService
+  WEIGHT_PROFILES = {
+    pve: {
+      attack_power_pve: 0.36,
+      defense_power_pve: 0.26,
+      myth_score: 0.18,
+      level: 0.12,
+      achievement_point: 0.08
+    },
+    pvp: {
+      attack_power_pvp: 0.36,
+      defense_power_pvp: 0.26,
+      myth_score: 0.18,
+      level: 0.12,
+      achievement_point: 0.08
+    }
+  }.freeze
+
+  OVERALL_COMPONENT_WEIGHTS = {
+    pve: 0.45,
+    pvp: 0.45,
+    collection: 0.10
+  }.freeze
+
   CARD_METRICS = [
     { key: :level, label_key: "level" },
     { key: :attack_power_pve, label_key: "attack_power_pve" },
@@ -22,6 +45,7 @@ class CompareOverviewService
     result[:character_b] = build_character_payload(name_b)
 
     result[:comparison_cards] = build_comparison_cards(result[:character_a], result[:character_b])
+    result[:weighted_profiles] = build_weighted_profiles(result[:character_a], result[:character_b])
     result[:collection_macro] = build_collection_macro(result[:character_a], result[:character_b])
     result[:progression_gaps] = build_progression_gaps(result[:character_a], result[:character_b])
 
@@ -35,6 +59,7 @@ class CompareOverviewService
       character_a: {},
       character_b: {},
       comparison_cards: [],
+      weighted_profiles: {},
       collection_macro: {},
       progression_gaps: []
     }
@@ -129,6 +154,94 @@ class CompareOverviewService
       average_progress_diff: (collection_a[:average_progress].to_f - collection_b[:average_progress].to_f).round(2),
       near_completion_diff: collection_a[:near_completion].to_i - collection_b[:near_completion].to_i,
       unlocked_reward_diff: collection_a[:unlocked_reward_tiers].to_i - collection_b[:unlocked_reward_tiers].to_i
+    }
+  end
+
+  def build_weighted_profiles(character_a, character_b)
+    profile_a = character_a[:profile] || {}
+    profile_b = character_b[:profile] || {}
+
+    pve = weighted_profile_for(WEIGHT_PROFILES[:pve], profile_a, profile_b)
+    pvp = weighted_profile_for(WEIGHT_PROFILES[:pvp], profile_a, profile_b)
+
+    collection_a = character_a.dig(:collection, :average_progress).to_f
+    collection_b = character_b.dig(:collection, :average_progress).to_f
+
+    overall_a = (
+      pve[:score_a] * OVERALL_COMPONENT_WEIGHTS[:pve] +
+      pvp[:score_a] * OVERALL_COMPONENT_WEIGHTS[:pvp] +
+      collection_a * OVERALL_COMPONENT_WEIGHTS[:collection]
+    ).round(2)
+    overall_b = (
+      pve[:score_b] * OVERALL_COMPONENT_WEIGHTS[:pve] +
+      pvp[:score_b] * OVERALL_COMPONENT_WEIGHTS[:pvp] +
+      collection_b * OVERALL_COMPONENT_WEIGHTS[:collection]
+    ).round(2)
+
+    {
+      pve: pve,
+      pvp: pvp,
+      overall: {
+        score_a: overall_a,
+        score_b: overall_b,
+        diff: (overall_a - overall_b).round(2),
+        winner: winner_for(overall_a, overall_b),
+        components: [
+          {
+            key: :pve,
+            weight: OVERALL_COMPONENT_WEIGHTS[:pve],
+            value_a: pve[:score_a],
+            value_b: pve[:score_b]
+          },
+          {
+            key: :pvp,
+            weight: OVERALL_COMPONENT_WEIGHTS[:pvp],
+            value_a: pvp[:score_a],
+            value_b: pvp[:score_b]
+          },
+          {
+            key: :collection,
+            weight: OVERALL_COMPONENT_WEIGHTS[:collection],
+            value_a: collection_a,
+            value_b: collection_b
+          }
+        ]
+      }
+    }
+  end
+
+  def weighted_profile_for(weights, profile_a, profile_b)
+    contributions = weights.map do |metric_key, weight|
+      raw_a = profile_a[metric_key].to_f
+      raw_b = profile_b[metric_key].to_f
+      denominator = [ raw_a, raw_b, 1.0 ].max
+
+      normalized_a = (raw_a / denominator).round(4)
+      normalized_b = (raw_b / denominator).round(4)
+      weighted_a = (normalized_a * weight * 100.0).round(2)
+      weighted_b = (normalized_b * weight * 100.0).round(2)
+
+      {
+        metric: metric_key,
+        label_key: metric_key.to_s,
+        weight: weight,
+        raw_a: raw_a,
+        raw_b: raw_b,
+        weighted_a: weighted_a,
+        weighted_b: weighted_b,
+        diff: (weighted_a - weighted_b).round(2)
+      }
+    end
+
+    score_a = contributions.sum { |row| row[:weighted_a] }.round(2)
+    score_b = contributions.sum { |row| row[:weighted_b] }.round(2)
+
+    {
+      score_a: score_a,
+      score_b: score_b,
+      diff: (score_a - score_b).round(2),
+      winner: winner_for(score_a, score_b),
+      contributions: contributions
     }
   end
 

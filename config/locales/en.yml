@@ -294,6 +294,7 @@ en:
       page_title: "Overview comparison"
       heading: "Overview and progression gap"
       summary_heading: "A vs B overview"
+      weighted_heading: "Weighted score (PVE/PVP)"
       collection_heading: "Collection macro"
       progression_heading: "Progression gap by system"
       table:
@@ -312,6 +313,13 @@ en:
         defense_power_pvp: "PVP defense"
         myth_score: "Myth score"
         achievement_point: "Achievement points"
+      weighted:
+        pve: "PVE score"
+        pvp: "PVP score"
+        overall: "Overall score"
+        table:
+          metric: "Metric"
+          weight: "Weight"
       collection:
         total: "Total"
         completed: "Completed"

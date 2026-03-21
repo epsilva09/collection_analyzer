@@ -113,6 +113,11 @@ class CompareOverviewServiceTest < ActiveSupport::TestCase
     assert_equal 1, payload[:result][:collection_macro][:a][:near_completion]
     assert_equal 42.5, payload[:result][:collection_macro][:average_progress_diff]
     assert_equal 1, payload[:result][:collection_macro][:unlocked_reward_diff]
+    assert payload[:result][:weighted_profiles][:pve][:score_a] > payload[:result][:weighted_profiles][:pve][:score_b]
+    assert payload[:result][:weighted_profiles][:pvp][:score_a] > payload[:result][:weighted_profiles][:pvp][:score_b]
+    assert payload[:result][:weighted_profiles][:overall][:score_a] > payload[:result][:weighted_profiles][:overall][:score_b]
+    assert_equal :a, payload[:result][:weighted_profiles][:overall][:winner]
+    assert_equal 5, payload[:result][:weighted_profiles][:pve][:contributions].size
 
     level_card = payload[:result][:comparison_cards].find { |row| row[:metric] == :level }
     assert_equal 10, level_card[:diff]
@@ -128,6 +133,7 @@ class CompareOverviewServiceTest < ActiveSupport::TestCase
     assert_equal false, payload[:comparison_ready]
     assert_equal [], payload[:result][:comparison_cards]
     assert_equal [], payload[:result][:progression_gaps]
+    assert_equal({}, payload[:result][:weighted_profiles])
     assert_equal({}, payload[:result][:collection_macro])
   end
 end

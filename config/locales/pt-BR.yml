@@ -264,6 +264,7 @@ pt-BR:
       page_title: "Comparação Geral"
       heading: "Comparação Geral e Gap de Progressão"
       summary_heading: "Visão geral A vs B"
+      weighted_heading: "Score ponderado (PVE/PVP)"
       collection_heading: "Macro de coleções"
       progression_heading: "Gap de progressão por sistema"
       table:
@@ -282,6 +283,13 @@ pt-BR:
         defense_power_pvp: "Defesa PVP"
         myth_score: "Myth Score"
         achievement_point: "Pontos de conquista"
+      weighted:
+        pve: "Score PVE"
+        pvp: "Score PVP"
+        overall: "Score geral"
+        table:
+          metric: "Métrica"
+          weight: "Peso"
       collection:
         total: "Total"
         completed: "Concluídas"

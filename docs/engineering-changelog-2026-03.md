@@ -53,6 +53,8 @@ traceability.
   - `app/views/armories/compare_overview.html.erb`
 - Added `CompareOverviewService` to aggregate:
   - overview metric cards (level/AP/DP/myth/achievement)
+  - weighted profile scores (PVE/PVP/overall)
+  - weighted contribution rows per metric for explainability
   - collection macro summary (completion/progress/reward tiers)
   - progression-gap rows (myth, force wing, honor medal, stellar)
 - Added `ArmoryCharacterNormalizer` and Armory client wrapper for character

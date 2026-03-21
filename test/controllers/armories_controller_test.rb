@@ -221,6 +221,25 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
           comparison_cards: [
             { metric: :level, label_key: "level", value_a: 200, value_b: 190, diff: 10 }
           ],
+          weighted_profiles: {
+            pve: {
+              score_a: 100,
+              score_b: 91.2,
+              diff: 8.8,
+              contributions: [ { metric: :attack_power_pve, label_key: "attack_power_pve", weight: 0.36, weighted_a: 36.0, weighted_b: 33.0, diff: 3.0 } ]
+            },
+            pvp: {
+              score_a: 100,
+              score_b: 90.5,
+              diff: 9.5,
+              contributions: [ { metric: :attack_power_pvp, label_key: "attack_power_pvp", weight: 0.36, weighted_a: 36.0, weighted_b: 32.7, diff: 3.3 } ]
+            },
+            overall: {
+              score_a: 96.5,
+              score_b: 87.6,
+              diff: 8.9
+            }
+          },
           collection_macro: {
             a: { total: 10, completed: 5, in_progress: 3, near_completion: 2, average_progress: 66.5, unlocked_reward_tiers: 12, reward_tiers_total: 30 },
             b: { total: 10, completed: 4, in_progress: 4, near_completion: 1, average_progress: 58.0, unlocked_reward_tiers: 9, reward_tiers_total: 30 },
@@ -244,6 +263,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_includes response.body, I18n.t("armories.compare_overview.heading")
       assert_includes response.body, I18n.t("armories.compare_overview.summary_heading")
+      assert_includes response.body, I18n.t("armories.compare_overview.weighted_heading")
       assert_includes response.body, I18n.t("armories.compare_overview.collection_heading")
       assert_includes response.body, I18n.t("armories.compare_overview.progression_heading")
       assert_includes response.body, "200"
