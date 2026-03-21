@@ -42,6 +42,23 @@ traceability.
 - 2026-03 Cycle 30: `docs/engineering-cycles/2026-03-cycle-30.md`
 - 2026-03 Cycle 31: `docs/engineering-cycles/2026-03-cycle-31.md`
 - 2026-03 Cycle 32: `docs/engineering-cycles/2026-03-cycle-32.md`
+- 2026-03 Cycle 33: `docs/engineering-cycles/2026-03-cycle-33.md`
+
+## Cycle 33 - Comparison Foundation (Armory Endpoints)
+
+- Implemented new cached Armory client wrappers for:
+  - myth
+  - force wing
+  - honor medal
+  - stellar
+  - ability
+- Added defensive payload normalizers to stabilize malformed or partial
+  upstream blocks and expose predictable hash contracts for next cycles.
+- Added contract tests in `test/services/armory_client_test.rb` for:
+  - normalized payload output
+  - cache reuse
+  - medal route parameterization
+  - malformed payload fallback handling
 
 ## Cycle 32 - Armory Comparison Discovery and Sprint Planning
 

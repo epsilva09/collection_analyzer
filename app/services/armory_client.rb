@@ -47,6 +47,56 @@ class ArmoryClient
     end
   end
 
+  # Returns normalized myth payload hash
+  def fetch_myth(character_idx)
+    key = cache_key("myth", character_idx)
+
+    fetch_cached(key) do
+      resp = @http.get("#{BASE_URL}/api/website/armory/myth/#{character_idx}", request_options)
+      ArmoryMythNormalizer.call(parse_response(resp))
+    end
+  end
+
+  # Returns normalized force-wing payload hash
+  def fetch_force_wing(character_idx)
+    key = cache_key("force_wing", character_idx)
+
+    fetch_cached(key) do
+      resp = @http.get("#{BASE_URL}/api/website/armory/force-wing/#{character_idx}", request_options)
+      ArmoryForceWingNormalizer.call(parse_response(resp))
+    end
+  end
+
+  # Returns normalized honor-medal payload hash
+  def fetch_honor_medal(character_idx, medal_type: 2)
+    key = cache_key("honor_medal", "#{medal_type}:#{character_idx}")
+
+    fetch_cached(key) do
+      resp = @http.get("#{BASE_URL}/api/website/armory/honor-medal/#{medal_type}/#{character_idx}", request_options)
+      ArmoryHonorMedalNormalizer.call(parse_response(resp))
+    end
+  end
+
+  # Returns normalized stellar payload hash
+  def fetch_stellar(character_idx)
+    key = cache_key("stellar", character_idx)
+
+    fetch_cached(key) do
+      resp = @http.get("#{BASE_URL}/api/website/armory/stellar/#{character_idx}", request_options)
+      ArmoryStellarNormalizer.call(parse_response(resp))
+    end
+  end
+
+  # Returns normalized ability payload hash
+  def fetch_ability(character_idx)
+    key = cache_key("ability", character_idx)
+
+    fetch_cached(key) do
+      resp = @http.get("#{BASE_URL}/api/website/armory/ability/#{character_idx}", request_options)
+      ArmoryAbilityNormalizer.call(parse_response(resp))
+    end
+  end
+
   private
 
   def cache_key(prefix, value)
