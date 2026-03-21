@@ -127,4 +127,58 @@ class CompareCollectionsServiceTest < ActiveSupport::TestCase
     assert_equal 6.0, row[:value_a]
     assert_equal 1.0, row[:value_b]
   end
+
+  test "summarizes total and winner from completed collections" do
+    fake_client = Object.new
+
+    fake_client.define_singleton_method(:fetch_character_idx) do |name|
+      name == "A" ? 1 : 2
+    end
+
+    fake_client.define_singleton_method(:fetch_collection_details) do |idx|
+      if idx == 1
+        {
+          values: [],
+          data: [
+            {
+              "name" => "Tier 1",
+              "collections" => [
+                { "name" => "C1", "progress" => 100, "rewards" => [] },
+                { "name" => "C2", "progress" => 100, "rewards" => [] },
+                { "name" => "C3", "progress" => 50, "rewards" => [] }
+              ]
+            }
+          ]
+        }
+      else
+        {
+          values: [],
+          data: [
+            {
+              "name" => "Tier 1",
+              "collections" => [
+                { "name" => "C1", "progress" => 100, "rewards" => [] },
+                { "name" => "C2", "progress" => 70, "rewards" => [] },
+                { "name" => "C3", "progress" => 100, "rewards" => [] },
+                { "name" => "C4", "progress" => 100, "rewards" => [] }
+              ]
+            }
+          ]
+        }
+      end
+    end
+
+    payload = CompareCollectionsService.new(client: fake_client).call(name_a: "A", name_b: "B")
+    summary = payload.dig(:result, :collection_comparison_summary)
+
+    assert_equal 4, summary[:total]
+    assert_equal 3, summary[:total_a]
+    assert_equal 4, summary[:total_b]
+    assert_equal 1, summary[:completed_both]
+    assert_equal 1, summary[:completed_only_a]
+    assert_equal 2, summary[:completed_only_b]
+    assert_equal 2, summary[:completed_total_a]
+    assert_equal 3, summary[:completed_total_b]
+    assert_equal :b, summary[:winner]
+  end
 end

@@ -240,6 +240,8 @@ pt-BR:
         completed_both: "Concluída por ambos"
         completed_only_a: "Somente %{name}"
         completed_only_b: "Somente %{name}"
+        completed_total_a: "Total %{name}"
+        completed_total_b: "Total %{name}"
       status:
         done_a: "A concluída"
         pending_a: "A pendente"

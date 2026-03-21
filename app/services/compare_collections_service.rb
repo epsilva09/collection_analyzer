@@ -55,7 +55,11 @@ class CompareCollectionsService
       result[:collection_data_a],
       result[:collection_data_b]
     )
-    result[:collection_comparison_summary] = summarize_collection_comparison(result[:collection_comparison])
+    result[:collection_comparison_summary] = summarize_collection_comparison(
+      result[:collection_comparison],
+      collection_data_a: result[:collection_data_a],
+      collection_data_b: result[:collection_data_b]
+    )
 
     { comparison_ready: comparison_ready, result: result }
   end
@@ -293,15 +297,45 @@ class CompareCollectionsService
     end.compact
   end
 
-  def summarize_collection_comparison(rows)
+  def summarize_collection_comparison(rows, collection_data_a:, collection_data_b:)
     rows = Array(rows)
 
+    total_a = count_total_collections(collection_data_a)
+    total_b = count_total_collections(collection_data_b)
+
+    completed_only_a = rows.count { |row| row[:done_a] && !row[:done_b] }
+    completed_only_b = rows.count { |row| row[:done_b] && !row[:done_a] }
+    completed_both = rows.count { |row| row[:done_a] && row[:done_b] }
+
+    completed_total_a = completed_both + completed_only_a
+    completed_total_b = completed_both + completed_only_b
+
+    winner = if completed_total_a > completed_total_b
+      :a
+    elsif completed_total_b > completed_total_a
+      :b
+    else
+      :tie
+    end
+
     {
-      total: rows.size,
-      completed_both: rows.count { |row| row[:done_a] && row[:done_b] },
-      completed_only_a: rows.count { |row| row[:done_a] && !row[:done_b] },
-      completed_only_b: rows.count { |row| row[:done_b] && !row[:done_a] },
+      total: [ total_a, total_b, rows.size ].max,
+      total_a: total_a,
+      total_b: total_b,
+      completed_both: completed_both,
+      completed_only_a: completed_only_a,
+      completed_only_b: completed_only_b,
+      completed_total_a: completed_total_a,
+      completed_total_b: completed_total_b,
+      winner: winner,
       pending_both: rows.count { |row| !row[:done_a] && !row[:done_b] }
     }
+  end
+
+  def count_total_collections(collection_data)
+    Array(collection_data).sum do |tier|
+      collections = tier.is_a?(Hash) ? tier["collections"] : nil
+      Array(collections).count { |entry| entry.is_a?(Hash) }
+    end
   end
 end

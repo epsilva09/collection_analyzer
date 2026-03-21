@@ -24,6 +24,8 @@
 
     <% if @comparison_ready && @result.present? %>
       <% summary = @result[:collection_comparison_summary] || {} %>
+      <% winner_key = summary[:winner]&.to_sym %>
+      <% winner_name = winner_key == :a ? @result[:name_a] : (winner_key == :b ? @result[:name_b] : t('armories.compare.tie')) %>
 
       <section class="armory-section-card mb-4">
         <div class="armory-section-card__header">
@@ -31,21 +33,68 @@
         </div>
         <div class="armory-section-card__body">
           <div class="row g-3 text-start">
-            <div class="col-6 col-md-3">
-              <span class="badge bg-secondary"><%= t('armories.compare_collections.summary.total') %></span>
-              <div class="fw-semibold mt-2"><%= summary[:total].to_i %></div>
+            <div class="col-12 col-md-6 col-xl-2">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body compare-progress-card">
+                  <div class="small armory-kpi-label"><%= t('armories.compare_collections.summary.total') %></div>
+                  <div class="fw-semibold fs-5 mt-2"><%= summary[:total].to_i %></div>
+                </div>
+              </div>
             </div>
-            <div class="col-6 col-md-3">
-              <span class="badge bg-success"><%= t('armories.compare_collections.summary.completed_both') %></span>
-              <div class="fw-semibold mt-2"><%= summary[:completed_both].to_i %></div>
+            <div class="col-12 col-md-6 col-xl-2">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body compare-progress-card">
+                  <div class="small armory-kpi-label"><%= t('armories.compare_collections.summary.completed_both') %></div>
+                  <div class="fw-semibold fs-5 mt-2 text-success"><%= summary[:completed_both].to_i %></div>
+                </div>
+              </div>
             </div>
-            <div class="col-6 col-md-3">
-              <span class="badge bg-primary"><%= t('armories.compare_collections.summary.completed_only_a', name: @result[:name_a]) %></span>
-              <div class="fw-semibold mt-2"><%= summary[:completed_only_a].to_i %></div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body compare-progress-card">
+                  <div class="small armory-kpi-label"><%= @result[:name_a] %></div>
+                  <div class="mt-2 small">
+                    <span class="armory-kpi-label"><%= t('armories.compare_collections.summary.completed_only_a', name: @result[:name_a]) %>:</span>
+                    <strong><%= summary[:completed_only_a].to_i %></strong>
+                  </div>
+                  <div class="small mt-1">
+                    <span class="armory-kpi-label"><%= t('armories.compare_collections.summary.completed_total_a', name: @result[:name_a]) %>:</span>
+                    <strong class="text-success"><%= summary[:completed_total_a].to_i %></strong>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="col-6 col-md-3">
-              <span class="badge bg-info text-dark"><%= t('armories.compare_collections.summary.completed_only_b', name: @result[:name_b]) %></span>
-              <div class="fw-semibold mt-2"><%= summary[:completed_only_b].to_i %></div>
+            <div class="col-12 col-md-6 col-xl-3">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body compare-progress-card">
+                  <div class="small armory-kpi-label"><%= @result[:name_b] %></div>
+                  <div class="mt-2 small">
+                    <span class="armory-kpi-label"><%= t('armories.compare_collections.summary.completed_only_b', name: @result[:name_b]) %>:</span>
+                    <strong><%= summary[:completed_only_b].to_i %></strong>
+                  </div>
+                  <div class="small mt-1">
+                    <span class="armory-kpi-label"><%= t('armories.compare_collections.summary.completed_total_b', name: @result[:name_b]) %>:</span>
+                    <strong class="text-success"><%= summary[:completed_total_b].to_i %></strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-2">
+              <div class="card bg-dark border-success h-100">
+                <div class="card-body compare-progress-card">
+                  <div class="small armory-kpi-label"><%= t('armories.compare.table.winner') %></div>
+                  <div class="compare-advantage-badge compare-advantage-badge--a mt-2"><%= winner_name %></div>
+                  <div class="small mt-2 text-success fw-semibold">
+                    <% if winner_key == :a %>
+                      +<%= summary[:completed_total_a].to_i - summary[:completed_total_b].to_i %>
+                    <% elsif winner_key == :b %>
+                      +<%= summary[:completed_total_b].to_i - summary[:completed_total_a].to_i %>
+                    <% else %>
+                      0
+                    <% end %>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

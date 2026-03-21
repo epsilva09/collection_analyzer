@@ -270,6 +270,8 @@ en:
         completed_both: "Completed by both"
         completed_only_a: "Only %{name}"
         completed_only_b: "Only %{name}"
+        completed_total_a: "Total %{name}"
+        completed_total_b: "Total %{name}"
       status:
         done_a: "A done"
         pending_a: "A pending"

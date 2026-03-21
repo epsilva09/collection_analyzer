@@ -356,7 +356,8 @@ class ArmoriesController < ApplicationController
 
       if @comparison_ready
         rows = Array(@result[:collection_comparison])
-        @collection_comparison_total = rows.size
+        summary_total = @result.dig(:collection_comparison_summary, :total).to_i
+        @collection_comparison_total = summary_total.positive? ? summary_total : rows.size
         @result[:collection_comparison] = filter_collection_comparison_rows(
           rows,
           collection_name: @collection_filter_name,

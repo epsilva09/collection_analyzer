@@ -35,17 +35,23 @@
             <% Array(@result[:comparison_cards]).each do |card| %>
               <div class="col-12 col-sm-6 col-lg-4">
                 <div class="card h-100 bg-dark border-secondary">
-                  <div class="card-body">
-                    <div class="small text-muted"><%= t("armories.compare_overview.metrics.#{card[:label_key]}") %></div>
-                    <div class="mt-2">
-                      <span class="fw-semibold"><%= @result[:name_a] %>:</span>
-                      <span><%= number_with_delimiter(card[:value_a]) %></span>
+                  <div class="card-body compare-progress-card">
+                    <% summary_badge_class = card[:diff].to_f >= 0 ? 'compare-advantage-badge compare-advantage-badge--a' : 'compare-advantage-badge compare-advantage-badge--b' %>
+                    <div class="small armory-kpi-label"><%= t("armories.compare_overview.metrics.#{card[:label_key]}") %></div>
+                    <div class="<%= summary_badge_class %> mt-2">
+                      <%= card[:diff].to_f >= 0 ? @result[:name_a] : @result[:name_b] %>
                     </div>
-                    <div>
-                      <span class="fw-semibold"><%= @result[:name_b] %>:</span>
-                      <span><%= number_with_delimiter(card[:value_b]) %></span>
+                    <div class="compare-kpi-grid mt-2">
+                      <div class="compare-kpi-grid__item">
+                        <span class="armory-kpi-label"><%= @result[:name_a] %></span>
+                        <strong class="d-block"><%= number_with_delimiter(card[:value_a]) %></strong>
+                      </div>
+                      <div class="compare-kpi-grid__item">
+                        <span class="armory-kpi-label"><%= @result[:name_b] %></span>
+                        <strong class="d-block"><%= number_with_delimiter(card[:value_b]) %></strong>
+                      </div>
                     </div>
-                    <div class="mt-2 <%= card[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                    <div class="mt-2 fw-semibold <%= card[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
                       <%= card[:diff].to_f >= 0 ? '+' : '' %><%= number_with_delimiter(card[:diff]) %>
                     </div>
                   </div>
@@ -68,11 +74,21 @@
           <div class="row g-3 text-start mb-3">
             <div class="col-12 col-lg-4">
               <div class="card bg-dark border-secondary h-100">
-                <div class="card-body">
-                  <div class="small text-muted"><%= t('armories.compare_overview.weighted.pve') %></div>
-                  <div class="mt-2"><span class="fw-semibold"><%= @result[:name_a] %>:</span> <span><%= number_with_precision(pve[:score_a], precision: 2, strip_insignificant_zeros: true) %></span></div>
-                  <div><span class="fw-semibold"><%= @result[:name_b] %>:</span> <span><%= number_with_precision(pve[:score_b], precision: 2, strip_insignificant_zeros: true) %></span></div>
-                  <div class="mt-2 <%= pve[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                <div class="card-body compare-progress-card">
+                  <% pve_badge_class = pve[:diff].to_f >= 0 ? 'compare-advantage-badge compare-advantage-badge--a' : 'compare-advantage-badge compare-advantage-badge--b' %>
+                  <div class="small armory-kpi-label"><%= t('armories.compare_overview.weighted.pve') %></div>
+                  <div class="<%= pve_badge_class %> mt-2"><%= pve[:diff].to_f >= 0 ? @result[:name_a] : @result[:name_b] %></div>
+                  <div class="compare-kpi-grid mt-2">
+                    <div class="compare-kpi-grid__item">
+                      <span class="armory-kpi-label"><%= @result[:name_a] %></span>
+                      <strong class="d-block"><%= number_with_precision(pve[:score_a], precision: 2, strip_insignificant_zeros: true) %></strong>
+                    </div>
+                    <div class="compare-kpi-grid__item">
+                      <span class="armory-kpi-label"><%= @result[:name_b] %></span>
+                      <strong class="d-block"><%= number_with_precision(pve[:score_b], precision: 2, strip_insignificant_zeros: true) %></strong>
+                    </div>
+                  </div>
+                  <div class="mt-2 fw-semibold <%= pve[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
                     <%= pve[:diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(pve[:diff], precision: 2, strip_insignificant_zeros: true) %>
                   </div>
                 </div>
@@ -80,11 +96,21 @@
             </div>
             <div class="col-12 col-lg-4">
               <div class="card bg-dark border-secondary h-100">
-                <div class="card-body">
-                  <div class="small text-muted"><%= t('armories.compare_overview.weighted.pvp') %></div>
-                  <div class="mt-2"><span class="fw-semibold"><%= @result[:name_a] %>:</span> <span><%= number_with_precision(pvp[:score_a], precision: 2, strip_insignificant_zeros: true) %></span></div>
-                  <div><span class="fw-semibold"><%= @result[:name_b] %>:</span> <span><%= number_with_precision(pvp[:score_b], precision: 2, strip_insignificant_zeros: true) %></span></div>
-                  <div class="mt-2 <%= pvp[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                <div class="card-body compare-progress-card">
+                  <% pvp_badge_class = pvp[:diff].to_f >= 0 ? 'compare-advantage-badge compare-advantage-badge--a' : 'compare-advantage-badge compare-advantage-badge--b' %>
+                  <div class="small armory-kpi-label"><%= t('armories.compare_overview.weighted.pvp') %></div>
+                  <div class="<%= pvp_badge_class %> mt-2"><%= pvp[:diff].to_f >= 0 ? @result[:name_a] : @result[:name_b] %></div>
+                  <div class="compare-kpi-grid mt-2">
+                    <div class="compare-kpi-grid__item">
+                      <span class="armory-kpi-label"><%= @result[:name_a] %></span>
+                      <strong class="d-block"><%= number_with_precision(pvp[:score_a], precision: 2, strip_insignificant_zeros: true) %></strong>
+                    </div>
+                    <div class="compare-kpi-grid__item">
+                      <span class="armory-kpi-label"><%= @result[:name_b] %></span>
+                      <strong class="d-block"><%= number_with_precision(pvp[:score_b], precision: 2, strip_insignificant_zeros: true) %></strong>
+                    </div>
+                  </div>
+                  <div class="mt-2 fw-semibold <%= pvp[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
                     <%= pvp[:diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(pvp[:diff], precision: 2, strip_insignificant_zeros: true) %>
                   </div>
                 </div>
@@ -92,11 +118,21 @@
             </div>
             <div class="col-12 col-lg-4">
               <div class="card bg-dark border-secondary h-100">
-                <div class="card-body">
-                  <div class="small text-muted"><%= t('armories.compare_overview.weighted.overall') %></div>
-                  <div class="mt-2"><span class="fw-semibold"><%= @result[:name_a] %>:</span> <span><%= number_with_precision(overall[:score_a], precision: 2, strip_insignificant_zeros: true) %></span></div>
-                  <div><span class="fw-semibold"><%= @result[:name_b] %>:</span> <span><%= number_with_precision(overall[:score_b], precision: 2, strip_insignificant_zeros: true) %></span></div>
-                  <div class="mt-2 <%= overall[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                <div class="card-body compare-progress-card">
+                  <% overall_badge_class = overall[:diff].to_f >= 0 ? 'compare-advantage-badge compare-advantage-badge--a' : 'compare-advantage-badge compare-advantage-badge--b' %>
+                  <div class="small armory-kpi-label"><%= t('armories.compare_overview.weighted.overall') %></div>
+                  <div class="<%= overall_badge_class %> mt-2"><%= overall[:diff].to_f >= 0 ? @result[:name_a] : @result[:name_b] %></div>
+                  <div class="compare-kpi-grid mt-2">
+                    <div class="compare-kpi-grid__item">
+                      <span class="armory-kpi-label"><%= @result[:name_a] %></span>
+                      <strong class="d-block"><%= number_with_precision(overall[:score_a], precision: 2, strip_insignificant_zeros: true) %></strong>
+                    </div>
+                    <div class="compare-kpi-grid__item">
+                      <span class="armory-kpi-label"><%= @result[:name_b] %></span>
+                      <strong class="d-block"><%= number_with_precision(overall[:score_b], precision: 2, strip_insignificant_zeros: true) %></strong>
+                    </div>
+                  </div>
+                  <div class="mt-2 fw-semibold <%= overall[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
                     <%= overall[:diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(overall[:diff], precision: 2, strip_insignificant_zeros: true) %>
                   </div>
                 </div>
