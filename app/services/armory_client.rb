@@ -1,7 +1,7 @@
 require "httparty"
 
 class ArmoryClient
-  BASE_URL = ENV.fetch("ASC_API_BASE_URL", "https://asc-api-admin.atkz.dev")
+  BASE_URL = ENV.fetch("ASC_API_BASE_URL", "https://api.cabalascension.com")
   DEFAULT_CACHE_TTL = 5.minutes
   REQUEST_TIMEOUT = 8
 
