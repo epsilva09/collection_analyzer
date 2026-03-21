@@ -293,9 +293,10 @@ pt-BR:
       table:
         attribute: "Atributo"
         diff: "Diferença"
-        line_name: "Linha"
+        line_id: "ID"
         score_diff: "Dif. score"
-        level_avg: "Média lvl"
+        position: "Posições"
+        slot_n: "Linha %{index}"
         grade: "Grade"
         status: "Status"
       status:

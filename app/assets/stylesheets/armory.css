@@ -1259,6 +1259,79 @@ textarea:focus-visible {
   background: linear-gradient(135deg, rgba(48, 54, 61, 0.92) 0%, rgba(33, 38, 45, 0.92) 100%) !important;
 }
 
+.myth-progress-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.myth-advantage-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.myth-advantage-badge--a {
+  background: rgba(76, 175, 80, 0.2);
+  color: #8cf59b;
+  border-color: rgba(76, 175, 80, 0.45);
+}
+
+.myth-advantage-badge--b {
+  background: rgba(0, 188, 212, 0.2);
+  color: #8be9ff;
+  border-color: rgba(0, 188, 212, 0.45);
+}
+
+.myth-advantage-badge--tie {
+  background: rgba(148, 163, 184, 0.18);
+  color: #d4dde7;
+  border-color: rgba(148, 163, 184, 0.45);
+}
+
+.myth-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.myth-kpi-grid__item {
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(13, 17, 23, 0.45);
+  border: 1px solid rgba(48, 54, 61, 0.9);
+}
+
+.myth-progress-row__label {
+  color: var(--armory-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.3rem;
+}
+
+.myth-progress-pair {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.myth-progress-pair span {
+  color: var(--armory-text-default);
+  font-size: 0.88rem;
+}
+
+.myth-progress-pair .progress {
+  height: 0.45rem;
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 999px;
+}
+
 .armory-empty-state {
   border: 1px dashed rgba(0, 212, 255, 0.35);
   border-radius: var(--armory-radius-lg);

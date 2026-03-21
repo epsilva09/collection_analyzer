@@ -32,9 +32,9 @@ class CompareMythServiceTest < ActiveSupport::TestCase
           ],
           lines: [
             [
-              { name: "PVE Canc. Ig. Red Dano  +16", level: 5, score: 220, locked: false },
-              { name: "PVP Ignorar Redução de Dano  +16", level: 5, score: 220, locked: false },
-              { name: "Danos Críticos  +25", level: 5, score: 220, locked: false }
+              { id: 1, name: "PVE Canc. Ig. Red Dano  +16", level: 5, score: 220, locked: false },
+              { id: 5, name: "PVP Ignorar Redução de Dano  +16", level: 5, score: 220, locked: false },
+              { id: 9, name: "Danos Críticos  +25", level: 5, score: 220, locked: false }
             ]
           ]
         }
@@ -55,9 +55,9 @@ class CompareMythServiceTest < ActiveSupport::TestCase
           ],
           lines: [
             [
-              { name: "PVE Canc. Ig. Red Dano  +8", level: 4, score: 180, locked: false },
-              { name: "PVP Ignorar Redução de Dano  +8", level: 3, score: 150, locked: true },
-              { name: "Danos Críticos  +15", level: 3, score: 150, locked: true }
+              { id: 1, name: "PVE Canc. Ig. Red Dano  +8", level: 4, score: 180, locked: false },
+              { id: 5, name: "PVP Ignorar Redução de Dano  +8", level: 3, score: 150, locked: true },
+              { id: 9, name: "Danos Críticos  +15", level: 3, score: 150, locked: true }
             ]
           ]
         }
@@ -81,10 +81,14 @@ class CompareMythServiceTest < ActiveSupport::TestCase
 
     assert_equal 700, payload[:result][:stigma_summary][:score_diff]
     assert_equal :a, payload[:result][:line_summary][:winner]
-    assert payload[:result][:line_node_rows].any?
-    first_line_score = payload[:result][:line_node_rows].first
-    assert first_line_score[:line_name].present?
-    assert_not_nil first_line_score[:score_diff]
+    assert payload[:result][:line_id_rows].any?
+    row_id_1 = payload[:result][:line_id_rows].find { |row| row[:id] == 1 }
+    assert_not_nil row_id_1
+    assert_equal 220, row_id_1[:points_a]
+    assert_equal 180, row_id_1[:points_b]
+    assert_equal 40, row_id_1[:diff]
+    assert_equal 1, row_id_1[:position_a]
+    assert_equal 1, row_id_1[:position_b]
 
     first_attribute = payload[:result][:line_attribute_rows].first
     assert first_attribute[:attribute].present?

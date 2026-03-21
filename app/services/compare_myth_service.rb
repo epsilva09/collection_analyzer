@@ -41,7 +41,7 @@ class CompareMythService
     result[:stigma_summary] = build_stigma_summary(myth_a, myth_b)
     result[:line_summary] = build_line_summary(myth_a, myth_b)
     result[:line_attribute_rows] = build_line_attribute_rows(myth_a, myth_b)
-    result[:line_node_rows] = build_line_node_rows(myth_a, myth_b)
+    result[:line_id_rows] = build_line_id_rows(myth_a, myth_b)
     result[:grade_rows] = build_grade_rows(myth_a, myth_b)
 
     { comparison_ready: true, result: result }
@@ -58,7 +58,7 @@ class CompareMythService
       stigma_summary: {},
       line_summary: {},
       line_attribute_rows: [],
-      line_node_rows: [],
+      line_id_rows: [],
       grade_rows: []
     }
   end
@@ -218,30 +218,49 @@ class CompareMythService
     end
   end
 
-  def build_line_node_rows(myth_a, myth_b)
-    nodes_a = aggregate_line_nodes(flatten_lines(myth_a))
-    nodes_b = aggregate_line_nodes(flatten_lines(myth_b))
-    keys = (nodes_a.keys + nodes_b.keys).uniq
+  def build_line_id_rows(myth_a, myth_b)
+    nodes_a = index_line_nodes_by_id(myth_a)
+    nodes_b = index_line_nodes_by_id(myth_b)
+    ids = (nodes_a.keys + nodes_b.keys).uniq.sort
 
-    keys.map do |name|
-      row_a = nodes_a[name] || {}
-      row_b = nodes_b[name] || {}
+    rows = ids.map do |id|
+      node_a = nodes_a[id] || {}
+      node_b = nodes_b[id] || {}
 
-      score_a = row_a[:score].to_i
-      score_b = row_b[:score].to_i
+      points_a = node_a[:score].to_i
+      points_b = node_b[:score].to_i
+      diff = points_a - points_b
+      split_a = split_line_name(node_a[:name])
+      split_b = split_line_name(node_b[:name])
 
       {
-        line_name: name,
-        score_a: score_a,
-        score_b: score_b,
-        score_diff: score_a - score_b,
-        avg_level_a: row_a[:avg_level].to_f,
-        avg_level_b: row_b[:avg_level].to_f,
-        count_a: row_a[:count].to_i,
-        count_b: row_b[:count].to_i,
-        winner: winner_for(score_a, score_b)
+        id: id,
+        position_a: node_a[:slot_position],
+        position_b: node_b[:slot_position],
+        points_a: points_a,
+        points_b: points_b,
+        diff: diff,
+        name_a: node_a[:name].to_s,
+        name_b: node_b[:name].to_s,
+        attribute_a: split_a[:attribute],
+        attribute_b: split_b[:attribute],
+        value_label_a: split_a[:value_label],
+        value_label_b: split_b[:value_label],
+        winner: winner_for(points_a, points_b),
+        top_for_a: false,
+        top_for_b: false
       }
-    end.sort_by { |entry| [ -entry[:score_diff].abs, entry[:line_name] ] }
+    end
+
+    top_a_diff = rows.select { |row| row[:diff].positive? }.map { |row| row[:diff] }.max
+    top_b_diff = rows.select { |row| row[:diff].negative? }.map { |row| row[:diff].abs }.max
+
+    rows.each do |row|
+      row[:top_for_a] = top_a_diff.present? && row[:diff] == top_a_diff
+      row[:top_for_b] = top_b_diff.present? && row[:diff].abs == top_b_diff && row[:diff].negative?
+    end
+
+    rows
   end
 
   def index_grades(myth)
@@ -266,18 +285,39 @@ class CompareMythService
     end
   end
 
-  def aggregate_line_nodes(lines)
-    grouped = Array(lines).group_by { |line| line[:name].to_s.strip }
+  def index_line_nodes_by_id(myth)
+    flatten_lines_with_position(myth).each_with_object({}) do |node, memo|
+      id = node[:id].to_i
+      next if id <= 0
 
-    grouped.each_with_object({}) do |(name, entries), memo|
-      next if name.blank?
-
-      levels = entries.map { |entry| entry[:level].to_i }
-      memo[name] = {
-        score: entries.sum { |entry| entry[:score].to_i },
-        avg_level: levels.empty? ? 0.0 : (levels.sum.to_f / levels.size.to_f).round(2),
-        count: entries.size
+      memo[id] = {
+        score: node[:score].to_i,
+        slot_position: node[:slot_position].to_i,
+        name: node[:name].to_s
       }
+    end
+  end
+
+  def split_line_name(raw_name)
+    text = raw_name.to_s.strip
+    return { attribute: "", value_label: "" } if text.blank?
+
+    match = text.match(/\A(.+?)\s+([-+]?\d+(?:[.,]\d+)?\s*%?)\s*\z/)
+    return { attribute: text, value_label: "" } unless match
+
+    {
+      attribute: match[1].to_s.strip,
+      value_label: match[2].to_s.strip
+    }
+  end
+
+  def flatten_lines_with_position(myth)
+    Array(myth[:lines]).each_with_index.flat_map do |slot, slot_index|
+      Array(slot).filter_map do |node|
+        next unless node.is_a?(Hash)
+
+        node.merge(slot_position: slot_index + 1)
+      end
     end
   end
 

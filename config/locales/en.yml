@@ -323,9 +323,10 @@ en:
       table:
         attribute: "Attribute"
         diff: "Difference"
-        line_name: "Line"
+        line_id: "ID"
         score_diff: "Score diff"
-        level_avg: "Avg lvl"
+        position: "Positions"
+        slot_n: "Line %{index}"
         grade: "Grade"
         status: "Status"
       status:

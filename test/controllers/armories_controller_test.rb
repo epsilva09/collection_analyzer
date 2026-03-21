@@ -339,8 +339,9 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
             { attribute: "Danos Críticos", value_a: 25, value_b: 15, diff: 10, is_special: true },
             { attribute: "PVE Canc. Ig. Red Dano", value_a: 32, value_b: 24, diff: 8, is_special: false }
           ],
-          line_node_rows: [
-            { line_name: "PVE Canc. Ig. Red Dano +16", score_a: 440, score_b: 220, score_diff: 220, avg_level_a: 5, avg_level_b: 4, count_a: 2, count_b: 1 }
+          line_id_rows: [
+            { id: 1, points_a: 280, points_b: 260, diff: 20, position_a: 1, position_b: 1, name_a: "PVE Canc. Ig. Red Dano +16", name_b: "PVE Canc. Ig. Red Dano +14", attribute_a: "PVE Canc. Ig. Red Dano", attribute_b: "PVE Canc. Ig. Red Dano", value_label_a: "+16", value_label_b: "+14", top_for_a: true, top_for_b: false },
+            { id: 2, points_a: 220, points_b: 260, diff: -40, position_a: 1, position_b: 2, name_a: "PVP Ignorar Redução de Dano +16", name_b: "PVP Ignorar Redução de Dano +20", attribute_a: "PVP Ignorar Redução de Dano", attribute_b: "PVP Ignorar Redução de Dano", value_label_a: "+16", value_label_b: "+20", top_for_a: false, top_for_b: true }
           ],
           grade_rows: [
             {
@@ -372,6 +373,15 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       assert_includes response.body, I18n.t("armories.compare_myth.grades_heading")
       assert_includes response.body, "21,479"
       assert_includes response.body, "19,479"
+      assert_includes response.body, I18n.t("armories.compare_myth.table.line_id")
+      assert_includes response.body, "+20"
+      assert_includes response.body, "-40"
+      assert_includes response.body, "PVE Canc. Ig. Red Dano"
+      assert_includes response.body, "PVP Ignorar Redução de Dano"
+      assert_includes response.body, "+16"
+      assert_includes response.body, "+14"
+      assert_includes response.body, "winner-a"
+      assert_includes response.body, "winner-b"
       assert_includes response.body, "special-attribute-row"
     ensure
       CompareMythService.define_singleton_method(:new, original_new)
