@@ -203,21 +203,25 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
 
   test "compare overview shows summary and progression gaps" do
     fake_service = Object.new
-    fake_service.define_singleton_method(:empty_result) do |name_a, name_b|
+    fake_service.define_singleton_method(:empty_result) do |name_a, name_b, weight_profile: :balanced|
       {
         name_a: name_a,
         name_b: name_b,
+        weight_profile: weight_profile,
         comparison_cards: [],
+        weighted_profiles: {},
+        collection_macro: {},
         progression_gaps: []
       }
     end
 
-    fake_service.define_singleton_method(:call) do |name_a:, name_b:|
+    fake_service.define_singleton_method(:call) do |name_a:, name_b:, weight_profile: nil|
       {
         comparison_ready: true,
         result: {
           name_a: name_a,
           name_b: name_b,
+          weight_profile: weight_profile,
           comparison_cards: [
             { metric: :level, label_key: "level", value_a: 200, value_b: 190, diff: 10 }
           ],
@@ -259,15 +263,17 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     CompareOverviewService.define_singleton_method(:new) { fake_service }
 
     begin
-      get compare_overview_armory_path, params: { name_a: "A", name_b: "B" }
+      get compare_overview_armory_path, params: { name_a: "A", name_b: "B", weight_profile: "duel" }
       assert_response :success
       assert_includes response.body, I18n.t("armories.compare_overview.heading")
       assert_includes response.body, I18n.t("armories.compare_overview.summary_heading")
+      assert_includes response.body, I18n.t("armories.compare_overview.form.weight_profile")
       assert_includes response.body, I18n.t("armories.compare_overview.weighted_heading")
       assert_includes response.body, I18n.t("armories.compare_overview.collection_heading")
       assert_includes response.body, I18n.t("armories.compare_overview.progression_heading")
       assert_includes response.body, "200"
       assert_includes response.body, "190"
+      assert_includes response.body, "duel"
     ensure
       CompareOverviewService.define_singleton_method(:new, original_new)
     end

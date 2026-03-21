@@ -12,7 +12,10 @@
                name_b: params[:name_b],
                show_compare_actions: false %>
 
-    <%= render 'compare_search_form', form_url: compare_overview_armory_path %>
+    <%= render 'compare_search_form',
+           form_url: compare_overview_armory_path,
+           show_weight_profile_selector: true,
+           weight_profile_options: CompareOverviewService.weight_profile_options %>
 
     <% if @error.present? %>
       <%= render 'error_alert',

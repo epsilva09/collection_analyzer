@@ -3,6 +3,8 @@
     <div class="card shadow-sm" data-controller="submit-loading" data-submit-loading-loading-text-value="<%= t('armories.shared.loading_compare') %>">
       <div class="card-body">
         <% form_url = local_assigns.fetch(:form_url, compare_armory_path) %>
+        <% show_weight_profile_selector = local_assigns.fetch(:show_weight_profile_selector, false) %>
+        <% weight_profile_options = Array(local_assigns.fetch(:weight_profile_options, [])) %>
         <%= form_with url: form_url, method: :get, local: true, class: 'row g-3 justify-content-center', data: { action: 'submit->submit-loading#handleSubmit' } do |f| %>
           <div class="col-12 col-md-5">
             <%= f.label :name_a, t('armories.compare.form.character_a'), class: 'form-label fw-bold' %>
@@ -16,6 +18,18 @@
                              value: params[:name_b],
                              class: 'form-control form-control-lg' %>
           </div>
+          <% if show_weight_profile_selector %>
+            <div class="col-12 col-md-10">
+              <%= f.label :weight_profile, t('armories.compare_overview.form.weight_profile'), class: 'form-label fw-bold' %>
+              <%= f.select :weight_profile,
+                           options_for_select(
+                             weight_profile_options.map { |profile| [ t("armories.compare_overview.weight_profiles.#{profile}"), profile ] },
+                             params[:weight_profile].presence || :balanced
+                           ),
+                           {},
+                           class: 'form-select form-select-lg' %>
+            </div>
+          <% end %>
           <div class="col-12 text-center">
             <%= f.button type: :submit,
                          class: 'btn btn-success btn-lg w-100',

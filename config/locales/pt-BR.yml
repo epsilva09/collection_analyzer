@@ -267,6 +267,12 @@ pt-BR:
       weighted_heading: "Score ponderado (PVE/PVP)"
       collection_heading: "Macro de coleções"
       progression_heading: "Gap de progressão por sistema"
+      form:
+        weight_profile: "Perfil de peso"
+      weight_profiles:
+        balanced: "Balanceado"
+        raid: "Raid"
+        duel: "Duelo"
       table:
         system: "Sistema"
         diff: "Diferença"

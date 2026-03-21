@@ -101,11 +101,12 @@ class CompareOverviewServiceTest < ActiveSupport::TestCase
     end
 
     service = CompareOverviewService.new(client: fake_client)
-    payload = service.call(name_a: "A", name_b: "B")
+    payload = service.call(name_a: "A", name_b: "B", weight_profile: "raid")
 
     assert_equal true, payload[:comparison_ready]
     assert_equal "A", payload[:result][:name_a]
     assert_equal "B", payload[:result][:name_b]
+    assert_equal :raid, payload[:result][:weight_profile]
     assert_equal CompareOverviewService::CARD_METRICS.size, payload[:result][:comparison_cards].size
     assert_equal 4, payload[:result][:progression_gaps].size
     assert_equal 2, payload[:result][:collection_macro][:a][:total]
@@ -118,6 +119,7 @@ class CompareOverviewServiceTest < ActiveSupport::TestCase
     assert payload[:result][:weighted_profiles][:overall][:score_a] > payload[:result][:weighted_profiles][:overall][:score_b]
     assert_equal :a, payload[:result][:weighted_profiles][:overall][:winner]
     assert_equal 5, payload[:result][:weighted_profiles][:pve][:contributions].size
+    assert_equal 0.42, payload[:result][:weighted_profiles][:pve][:contributions].first[:weight]
 
     level_card = payload[:result][:comparison_cards].find { |row| row[:metric] == :level }
     assert_equal 10, level_card[:diff]
@@ -135,5 +137,26 @@ class CompareOverviewServiceTest < ActiveSupport::TestCase
     assert_equal [], payload[:result][:progression_gaps]
     assert_equal({}, payload[:result][:weighted_profiles])
     assert_equal({}, payload[:result][:collection_macro])
+  end
+
+  test "falls back to balanced profile when preset is invalid" do
+    fake_client = Object.new
+    fake_client.define_singleton_method(:fetch_character) do |_name|
+      {
+        character_idx: 0,
+        level: 0,
+        attack_power_pve: 0,
+        defense_power_pve: 0,
+        attack_power_pvp: 0,
+        defense_power_pvp: 0,
+        myth_score: 0,
+        achievement_point: 0
+      }
+    end
+
+    service = CompareOverviewService.new(client: fake_client)
+    payload = service.call(name_a: "A", name_b: "B", weight_profile: "unknown")
+
+    assert_equal :balanced, payload[:result][:weight_profile]
   end
 end

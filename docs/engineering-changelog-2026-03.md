@@ -55,12 +55,13 @@ traceability.
   - overview metric cards (level/AP/DP/myth/achievement)
   - weighted profile scores (PVE/PVP/overall)
   - weighted contribution rows per metric for explainability
+  - preset-based weighting strategy (`balanced`, `raid`, `duel`)
   - collection macro summary (completion/progress/reward tiers)
   - progression-gap rows (myth, force wing, honor medal, stellar)
 - Added `ArmoryCharacterNormalizer` and Armory client wrapper for character
   profile payload normalization.
 - Added focused test coverage for service contracts and controller rendering.
-- Added i18n keys and menu entry for the new comparison mode.
+- Added i18n keys, menu entry, and weight profile selector for the new comparison mode.
 
 ## Cycle 33 - Comparison Foundation (Armory Endpoints)
 

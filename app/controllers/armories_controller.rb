@@ -282,14 +282,15 @@ class ArmoriesController < ApplicationController
   def compare_overview
     name_a = params[:name_a].presence
     name_b = params[:name_b].presence
+    weight_profile = params[:weight_profile].presence
 
     @error = nil
     compare_service = CompareOverviewService.new
-    @result = compare_service.empty_result(name_a, name_b)
+    @result = compare_service.empty_result(name_a, name_b, weight_profile: weight_profile)
     @comparison_ready = name_a.present? && name_b.present?
 
     begin
-      compare_payload = compare_service.call(name_a: name_a, name_b: name_b)
+      compare_payload = compare_service.call(name_a: name_a, name_b: name_b, weight_profile: weight_profile)
       @comparison_ready = compare_payload[:comparison_ready]
       @result = compare_payload[:result]
     rescue StandardError => e

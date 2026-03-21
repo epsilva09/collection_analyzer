@@ -297,6 +297,12 @@ en:
       weighted_heading: "Weighted score (PVE/PVP)"
       collection_heading: "Collection macro"
       progression_heading: "Progression gap by system"
+      form:
+        weight_profile: "Weight profile"
+      weight_profiles:
+        balanced: "Balanced"
+        raid: "Raid"
+        duel: "Duel"
       table:
         system: "System"
         diff: "Difference"

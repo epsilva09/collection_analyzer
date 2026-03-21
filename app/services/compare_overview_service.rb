@@ -1,18 +1,52 @@
 class CompareOverviewService
-  WEIGHT_PROFILES = {
-    pve: {
-      attack_power_pve: 0.36,
-      defense_power_pve: 0.26,
-      myth_score: 0.18,
-      level: 0.12,
-      achievement_point: 0.08
+  WEIGHT_PRESETS = {
+    balanced: {
+      pve: {
+        attack_power_pve: 0.36,
+        defense_power_pve: 0.26,
+        myth_score: 0.18,
+        level: 0.12,
+        achievement_point: 0.08
+      },
+      pvp: {
+        attack_power_pvp: 0.36,
+        defense_power_pvp: 0.26,
+        myth_score: 0.18,
+        level: 0.12,
+        achievement_point: 0.08
+      }
     },
-    pvp: {
-      attack_power_pvp: 0.36,
-      defense_power_pvp: 0.26,
-      myth_score: 0.18,
-      level: 0.12,
-      achievement_point: 0.08
+    raid: {
+      pve: {
+        attack_power_pve: 0.42,
+        defense_power_pve: 0.30,
+        myth_score: 0.16,
+        level: 0.08,
+        achievement_point: 0.04
+      },
+      pvp: {
+        attack_power_pvp: 0.28,
+        defense_power_pvp: 0.20,
+        myth_score: 0.28,
+        level: 0.16,
+        achievement_point: 0.08
+      }
+    },
+    duel: {
+      pve: {
+        attack_power_pve: 0.26,
+        defense_power_pve: 0.18,
+        myth_score: 0.30,
+        level: 0.16,
+        achievement_point: 0.10
+      },
+      pvp: {
+        attack_power_pvp: 0.42,
+        defense_power_pvp: 0.32,
+        myth_score: 0.14,
+        level: 0.08,
+        achievement_point: 0.04
+      }
     }
   }.freeze
 
@@ -36,8 +70,13 @@ class CompareOverviewService
     @client = client
   end
 
-  def call(name_a:, name_b:)
-    result = empty_result(name_a, name_b)
+  def self.weight_profile_options
+    WEIGHT_PRESETS.keys
+  end
+
+  def call(name_a:, name_b:, weight_profile: nil)
+    selected_weight_profile = resolve_weight_profile(weight_profile)
+    result = empty_result(name_a, name_b, weight_profile: selected_weight_profile)
     comparison_ready = name_a.present? && name_b.present?
     return { comparison_ready: comparison_ready, result: result } unless comparison_ready
 
@@ -45,17 +84,22 @@ class CompareOverviewService
     result[:character_b] = build_character_payload(name_b)
 
     result[:comparison_cards] = build_comparison_cards(result[:character_a], result[:character_b])
-    result[:weighted_profiles] = build_weighted_profiles(result[:character_a], result[:character_b])
+    result[:weighted_profiles] = build_weighted_profiles(
+      result[:character_a],
+      result[:character_b],
+      weight_profile: selected_weight_profile
+    )
     result[:collection_macro] = build_collection_macro(result[:character_a], result[:character_b])
     result[:progression_gaps] = build_progression_gaps(result[:character_a], result[:character_b])
 
     { comparison_ready: true, result: result }
   end
 
-  def empty_result(name_a, name_b)
+  def empty_result(name_a, name_b, weight_profile: :balanced)
     {
       name_a: name_a,
       name_b: name_b,
+      weight_profile: weight_profile,
       character_a: {},
       character_b: {},
       comparison_cards: [],
@@ -157,12 +201,13 @@ class CompareOverviewService
     }
   end
 
-  def build_weighted_profiles(character_a, character_b)
+  def build_weighted_profiles(character_a, character_b, weight_profile: :balanced)
+    profile_weights = WEIGHT_PRESETS[weight_profile] || WEIGHT_PRESETS[:balanced]
     profile_a = character_a[:profile] || {}
     profile_b = character_b[:profile] || {}
 
-    pve = weighted_profile_for(WEIGHT_PROFILES[:pve], profile_a, profile_b)
-    pvp = weighted_profile_for(WEIGHT_PROFILES[:pvp], profile_a, profile_b)
+    pve = weighted_profile_for(profile_weights[:pve], profile_a, profile_b)
+    pvp = weighted_profile_for(profile_weights[:pvp], profile_a, profile_b)
 
     collection_a = character_a.dig(:collection, :average_progress).to_f
     collection_b = character_b.dig(:collection, :average_progress).to_f
@@ -355,5 +400,10 @@ class CompareOverviewService
     return :tie if value_a.to_f == value_b.to_f
 
     value_a.to_f > value_b.to_f ? :a : :b
+  end
+
+  def resolve_weight_profile(value)
+    key = value.to_s.strip.downcase.to_sym
+    WEIGHT_PRESETS.key?(key) ? key : :balanced
   end
 end
