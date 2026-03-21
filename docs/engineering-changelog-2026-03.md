@@ -43,6 +43,21 @@ traceability.
 - 2026-03 Cycle 31: `docs/engineering-cycles/2026-03-cycle-31.md`
 - 2026-03 Cycle 32: `docs/engineering-cycles/2026-03-cycle-32.md`
 - 2026-03 Cycle 33: `docs/engineering-cycles/2026-03-cycle-33.md`
+- 2026-03 Cycle 34: `docs/engineering-cycles/2026-03-cycle-34.md`
+
+## Cycle 34 - Compare Overview and Progression Gap
+
+- Added a new comparison route and page for macro A vs B analysis:
+  - `GET /armory/compare/overview`
+  - `ArmoriesController#compare_overview`
+  - `app/views/armories/compare_overview.html.erb`
+- Added `CompareOverviewService` to aggregate:
+  - overview metric cards (level/AP/DP/myth/achievement)
+  - progression-gap rows (myth, force wing, honor medal, stellar)
+- Added `ArmoryCharacterNormalizer` and Armory client wrapper for character
+  profile payload normalization.
+- Added focused test coverage for service contracts and controller rendering.
+- Added i18n keys and menu entry for the new comparison mode.
 
 ## Cycle 33 - Comparison Foundation (Armory Endpoints)
 

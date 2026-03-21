@@ -6,6 +6,7 @@ pt-BR:
     menu:
       index: "Pesquisa"
       compare: "Comparar"
+      compare_overview: "Comparar geral"
       compare_collections: "Comparar coleções"
       progress: "Progresso"
       materials: "Materiais"
@@ -259,3 +260,24 @@ pt-BR:
         bonus_diff: "Comparação por atributo aplicado"
         bonuses_a: "Bônus (%{name})"
         bonuses_b: "Bônus (%{name})"
+    compare_overview:
+      page_title: "Comparação Geral"
+      heading: "Comparação Geral e Gap de Progressão"
+      summary_heading: "Visão geral A vs B"
+      progression_heading: "Gap de progressão por sistema"
+      table:
+        system: "Sistema"
+        diff: "Diferença"
+      systems:
+        myth: "Mito"
+        force_wing: "Asa Arcana"
+        honor_medal: "Medalha de Honra"
+        stellar: "Stellar"
+      metrics:
+        level: "Nível"
+        attack_power_pve: "Ataque PVE"
+        defense_power_pve: "Defesa PVE"
+        attack_power_pvp: "Ataque PVP"
+        defense_power_pvp: "Defesa PVP"
+        myth_score: "Myth Score"
+        achievement_point: "Pontos de conquista"

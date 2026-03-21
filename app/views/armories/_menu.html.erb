@@ -11,6 +11,9 @@
       <%= link_to t('armories_shared.menu.compare'), compare_armory_path,
                   class: "btn btn-sm #{current_page == :compare ? 'btn-primary' : 'btn-outline-secondary'}" %>
 
+        <%= link_to t('armories_shared.menu.compare_overview'), compare_overview_armory_path,
+              class: "btn btn-sm #{current_page == :compare_overview ? 'btn-primary' : 'btn-outline-secondary'}" %>
+
       <%= link_to t('armories_shared.menu.compare_collections'), compare_collections_armory_path,
           class: "btn btn-sm #{current_page == :compare_collections ? 'btn-primary' : 'btn-outline-secondary'}" %>
 

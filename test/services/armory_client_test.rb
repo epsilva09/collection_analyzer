@@ -3,6 +3,43 @@ require "json"
 require "ostruct"
 
 class ArmoryClientTest < ActiveSupport::TestCase
+  test "fetch_character returns normalized character payload" do
+    fake = Object.new
+    def fake.get(*_args)
+      OpenStruct.new(body: {
+        character: {
+          characterIdx: 99,
+          name: "Cadamantis",
+          level: 200,
+          atackPowerPVE: 1000,
+          defensePowerPVE: 900
+        }
+      }.to_json)
+    end
+
+    client = ArmoryClient.new(fake)
+    character = client.fetch_character("Cadamantis")
+
+    assert_equal 99, character[:character_idx]
+    assert_equal "Cadamantis", character[:name]
+    assert_equal 200, character[:level]
+    assert_equal 1000, character[:attack_power_pve]
+    assert_equal 900, character[:defense_power_pve]
+  end
+
+  test "fetch_character handles missing character block" do
+    fake = Object.new
+    def fake.get(*_args)
+      OpenStruct.new(body: {}.to_json)
+    end
+
+    client = ArmoryClient.new(fake)
+    character = client.fetch_character("Unknown")
+
+    assert_equal 0, character[:character_idx]
+    assert_equal "", character[:name]
+  end
+
   test "fetch_myth returns normalized payload" do
     fake = Object.new
     def fake.get(*_args)

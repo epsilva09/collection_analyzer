@@ -22,6 +22,16 @@ class ArmoryClient
     end
   end
 
+  # Returns normalized character payload hash
+  def fetch_character(name)
+    key = cache_key("character", name.to_s.downcase)
+
+    fetch_cached(key) do
+      resp = @http.get("#{BASE_URL}/api/website/armory", request_options(query: { name: name }))
+      ArmoryCharacterNormalizer.call(parse_response(resp).dig("character"))
+    end
+  end
+
   # Returns array of values or empty array
   # Basic collection endpoint. Returns just the array of string values.
   def fetch_collection(character_idx)

@@ -1,0 +1,97 @@
+<% content_for :title, t('armories.compare_overview.page_title') %>
+
+<div class="container-fluid armory-layout-container">
+  <main class="text-center armory-page armory-layout-main">
+    <%= render 'locale_switcher' %>
+    <%= render 'page_header', heading: t('armories.compare_overview.heading'), icon_class: nil %>
+
+    <%= render 'menu',
+               current_page: :compare_overview,
+               name: (params[:name_a].presence || params[:name_b].presence),
+               name_a: params[:name_a],
+               name_b: params[:name_b],
+               show_compare_actions: false %>
+
+    <%= render 'compare_search_form', form_url: compare_overview_armory_path %>
+
+    <% if @error.present? %>
+      <%= render 'error_alert',
+                 label: t('armories.compare.alerts.error'),
+                 message: @error,
+                 icon_class: nil,
+                 dismissible: false %>
+    <% end %>
+
+    <% if @comparison_ready && @result.present? %>
+      <section class="armory-section-card mb-4">
+        <div class="armory-section-card__header">
+          <h2 class="armory-section-card__title"><%= t('armories.compare_overview.summary_heading') %></h2>
+        </div>
+        <div class="armory-section-card__body">
+          <div class="row g-3 text-start">
+            <% Array(@result[:comparison_cards]).each do |card| %>
+              <div class="col-12 col-sm-6 col-lg-4">
+                <div class="card h-100 bg-dark border-secondary">
+                  <div class="card-body">
+                    <div class="small text-muted"><%= t("armories.compare_overview.metrics.#{card[:label_key]}") %></div>
+                    <div class="mt-2">
+                      <span class="fw-semibold"><%= @result[:name_a] %>:</span>
+                      <span><%= number_with_delimiter(card[:value_a]) %></span>
+                    </div>
+                    <div>
+                      <span class="fw-semibold"><%= @result[:name_b] %>:</span>
+                      <span><%= number_with_delimiter(card[:value_b]) %></span>
+                    </div>
+                    <div class="mt-2 <%= card[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                      <%= card[:diff].to_f >= 0 ? '+' : '' %><%= number_with_delimiter(card[:diff]) %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </section>
+
+      <section class="armory-section-card">
+        <div class="armory-section-card__header">
+          <h2 class="armory-section-card__title"><%= t('armories.compare_overview.progression_heading') %></h2>
+        </div>
+        <div class="armory-section-card__body p-0">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle armory-data-table">
+              <thead>
+                <tr>
+                  <th><%= t('armories.compare_overview.table.system') %></th>
+                  <th class="text-center"><%= @result[:name_a] %></th>
+                  <th class="text-center"><%= @result[:name_b] %></th>
+                  <th class="text-center"><%= t('armories.compare_overview.table.diff') %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% Array(@result[:progression_gaps]).each do |row| %>
+                  <tr>
+                    <td>
+                      <div class="fw-semibold"><%= t("armories.compare_overview.systems.#{row[:label_key]}") %></div>
+                      <small class="text-muted"><%= row[:detail_a] %> | <%= row[:detail_b] %></small>
+                    </td>
+                    <td class="text-center"><%= number_with_precision(row[:value_a], precision: 2, strip_insignificant_zeros: true) %></td>
+                    <td class="text-center"><%= number_with_precision(row[:value_b], precision: 2, strip_insignificant_zeros: true) %></td>
+                    <td class="text-center <%= row[:diff].to_f >= 0 ? 'text-success' : 'text-danger' %>">
+                      <%= row[:diff].to_f >= 0 ? '+' : '' %><%= number_with_precision(row[:diff], precision: 2, strip_insignificant_zeros: true) %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    <% elsif (params[:name_a].present? ^ params[:name_b].present?) %>
+      <%= render 'info_alert',
+                 message: t('armories.compare.hints.both_names_required'),
+                 icon_class: 'fas fa-info-circle',
+                 alert_classes: '' %>
+    <% end %>
+  </main>
+</div>

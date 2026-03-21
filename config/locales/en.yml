@@ -36,6 +36,7 @@ en:
     menu:
       index: "Search"
       compare: "Compare"
+      compare_overview: "Compare overview"
       compare_collections: "Compare collections"
       progress: "Progress"
       materials: "Materials"
@@ -289,3 +290,24 @@ en:
         bonus_diff: "Applied attribute comparison"
         bonuses_a: "Bonuses (%{name})"
         bonuses_b: "Bonuses (%{name})"
+    compare_overview:
+      page_title: "Overview comparison"
+      heading: "Overview and progression gap"
+      summary_heading: "A vs B overview"
+      progression_heading: "Progression gap by system"
+      table:
+        system: "System"
+        diff: "Difference"
+      systems:
+        myth: "Myth"
+        force_wing: "Force Wing"
+        honor_medal: "Honor Medal"
+        stellar: "Stellar"
+      metrics:
+        level: "Level"
+        attack_power_pve: "PVE attack"
+        defense_power_pve: "PVE defense"
+        attack_power_pvp: "PVP attack"
+        defense_power_pvp: "PVP defense"
+        myth_score: "Myth score"
+        achievement_point: "Achievement points"

@@ -201,6 +201,49 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "compare overview shows summary and progression gaps" do
+    fake_service = Object.new
+    fake_service.define_singleton_method(:empty_result) do |name_a, name_b|
+      {
+        name_a: name_a,
+        name_b: name_b,
+        comparison_cards: [],
+        progression_gaps: []
+      }
+    end
+
+    fake_service.define_singleton_method(:call) do |name_a:, name_b:|
+      {
+        comparison_ready: true,
+        result: {
+          name_a: name_a,
+          name_b: name_b,
+          comparison_cards: [
+            { metric: :level, label_key: "level", value_a: 200, value_b: 190, diff: 10 }
+          ],
+          progression_gaps: [
+            { system: :myth, label_key: "myth", value_a: 80, value_b: 70, diff: 10, detail_a: "Michael", detail_b: "Uriel" }
+          ]
+        }
+      }
+    end
+
+    original_new = CompareOverviewService.method(:new)
+    CompareOverviewService.define_singleton_method(:new) { fake_service }
+
+    begin
+      get compare_overview_armory_path, params: { name_a: "A", name_b: "B" }
+      assert_response :success
+      assert_includes response.body, I18n.t("armories.compare_overview.heading")
+      assert_includes response.body, I18n.t("armories.compare_overview.summary_heading")
+      assert_includes response.body, I18n.t("armories.compare_overview.progression_heading")
+      assert_includes response.body, "200"
+      assert_includes response.body, "190"
+    ensure
+      CompareOverviewService.define_singleton_method(:new, original_new)
+    end
+  end
+
   test "progress lists collections by progress ranges" do
     details = {
       values: [],
