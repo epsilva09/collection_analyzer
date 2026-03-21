@@ -112,6 +112,8 @@ class CompareOverviewServiceTest < ActiveSupport::TestCase
     assert_equal 2, payload[:result][:collection_macro][:a][:total]
     assert_equal 1, payload[:result][:collection_macro][:a][:completed]
     assert_equal 1, payload[:result][:collection_macro][:a][:near_completion]
+    assert_equal 0, payload[:result][:collection_macro][:a][:inconsistent_progress_count]
+    assert_equal 1, payload[:result][:collection_macro][:a][:critical_targets].size
     assert_equal 42.5, payload[:result][:collection_macro][:average_progress_diff]
     assert_equal 1, payload[:result][:collection_macro][:unlocked_reward_diff]
     assert payload[:result][:weighted_profiles][:pve][:score_a] > payload[:result][:weighted_profiles][:pve][:score_b]
@@ -158,5 +160,59 @@ class CompareOverviewServiceTest < ActiveSupport::TestCase
     payload = service.call(name_a: "A", name_b: "B", weight_profile: "unknown")
 
     assert_equal :balanced, payload[:result][:weight_profile]
+  end
+
+  test "treats payload 100 percent with pending materials as in progress" do
+    fake_client = Object.new
+
+    fake_client.define_singleton_method(:fetch_character) do |_name|
+      {
+        character_idx: 42,
+        level: 200,
+        attack_power_pve: 1000,
+        defense_power_pve: 900,
+        attack_power_pvp: 1000,
+        defense_power_pvp: 900,
+        myth_score: 10000,
+        achievement_point: 5000
+      }
+    end
+
+    fake_client.define_singleton_method(:fetch_myth) { |_idx| {} }
+    fake_client.define_singleton_method(:fetch_force_wing) { |_idx| {} }
+    fake_client.define_singleton_method(:fetch_honor_medal) { |_idx| {} }
+    fake_client.define_singleton_method(:fetch_stellar) { |_idx| {} }
+    fake_client.define_singleton_method(:fetch_collection_details) do |_idx|
+      {
+        values: [],
+        data: [
+          {
+            "name" => "Tier Divino",
+            "collections" => [
+              {
+                "name" => "Aprimoramento Divino",
+                "progress" => 100,
+                "rewards" => [ { "description" => "ATK +10" } ],
+                "data" => [
+                  { "name" => "Conversor Divino - Moto", "progress" => 0, "max" => 1 }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    end
+
+    service = CompareOverviewService.new(client: fake_client)
+    payload = service.call(name_a: "A", name_b: "B")
+    summary = payload[:result][:collection_macro][:a]
+
+    assert_equal 1, summary[:total]
+    assert_equal 0, summary[:completed]
+    assert_equal 1, summary[:in_progress]
+    assert_equal 1, summary[:inconsistent_progress_count]
+    assert_equal 1, summary[:pending_materials_total]
+    assert_equal 1, summary[:critical_targets].size
+    assert_equal true, summary[:critical_targets].first[:inconsistent_progress]
   end
 end

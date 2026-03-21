@@ -1,4 +1,6 @@
 class CompareOverviewService
+  MAX_COLLECTION_TARGETS = 5
+
   WEIGHT_PRESETS = {
     balanced: {
       pve: {
@@ -123,29 +125,35 @@ class CompareOverviewService
       force_wing: @client.fetch_force_wing(character_idx),
       honor_medal: @client.fetch_honor_medal(character_idx),
       stellar: @client.fetch_stellar(character_idx),
-      collection: collection_summary(character_idx)
+      collection: collection_summary(name: name, character_idx: character_idx)
     }
   end
 
-  def collection_summary(character_idx)
-    details = CollectionRewardResolver.resolve(
-      @client.fetch_collection_details(character_idx),
-      context: {
-        source: "compare_overview_service",
-        character_idx: character_idx
-      }
-    )
+  def collection_summary(name:, character_idx:)
+    snapshot = CollectionSnapshotService.new(client: @client).call(name, character_idx: character_idx)
+    collection_data = snapshot[:collection_data]
+    progress_data = snapshot[:progress_data] || ArmoryDefaults.empty_progress_data
+    in_progress_entries = progress_data.values.flatten
 
-    collections = extract_collections(details[:data])
+    collections = extract_collections(collection_data)
     total = collections.size
-    completed = collections.count { |entry| entry[:progress] >= 100 }
+    in_progress = in_progress_entries.size
+    completed = [ total - in_progress, 0 ].max
+    near_completion = Array(progress_data[:near]).size
+    mid_progress = Array(progress_data[:mid]).size
+    low_progress = Array(progress_data[:low]).size
+    below_one = Array(progress_data[:below_one]).size
     not_started = collections.count { |entry| entry[:progress] <= 0 }
-    in_progress = [ total - completed - not_started, 0 ].max
-    near_completion = collections.count { |entry| entry[:progress] >= 80 && entry[:progress] < 100 }
     average_progress = if total.positive?
       (collections.sum { |entry| entry[:progress] }.to_f / total.to_f).round(2)
     else
       0.0
+    end
+
+    payload_completed = collections.count { |entry| entry[:progress] >= 100 }
+    inconsistent_progress_count = in_progress_entries.count { |entry| entry[:inconsistent_progress] == true }
+    pending_materials_total = in_progress_entries.sum do |entry|
+      Array(entry[:aggregated_materials]).sum { |material| material[:needed].to_i }
     end
 
     unlocked_reward_tiers = collections.sum { |entry| entry[:unlocked_rewards].to_i }
@@ -157,14 +165,73 @@ class CompareOverviewService
       in_progress: in_progress,
       not_started: not_started,
       near_completion: near_completion,
+      mid_progress: mid_progress,
+      low_progress: low_progress,
+      below_one: below_one,
       average_progress: average_progress,
+      payload_completed: payload_completed,
+      completed_delta_vs_payload: completed - payload_completed,
+      inconsistent_progress_count: inconsistent_progress_count,
+      pending_materials_total: pending_materials_total,
       unlocked_reward_tiers: unlocked_reward_tiers,
       reward_tiers_total: reward_tiers_total,
-      top_targets: collections
-        .select { |entry| entry[:progress] < 100 }
-        .sort_by { |entry| [ -entry[:progress], entry[:collection_name] ] }
+      critical_targets: build_critical_targets(in_progress_entries),
+      top_targets: in_progress_entries
+        .sort_by { |entry| [ -entry[:progress].to_i, entry[:name].to_s ] }
         .first(3)
+        .map do |entry|
+          {
+            tier: entry[:tier].to_s,
+            collection_name: entry[:name].to_s,
+            progress: entry[:progress].to_i,
+            missing: entry[:missing].to_i,
+            pending_materials: Array(entry[:aggregated_materials]).sum { |material| material[:needed].to_i },
+            inconsistent_progress: entry[:inconsistent_progress] == true
+          }
+        end
     }
+  end
+
+  def build_critical_targets(entries)
+    Array(entries)
+      .map do |entry|
+        progress = entry[:progress].to_i
+        missing = entry[:missing].to_i
+        pending_materials = Array(entry[:aggregated_materials]).sum { |material| material[:needed].to_i }
+        remaining_rewards = Array(entry[:rewards]).count { |reward| reward[:unlocked] != true }
+
+        material_penalty = [ (Math.log10(pending_materials + 1) * 18.0), 35.0 ].min
+        effort_score = [ (100.0 - missing.to_f) - material_penalty, 0.0 ].max.round(2)
+
+        impact_bonus_by_progress = if progress >= 80
+          15.0
+        elsif progress >= 60
+          10.0
+        else
+          5.0
+        end
+
+        impact_score = (remaining_rewards * 20.0) + impact_bonus_by_progress
+        impact_score += 10.0 if entry[:inconsistent_progress] == true
+        impact_score = impact_score.round(2)
+
+        priority_score = ((impact_score * 0.6) + (effort_score * 0.4)).round(2)
+
+        {
+          tier: entry[:tier].to_s,
+          collection_name: entry[:name].to_s,
+          progress: progress,
+          missing: missing,
+          pending_materials: pending_materials,
+          remaining_rewards: remaining_rewards,
+          inconsistent_progress: entry[:inconsistent_progress] == true,
+          impact_score: impact_score,
+          effort_score: effort_score,
+          priority_score: priority_score
+        }
+      end
+      .sort_by { |entry| [ -entry[:priority_score], -entry[:progress], entry[:collection_name] ] }
+      .first(MAX_COLLECTION_TARGETS)
   end
 
   def extract_collections(data)

@@ -57,6 +57,8 @@ traceability.
   - weighted contribution rows per metric for explainability
   - preset-based weighting strategy (`balanced`, `raid`, `duel`)
   - collection macro summary (completion/progress/reward tiers)
+  - payload-aware collection reliability signals aligned with controller logic
+  - impact-effort ranking for in-progress collection priorities
   - progression-gap rows (myth, force wing, honor medal, stellar)
 - Added `ArmoryCharacterNormalizer` and Armory client wrapper for character
   profile payload normalization.

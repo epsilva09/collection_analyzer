@@ -303,6 +303,18 @@ pt-BR:
         near: "Quase concluídas"
         avg_progress: "Progresso médio"
         unlocked_rewards: "Tiers de bônus desbloqueados"
+        inconsistent_payload: "Payload inconsistente (100% com pendência)"
+        pending_materials_total: "Materiais pendentes (total)"
+        rationale_note: "Concluídas e em progresso usam a mesma regra do controller: coleções 100% com materiais pendentes continuam em progresso."
+      collection_targets:
+        heading: "Prioridades de coleção (%{name})"
+        empty: "Sem coleções em progresso para priorizar."
+        meta: "Impacto %{impact} | Esforço %{effort}"
+        table:
+          collection: "Coleção"
+          progress: "Progresso"
+          pending: "Pendências"
+          priority: "Prioridade"
       collection_diffs:
         completed: "Dif. concluídas"
         avg_progress: "Dif. progresso médio"

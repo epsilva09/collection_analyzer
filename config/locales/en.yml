@@ -333,6 +333,18 @@ en:
         near: "Near completion"
         avg_progress: "Average progress"
         unlocked_rewards: "Unlocked reward tiers"
+        inconsistent_payload: "Inconsistent payload (100% with pending)"
+        pending_materials_total: "Pending materials (total)"
+        rationale_note: "Completed and in-progress counts follow the same controller logic: collections at 100% with pending materials remain in progress."
+      collection_targets:
+        heading: "Collection priorities (%{name})"
+        empty: "No in-progress collections to prioritize."
+        meta: "Impact %{impact} | Effort %{effort}"
+        table:
+          collection: "Collection"
+          progress: "Progress"
+          pending: "Pending"
+          priority: "Priority"
       collection_diffs:
         completed: "Completed diff"
         avg_progress: "Average progress diff"

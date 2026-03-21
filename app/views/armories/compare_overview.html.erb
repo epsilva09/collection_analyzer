@@ -179,6 +179,8 @@
                   <div><span class="text-muted"><%= t('armories.compare_overview.collection.near') %>:</span> <strong><%= collection_a[:near_completion].to_i %></strong></div>
                   <div><span class="text-muted"><%= t('armories.compare_overview.collection.avg_progress') %>:</span> <strong><%= number_with_precision(collection_a[:average_progress], precision: 2, strip_insignificant_zeros: true) %>%</strong></div>
                   <div><span class="text-muted"><%= t('armories.compare_overview.collection.unlocked_rewards') %>:</span> <strong><%= collection_a[:unlocked_reward_tiers].to_i %>/<%= collection_a[:reward_tiers_total].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.inconsistent_payload') %>:</span> <strong><%= collection_a[:inconsistent_progress_count].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.pending_materials_total') %>:</span> <strong><%= number_with_delimiter(collection_a[:pending_materials_total].to_i) %></strong></div>
                 </div>
               </div>
             </div>
@@ -193,6 +195,98 @@
                   <div><span class="text-muted"><%= t('armories.compare_overview.collection.near') %>:</span> <strong><%= collection_b[:near_completion].to_i %></strong></div>
                   <div><span class="text-muted"><%= t('armories.compare_overview.collection.avg_progress') %>:</span> <strong><%= number_with_precision(collection_b[:average_progress], precision: 2, strip_insignificant_zeros: true) %>%</strong></div>
                   <div><span class="text-muted"><%= t('armories.compare_overview.collection.unlocked_rewards') %>:</span> <strong><%= collection_b[:unlocked_reward_tiers].to_i %>/<%= collection_b[:reward_tiers_total].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.inconsistent_payload') %>:</span> <strong><%= collection_b[:inconsistent_progress_count].to_i %></strong></div>
+                  <div><span class="text-muted"><%= t('armories.compare_overview.collection.pending_materials_total') %>:</span> <strong><%= number_with_delimiter(collection_b[:pending_materials_total].to_i) %></strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-2 text-start mb-3">
+            <div class="col-12">
+              <small class="text-muted">
+                <%= t('armories.compare_overview.collection.rationale_note') %>
+              </small>
+            </div>
+          </div>
+
+          <div class="row g-3 text-start mb-3">
+            <div class="col-12 col-xl-6">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                  <h3 class="h6 mb-3"><%= t('armories.compare_overview.collection_targets.heading', name: @result[:name_a]) %></h3>
+                  <% targets = Array(collection_a[:critical_targets]) %>
+                  <% if targets.any? %>
+                    <div class="table-responsive">
+                      <table class="table table-dark table-sm align-middle mb-0">
+                        <thead>
+                          <tr>
+                            <th><%= t('armories.compare_overview.collection_targets.table.collection') %></th>
+                            <th class="text-center"><%= t('armories.compare_overview.collection_targets.table.progress') %></th>
+                            <th class="text-center"><%= t('armories.compare_overview.collection_targets.table.pending') %></th>
+                            <th class="text-center"><%= t('armories.compare_overview.collection_targets.table.priority') %></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% targets.each do |target| %>
+                            <tr>
+                              <td>
+                                <div><%= target[:tier] %> / <%= target[:collection_name] %></div>
+                                <small class="text-muted">
+                                  <%= t('armories.compare_overview.collection_targets.meta', impact: number_with_precision(target[:impact_score], precision: 2, strip_insignificant_zeros: true), effort: number_with_precision(target[:effort_score], precision: 2, strip_insignificant_zeros: true)) %>
+                                </small>
+                              </td>
+                              <td class="text-center"><%= target[:progress].to_i %>%</td>
+                              <td class="text-center"><%= number_with_delimiter(target[:pending_materials].to_i) %></td>
+                              <td class="text-center fw-semibold"><%= number_with_precision(target[:priority_score], precision: 2, strip_insignificant_zeros: true) %></td>
+                            </tr>
+                          <% end %>
+                        </tbody>
+                      </table>
+                    </div>
+                  <% else %>
+                    <small class="text-muted"><%= t('armories.compare_overview.collection_targets.empty') %></small>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-xl-6">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-body">
+                  <h3 class="h6 mb-3"><%= t('armories.compare_overview.collection_targets.heading', name: @result[:name_b]) %></h3>
+                  <% targets = Array(collection_b[:critical_targets]) %>
+                  <% if targets.any? %>
+                    <div class="table-responsive">
+                      <table class="table table-dark table-sm align-middle mb-0">
+                        <thead>
+                          <tr>
+                            <th><%= t('armories.compare_overview.collection_targets.table.collection') %></th>
+                            <th class="text-center"><%= t('armories.compare_overview.collection_targets.table.progress') %></th>
+                            <th class="text-center"><%= t('armories.compare_overview.collection_targets.table.pending') %></th>
+                            <th class="text-center"><%= t('armories.compare_overview.collection_targets.table.priority') %></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% targets.each do |target| %>
+                            <tr>
+                              <td>
+                                <div><%= target[:tier] %> / <%= target[:collection_name] %></div>
+                                <small class="text-muted">
+                                  <%= t('armories.compare_overview.collection_targets.meta', impact: number_with_precision(target[:impact_score], precision: 2, strip_insignificant_zeros: true), effort: number_with_precision(target[:effort_score], precision: 2, strip_insignificant_zeros: true)) %>
+                                </small>
+                              </td>
+                              <td class="text-center"><%= target[:progress].to_i %>%</td>
+                              <td class="text-center"><%= number_with_delimiter(target[:pending_materials].to_i) %></td>
+                              <td class="text-center fw-semibold"><%= number_with_precision(target[:priority_score], precision: 2, strip_insignificant_zeros: true) %></td>
+                            </tr>
+                          <% end %>
+                        </tbody>
+                      </table>
+                    </div>
+                  <% else %>
+                    <small class="text-muted"><%= t('armories.compare_overview.collection_targets.empty') %></small>
+                  <% end %>
                 </div>
               </div>
             </div>
