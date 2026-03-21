@@ -41,6 +41,28 @@ traceability.
 - 2026-03 Cycle 29: `docs/engineering-cycles/2026-03-cycle-29.md`
 - 2026-03 Cycle 30: `docs/engineering-cycles/2026-03-cycle-30.md`
 - 2026-03 Cycle 31: `docs/engineering-cycles/2026-03-cycle-31.md`
+- 2026-03 Cycle 32: `docs/engineering-cycles/2026-03-cycle-32.md`
+
+## Cycle 32 - Armory Comparison Discovery and Sprint Planning
+
+- Consolidated endpoint payload mapping for all comparison-relevant Armory
+  systems in `docs/armory-comparison-payload-mapping.md`.
+- Captured comparison-ready field groups for:
+  - character overview
+  - collection
+  - myth
+  - force wing
+  - honor medal
+  - stellar
+  - ability
+- Defined initial comparison screen portfolio with macro and deep-dive layers.
+- Planned delivery roadmap in four sprints/cycles:
+  - Cycle 33 - foundation (client wrappers, normalizers, contracts)
+  - Cycle 34 - core comparison screens
+  - Cycle 35 - deep-dive comparison screens
+  - Cycle 36 - prioritization, UX hardening, and temporal analysis
+- Documented normalization constraints and collection reward-resolution guidance
+  to keep future comparison aggregates deterministic.
 
 ## Cycle 31 — Collection Reward Resolution by Progress
 
