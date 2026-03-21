@@ -1310,12 +1310,23 @@ textarea:focus-visible {
 .compare-kpi-grid__item {
   padding: 0.55rem 0.65rem;
   border-radius: 8px;
-  background: rgba(13, 17, 23, 0.45);
-  border: 1px solid rgba(48, 54, 61, 0.9);
+  background: rgba(13, 17, 23, 0.72);
+  border: 1px solid rgba(120, 136, 153, 0.55);
+}
+
+.myth-kpi-grid__item .armory-kpi-label,
+.compare-kpi-grid__item .armory-kpi-label {
+  color: #d4deea !important;
+  font-weight: 700;
+}
+
+.myth-kpi-grid__item strong,
+.compare-kpi-grid__item strong {
+  color: #f8fbff;
 }
 
 .myth-progress-row__label {
-  color: var(--armory-text-muted);
+  color: #d4deea;
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1329,13 +1340,13 @@ textarea:focus-visible {
 }
 
 .myth-progress-pair span {
-  color: var(--armory-text-default);
+  color: #f0f6fc;
   font-size: 0.88rem;
 }
 
 .myth-progress-pair .progress {
-  height: 0.45rem;
-  background: rgba(148, 163, 184, 0.2);
+  height: 0.5rem;
+  background: rgba(148, 163, 184, 0.35);
   border-radius: 999px;
 }
 

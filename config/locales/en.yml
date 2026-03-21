@@ -310,6 +310,7 @@ en:
         total_score: "Total score"
         resurrection: "Resurrection"
         point: "Point"
+        progress: "Progress"
         level_progress: "Level progress"
         point_progress: "Point progress"
         next_grade: "Next grade"
@@ -322,6 +323,9 @@ en:
         line_unlocked: "Unlocked nodes"
         line_avg_level: "Line average level"
         line_total_score: "Line total score"
+        line_wins: "Lines won"
+        line_ties: "Line ties"
+        line_best_edge: "Best edge per line"
       table:
         attribute: "Attribute"
         diff: "Difference"

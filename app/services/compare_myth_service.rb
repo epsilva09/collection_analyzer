@@ -94,11 +94,15 @@ class CompareMythService
   end
 
   def build_grade_summary(myth_a, myth_b)
-    point_a = myth_a[:point].to_i
-    point_b = myth_b[:point].to_i
+    point_a = myth_total_points(myth_a)
+    point_b = myth_total_points(myth_b)
+    total_score_a = myth_total_score(myth_a)
+    total_score_b = myth_total_score(myth_b)
     score_per_point_a = score_per_point(myth_a)
     score_per_point_b = score_per_point(myth_b)
 
+    current_grade_a = current_grade_target(myth_a)
+    current_grade_b = current_grade_target(myth_b)
     next_grade_a = next_grade_target(myth_a)
     next_grade_b = next_grade_target(myth_b)
 
@@ -114,8 +118,12 @@ class CompareMythService
       point_progress_b: progress_percent(point_b, myth_b[:max_point]),
       score_per_point_a: score_per_point_a,
       score_per_point_b: score_per_point_b,
+      current_grade_a: current_grade_a,
+      current_grade_b: current_grade_b,
       next_grade_a: next_grade_a,
       next_grade_b: next_grade_b,
+      progress_missing_a: missing_percent_in_grade_span(total_score_a, current_grade_a[:point], next_grade_a[:point]),
+      progress_missing_b: missing_percent_in_grade_span(total_score_b, current_grade_b[:point], next_grade_b[:point]),
       estimated_score_to_next_a: (next_grade_a[:remaining_points].to_f * score_per_point_a).round(2),
       estimated_score_to_next_b: (next_grade_b[:remaining_points].to_f * score_per_point_b).round(2)
     }
@@ -368,22 +376,43 @@ class CompareMythService
   end
 
   def next_grade_target(myth)
-    current_point = myth[:point].to_i
-    current_grade = myth[:grade].to_i
+    current_total_score = myth_total_score(myth)
 
-    grades = Array(myth[:grades])
-      .select { |grade| grade[:grade].to_i.positive? }
-      .sort_by { |grade| grade[:grade].to_i }
+    grades = Array(myth[:grades]).select { |grade| grade[:grade].to_i.positive? }
+    next_grade = grades.find { |grade| grade[:enabled] != true }
 
-    next_grade = grades.find { |grade| grade[:grade].to_i > current_grade }
+    return { remaining_points: 0, name: "", point: current_total_score } unless next_grade
 
-    return { remaining_points: 0, name: "", point: current_point } unless next_grade
+    next_point_required = next_grade[:point].to_i
+    points_gap = next_point_required - current_total_score
 
     {
-      remaining_points: [ next_grade[:point].to_i - current_point, 0 ].max,
+      remaining_points: [ points_gap, 0 ].max,
       name: next_grade[:name].to_s,
-      point: next_grade[:point].to_i
+      point: next_point_required
     }
+  end
+
+  def current_grade_target(myth)
+    grades = Array(myth[:grades]).select { |grade| grade[:grade].to_i.positive? }
+    current_grade = grades.select { |grade| grade[:enabled] == true }.max_by { |grade| grade[:grade].to_i }
+    current_grade ||= grades.find { |grade| grade[:grade].to_i == myth[:grade].to_i }
+
+    return { point: 0, name: "", grade: myth[:grade].to_i } unless current_grade
+
+    {
+      point: current_grade[:point].to_i,
+      name: current_grade[:name].to_s,
+      grade: current_grade[:grade].to_i
+    }
+  end
+
+  def missing_percent_in_grade_span(current_total_score, current_grade_point, next_grade_point)
+    span = next_grade_point.to_i - current_grade_point.to_i
+    return 0.0 if span <= 0
+
+    remaining = [ next_grade_point.to_i - current_total_score.to_i, 0 ].max
+    ((remaining.to_f / span.to_f) * 100.0).round(2)
   end
 
   def progress_percent(value, max)
@@ -401,10 +430,24 @@ class CompareMythService
   end
 
   def score_per_point(myth)
-    points = myth[:point].to_i
+    points = myth_total_points(myth)
     return 0.0 if points <= 0
 
     (myth[:score].to_f / points.to_f).round(4)
+  end
+
+  def myth_total_points(myth)
+    total_point = myth[:total_point].to_i
+    return total_point if total_point.positive?
+
+    myth[:point].to_i
+  end
+
+  def myth_total_score(myth)
+    total_score = myth[:total_score].to_i
+    return total_score if total_score.positive?
+
+    myth_total_points(myth)
   end
 
   def grade_status(enabled_a, enabled_b)

@@ -8,12 +8,15 @@ class ArmoryMythNormalizer
   end
 
   def call
+    total_point = extract_total_point
+
     {
       level: to_i(@payload["level"]),
       max_level: to_i(@payload["maxLevel"]),
       grade: to_i(@payload["grade"]),
       grade_name: @payload["gradeName"].to_s,
       point: to_i(@payload["point"]),
+      total_point: total_point,
       max_point: to_i(@payload["maxPoint"]),
       score: to_i(@payload["score"]),
       total_score: to_i(@payload["totalScore"]),
@@ -28,11 +31,29 @@ class ArmoryMythNormalizer
   private
 
   def to_i(value)
-    value.to_i
+    return value if value.is_a?(Integer)
+    return value.to_i if value.is_a?(Float)
+
+    raw = value.to_s.strip
+    return 0 if raw.blank?
+
+    # API may return numbers formatted with separators (e.g. 26,500 / 26.500).
+    # Keep sign and digits only to preserve integer magnitude.
+      normalized = raw.gsub(/[^\d-]/, "")
+    return 0 if normalized.blank? || normalized == "-"
+
+    normalized.to_i
   end
 
   def normalize_values(values)
     Array(values).map(&:to_s).map(&:strip).reject(&:blank?)
+  end
+
+  def extract_total_point
+    total = to_i(@payload["totalPoint"])
+    total = to_i(@payload["totalPoints"]) if total <= 0
+    total = to_i(@payload["point"]) if total <= 0
+    total
   end
 
   def normalize_stigma(stigma)

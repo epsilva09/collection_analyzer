@@ -77,6 +77,7 @@ class CompareMythServiceTest < ActiveSupport::TestCase
     assert_equal "Uriel", payload[:result][:grade_summary][:grade_name_b]
     assert_equal 1, payload[:result][:grade_summary][:grade_diff]
     assert_equal "Metatron", payload[:result][:grade_summary][:next_grade_a][:name]
+    assert_equal 34.03, payload[:result][:grade_summary][:progress_missing_a]
     assert payload[:result][:grade_summary][:estimated_score_to_next_a] > 0
 
     assert_equal 700, payload[:result][:stigma_summary][:score_diff]
@@ -110,5 +111,96 @@ class CompareMythServiceTest < ActiveSupport::TestCase
     assert_equal [], payload[:result][:summary_cards]
     assert_equal [], payload[:result][:line_attribute_rows]
     assert_equal [], payload[:result][:grade_rows]
+  end
+
+  test "parses formatted score strings when computing points to next grade" do
+    fake_client = Object.new
+
+    fake_client.define_singleton_method(:fetch_character) do |_name|
+      { character_idx: 1 }
+    end
+
+    fake_client.define_singleton_method(:fetch_myth) do |_idx|
+      ArmoryMythNormalizer.call(
+        {
+          "grade" => 9,
+          "gradeName" => "Michael",
+          "point" => "26,500",
+          "maxPoint" => "30,000",
+          "score" => "21,000",
+          "totalScore" => "26,500",
+          "grades" => [
+            { "grade" => 9, "point" => "24,500", "name" => "Michael", "enabled" => true },
+            { "grade" => 10, "point" => "27,500", "name" => "Metatron", "enabled" => false }
+          ],
+          "stigma" => { "grade" => "100", "score" => "3000", "maxScore" => "5000", "exp" => "0" },
+          "lines" => []
+        }
+      )
+    end
+
+    payload = CompareMythService.new(client: fake_client).call(name_a: "A", name_b: "B")
+    grade_summary = payload.dig(:result, :grade_summary)
+
+    assert_equal 1000, grade_summary.dig(:next_grade_a, :remaining_points)
+    assert_equal 33.33, grade_summary[:progress_missing_a]
+  end
+
+  test "uses first disabled grade and totalScore when point is partial" do
+    fake_client = Object.new
+
+    fake_client.define_singleton_method(:fetch_character) do |name|
+      { character_idx: name == "A" ? 1 : 2 }
+    end
+
+    fake_client.define_singleton_method(:fetch_myth) do |idx|
+      if idx == 1
+        ArmoryMythNormalizer.call(
+          {
+            "grade" => 9,
+            "gradeName" => "Michael",
+            "point" => "2",
+            "totalPoint" => "26,500",
+            "maxPoint" => "30,000",
+            "score" => "21,000",
+            "totalScore" => "26,500",
+            "grades" => [
+              { "grade" => 9, "point" => "24,500", "name" => "Michael", "enabled" => true },
+              { "grade" => 10, "point" => "27,500", "name" => "Metatron", "enabled" => false },
+              { "grade" => 11, "point" => "31,000", "name" => "Noxariel", "enabled" => false }
+            ],
+            "stigma" => { "grade" => "100", "score" => "3000", "maxScore" => "5000", "exp" => "0" },
+            "lines" => []
+          }
+        )
+      else
+        ArmoryMythNormalizer.call(
+          {
+            "grade" => 10,
+            "gradeName" => "Metatron",
+            "point" => "8",
+            "totalPoint" => "30,000",
+            "maxPoint" => "35,000",
+            "score" => "22,000",
+            "totalScore" => "30,100",
+            "grades" => [
+              { "grade" => 10, "point" => "27,500", "name" => "Metatron", "enabled" => true },
+              { "grade" => 11, "point" => "31,000", "name" => "Noxariel", "enabled" => false }
+            ],
+            "stigma" => { "grade" => "100", "score" => "3000", "maxScore" => "5000", "exp" => "0" },
+            "lines" => []
+          }
+        )
+      end
+    end
+
+    payload = CompareMythService.new(client: fake_client).call(name_a: "A", name_b: "B")
+    grade_summary = payload.dig(:result, :grade_summary)
+
+    assert_equal 1000, grade_summary.dig(:next_grade_a, :remaining_points)
+    assert_equal 900, grade_summary.dig(:next_grade_b, :remaining_points)
+    assert_equal "Metatron", grade_summary.dig(:next_grade_a, :name)
+    assert_equal 33.33, grade_summary[:progress_missing_a]
+    assert_equal 25.71, grade_summary[:progress_missing_b]
   end
 end

@@ -301,7 +301,7 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
           name_a: name_a,
           name_b: name_b,
           summary_cards: [
-            { metric: :score, label_key: "score", value_a: 21479, value_b: 19479, diff: 2000 }
+            { metric: :total_score, label_key: "total_score", value_a: 26479, value_b: 24479, diff: 2000 }
           ],
           grade_summary: {
             grade_a: 9,
@@ -367,12 +367,10 @@ class ArmoriesControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_includes response.body, I18n.t("armories.compare_myth.heading")
       assert_includes response.body, I18n.t("armories.compare_myth.summary_heading")
-      assert_includes response.body, I18n.t("armories.compare_myth.progression_heading")
       assert_includes response.body, I18n.t("armories.compare_myth.lines_heading")
       assert_includes response.body, I18n.t("armories.compare_myth.lines_score_heading")
-      assert_includes response.body, I18n.t("armories.compare_myth.grades_heading")
-      assert_includes response.body, "21,479"
-      assert_includes response.body, "19,479"
+      assert_includes response.body, "26,479"
+      assert_includes response.body, "24,479"
       assert_includes response.body, I18n.t("armories.compare_myth.table.line_id")
       assert_includes response.body, "+20"
       assert_includes response.body, "-40"

@@ -23,16 +23,41 @@
     <% end %>
 
     <% if @comparison_ready && @result.present? %>
+      <% grade = @result[:grade_summary] || {} %>
+      <% stigma = @result[:stigma_summary] || {} %>
+      <% lines = @result[:line_summary] || {} %>
+      <% grade_diff = grade[:grade_diff].to_i %>
+      <% stigma_score_diff = stigma[:score_diff].to_i %>
+      <% total_score_card = Array(@result[:summary_cards]).find { |card| card[:metric].to_s == 'total_score' } %>
+      <% line_score_a = total_score_card ? total_score_card[:value_a].to_i : lines[:total_score_a].to_i %>
+      <% line_score_b = total_score_card ? total_score_card[:value_b].to_i : lines[:total_score_b].to_i %>
+      <% line_score_diff = line_score_a - line_score_b %>
+      <% line_rows = Array(@result[:line_id_rows]) %>
+      <% line_wins_a = line_rows.count { |row| row[:diff].to_i > 0 } %>
+      <% line_wins_b = line_rows.count { |row| row[:diff].to_i < 0 } %>
+      <% line_ties = line_rows.count { |row| row[:diff].to_i == 0 } %>
+      <% best_edge_a = line_rows.select { |row| row[:diff].to_i > 0 }.max_by { |row| row[:diff].to_i } %>
+      <% best_edge_b = line_rows.select { |row| row[:diff].to_i < 0 }.max_by { |row| row[:diff].to_i.abs } %>
+      <% next_point_a = grade.dig(:next_grade_a, :point).to_i %>
+      <% next_point_b = grade.dig(:next_grade_b, :point).to_i %>
+      <% remaining_points_a = grade.dig(:next_grade_a, :remaining_points).to_i %>
+      <% remaining_points_b = grade.dig(:next_grade_b, :remaining_points).to_i %>
+      <% missing_progress_a = grade[:progress_missing_a].to_f %>
+      <% missing_progress_b = grade[:progress_missing_b].to_f %>
+      <% achieved_progress_a = [[100.0 - missing_progress_a, 0.0].max, 100.0].min %>
+      <% achieved_progress_b = [[100.0 - missing_progress_b, 0.0].max, 100.0].min %>
+
       <section class="armory-section-card mb-4">
         <div class="armory-section-card__header">
           <h2 class="armory-section-card__title"><%= t('armories.compare_myth.summary_heading') %></h2>
         </div>
         <div class="armory-section-card__body">
-          <div class="row g-3 text-start">
-            <% Array(@result[:summary_cards]).each do |card| %>
+          <% visible_summary_cards = Array(@result[:summary_cards]).reject { |card| %w[score point].include?(card[:label_key].to_s) } %>
+          <div class="row g-3 text-center justify-content-center">
+            <% visible_summary_cards.each do |card| %>
               <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card h-100 bg-dark border-secondary">
-                  <div class="card-body">
+                  <div class="card-body text-center">
                     <div class="small armory-kpi-label"><%= t("armories.compare_myth.metrics.#{card[:label_key]}") %></div>
                     <div class="mt-2 armory-kpi-value"><span class="fw-semibold"><%= @result[:name_a] %>:</span> <span><%= number_with_delimiter(card[:value_a]) %></span></div>
                     <div class="armory-kpi-value"><span class="fw-semibold"><%= @result[:name_b] %>:</span> <span><%= number_with_delimiter(card[:value_b]) %></span></div>
@@ -44,20 +69,8 @@
               </div>
             <% end %>
           </div>
-        </div>
-      </section>
+          <h3 class="h6 mt-4 mb-3 text-start armory-kpi-label"><%= t('armories.compare_myth.progression_heading') %></h3>
 
-      <% grade = @result[:grade_summary] || {} %>
-      <% stigma = @result[:stigma_summary] || {} %>
-      <% lines = @result[:line_summary] || {} %>
-      <% grade_diff = grade[:grade_diff].to_i %>
-      <% stigma_score_diff = stigma[:score_diff].to_i %>
-      <% line_score_diff = lines[:total_score_diff].to_i %>
-      <section class="armory-section-card mb-4">
-        <div class="armory-section-card__header">
-          <h2 class="armory-section-card__title"><%= t('armories.compare_myth.progression_heading') %></h2>
-        </div>
-        <div class="armory-section-card__body text-start">
           <div class="row g-3">
             <div class="col-12 col-lg-4">
               <div class="card bg-dark border-secondary h-100">
@@ -77,25 +90,16 @@
                     </div>
                   </div>
                   <div class="myth-progress-row mt-3">
-                    <div class="myth-progress-row__label"><%= t('armories.compare_myth.metrics.level_progress') %></div>
+                    <div class="myth-progress-row__label"><%= t('armories.compare_myth.metrics.progress') %></div>
                     <div class="myth-progress-pair">
-                      <span><%= @result[:name_a] %>: <strong><%= number_with_precision(grade[:level_progress_a], precision: 2, strip_insignificant_zeros: true) %>%</strong></span>
-                      <div class="progress"><div class="progress-bar bg-info" role="progressbar" style="width: <%= [[grade[:level_progress_a].to_f, 0].max, 100].min %>%"></div></div>
-                      <span><%= @result[:name_b] %>: <strong><%= number_with_precision(grade[:level_progress_b], precision: 2, strip_insignificant_zeros: true) %>%</strong></span>
-                      <div class="progress"><div class="progress-bar bg-primary" role="progressbar" style="width: <%= [[grade[:level_progress_b].to_f, 0].max, 100].min %>%"></div></div>
-                    </div>
-                  </div>
-                  <div class="myth-progress-row mt-2">
-                    <div class="myth-progress-row__label"><%= t('armories.compare_myth.metrics.point_progress') %></div>
-                    <div class="myth-progress-pair">
-                      <span><%= @result[:name_a] %>: <strong><%= number_with_precision(grade[:point_progress_a], precision: 2, strip_insignificant_zeros: true) %>%</strong></span>
-                      <div class="progress"><div class="progress-bar bg-info" role="progressbar" style="width: <%= [[grade[:point_progress_a].to_f, 0].max, 100].min %>%"></div></div>
-                      <span><%= @result[:name_b] %>: <strong><%= number_with_precision(grade[:point_progress_b], precision: 2, strip_insignificant_zeros: true) %>%</strong></span>
-                      <div class="progress"><div class="progress-bar bg-primary" role="progressbar" style="width: <%= [[grade[:point_progress_b].to_f, 0].max, 100].min %>%"></div></div>
+                      <span><%= @result[:name_a] %>: <strong><%= number_with_precision(achieved_progress_a, precision: 2, strip_insignificant_zeros: true) %>%</strong></span>
+                      <div class="progress"><div class="progress-bar bg-info" role="progressbar" style="width: <%= achieved_progress_a %>%"></div></div>
+                      <span><%= @result[:name_b] %>: <strong><%= number_with_precision(achieved_progress_b, precision: 2, strip_insignificant_zeros: true) %>%</strong></span>
+                      <div class="progress"><div class="progress-bar bg-primary" role="progressbar" style="width: <%= achieved_progress_b %>%"></div></div>
                     </div>
                   </div>
                   <div class="armory-kpi-value mt-3"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.next_grade') %>:</span> <strong><%= grade.dig(:next_grade_a, :name).presence || '-' %></strong> vs <strong><%= grade.dig(:next_grade_b, :name).presence || '-' %></strong></div>
-                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.next_grade_points') %>:</span> <strong><%= number_with_delimiter(grade.dig(:next_grade_a, :remaining_points).to_i) %></strong> vs <strong><%= number_with_delimiter(grade.dig(:next_grade_b, :remaining_points).to_i) %></strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.next_grade_points') %>:</span> <strong><%= number_with_delimiter(remaining_points_a) %></strong> vs <strong><%= number_with_delimiter(remaining_points_b) %></strong></div>
                 </div>
               </div>
             </div>
@@ -109,11 +113,11 @@
                   <div class="<%= stigma_badge_class %>"><%= stigma_badge_text %></div>
                   <div class="myth-kpi-grid mt-3">
                     <div class="myth-kpi-grid__item">
-                      <span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.stigma_score') %> (<%= @result[:name_a] %>)</span>
+                      <span class="armory-kpi-label"><%= @result[:name_a] %></span>
                       <strong class="d-block"><%= number_with_delimiter(stigma[:score_a].to_i) %></strong>
                     </div>
                     <div class="myth-kpi-grid__item">
-                      <span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.stigma_score') %> (<%= @result[:name_b] %>)</span>
+                      <span class="armory-kpi-label"><%= @result[:name_b] %></span>
                       <strong class="d-block"><%= number_with_delimiter(stigma[:score_b].to_i) %></strong>
                     </div>
                   </div>
@@ -140,17 +144,21 @@
                   <div class="<%= line_badge_class %>"><%= line_badge_text %></div>
                   <div class="myth-kpi-grid mt-3">
                     <div class="myth-kpi-grid__item">
-                      <span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_total_score') %> (<%= @result[:name_a] %>)</span>
-                      <strong class="d-block"><%= number_with_delimiter(lines[:total_score_a].to_i) %></strong>
+                      <span class="armory-kpi-label"><%= @result[:name_a] %></span>
+                      <strong class="d-block"><%= number_with_delimiter(line_score_a) %></strong>
                     </div>
                     <div class="myth-kpi-grid__item">
-                      <span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_total_score') %> (<%= @result[:name_b] %>)</span>
-                      <strong class="d-block"><%= number_with_delimiter(lines[:total_score_b].to_i) %></strong>
+                      <span class="armory-kpi-label"><%= @result[:name_b] %></span>
+                      <strong class="d-block"><%= number_with_delimiter(line_score_b) %></strong>
                     </div>
                   </div>
-                  <div class="armory-kpi-value mt-3"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_nodes') %>:</span> <strong><%= lines[:total_nodes_a].to_i %></strong> vs <strong><%= lines[:total_nodes_b].to_i %></strong></div>
-                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_unlocked') %>:</span> <strong><%= lines[:unlocked_a].to_i %></strong> vs <strong><%= lines[:unlocked_b].to_i %></strong></div>
-                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_avg_level') %>:</span> <strong><%= number_with_precision(lines[:avg_level_a], precision: 2, strip_insignificant_zeros: true) %></strong> vs <strong><%= number_with_precision(lines[:avg_level_b], precision: 2, strip_insignificant_zeros: true) %></strong></div>
+                  <div class="armory-kpi-value mt-3"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_wins') %>:</span> <strong><%= line_wins_a %></strong> vs <strong><%= line_wins_b %></strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_ties') %>:</span> <strong><%= line_ties %></strong></div>
+                  <div class="armory-kpi-value"><span class="armory-kpi-label"><%= t('armories.compare_myth.metrics.line_best_edge') %>:</span>
+                    <strong><%= @result[:name_a] %> <%= best_edge_a ? "+#{number_with_delimiter(best_edge_a[:diff].to_i)} (##{best_edge_a[:id]})" : '-' %></strong>
+                    vs
+                    <strong><%= @result[:name_b] %> <%= best_edge_b ? "+#{number_with_delimiter(best_edge_b[:diff].to_i.abs)} (##{best_edge_b[:id]})" : '-' %></strong>
+                  </div>
                 </div>
               </div>
             </div>
@@ -242,41 +250,6 @@
         </div>
       </section>
 
-      <section class="armory-section-card">
-        <div class="armory-section-card__header">
-          <h2 class="armory-section-card__title"><%= t('armories.compare_myth.grades_heading') %></h2>
-        </div>
-        <div class="armory-section-card__body p-0">
-          <div class="table-responsive">
-            <table class="table table-dark table-hover mb-0 align-middle armory-data-table">
-              <thead>
-                <tr>
-                  <th><%= t('armories.compare_myth.table.grade') %></th>
-                  <th><%= @result[:name_a] %></th>
-                  <th><%= @result[:name_b] %></th>
-                  <th><%= t('armories.compare_myth.table.status') %></th>
-                </tr>
-              </thead>
-              <tbody>
-                <% Array(@result[:grade_rows]).each do |row| %>
-                  <tr>
-                    <td>G<%= row[:grade].to_i %></td>
-                    <td>
-                      <div class="fw-semibold"><%= row[:name_a].presence || '-' %></div>
-                      <small class="text-muted"><%= row[:force_a].presence || '-' %></small>
-                    </td>
-                    <td>
-                      <div class="fw-semibold"><%= row[:name_b].presence || '-' %></div>
-                      <small class="text-muted"><%= row[:force_b].presence || '-' %></small>
-                    </td>
-                    <td><%= t("armories.compare_myth.status.#{row[:status]}") %></td>
-                  </tr>
-                <% end %>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
     <% elsif (params[:name_a].present? ^ params[:name_b].present?) %>
       <%= render 'info_alert',
                  message: t('armories.compare.hints.both_names_required'),
